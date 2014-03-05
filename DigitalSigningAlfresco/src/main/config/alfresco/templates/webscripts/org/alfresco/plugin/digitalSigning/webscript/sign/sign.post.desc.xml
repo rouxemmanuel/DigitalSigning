@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Sign document</shortname>
+  <description>Sign document</description>
+  <url>/api/digitalSigning/sign</url>
+  <format default="json">extension</format>
+  <authentication>user</authentication>
+  <transaction>required</transaction>
+</webscript>

@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Key and image upload</shortname>
+  <description>Key and image upload</description>
+  <url>/api/digitalSigning/upload</url>
+  <format default="json">extension</format>
+  <authentication>user</authentication>
+  <transaction>required</transaction>
+</webscript>
