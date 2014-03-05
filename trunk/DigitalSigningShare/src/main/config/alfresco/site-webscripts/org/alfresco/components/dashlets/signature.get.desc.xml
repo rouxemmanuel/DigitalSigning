@@ -1,0 +1,6 @@
+<webscript>
+   <shortname>Signature</shortname>
+   <description>Display the digital signature and allows to create or modify.</description>
+   <family>user-dashlet</family>
+   <url>/components/dashlets/digitalSigning/signature</url>
+</webscript>
