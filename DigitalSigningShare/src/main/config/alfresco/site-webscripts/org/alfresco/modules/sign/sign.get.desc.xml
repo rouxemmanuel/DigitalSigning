@@ -1,0 +1,5 @@
+<webscript>
+	<shortname>sign</shortname>
+	<description>Sign a document</description>
+	<url>/modules/digitalSigning/sign</url>
+</webscript>
