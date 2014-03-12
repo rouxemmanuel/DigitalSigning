@@ -19,10 +19,12 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-import org.springframework.extensions.webscripts.WebScriptException;
 
 /**
  * Verify if nodeRef is transformable in PDF or not.
@@ -30,6 +32,11 @@ import org.springframework.extensions.webscripts.WebScriptException;
  * @author Emmanuel ROUX
  */
 public class IsPdfTransformable extends AbstractWebScript {
+	
+	/**
+	 * Logger.
+	 */
+	private final Log log = LogFactory.getLog(IsPdfTransformable.class);
 	
 	/**
 	 * RetryingTransactionHelper bean.
@@ -56,6 +63,11 @@ public class IsPdfTransformable extends AbstractWebScript {
 	 */
 	private ContentService contentService;
 	
+	/**
+	 * WebScript execution method.
+	 * @param req request
+	 * @param res response
+	 */
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final RetryingTransactionCallback<Object> processCallBack = new RetryingTransactionCallback<Object>() {
 			public Object execute() throws Throwable {
@@ -63,6 +75,7 @@ public class IsPdfTransformable extends AbstractWebScript {
 			
 			final String sNodeRef = req.getParameter("noderef");
 			if (sNodeRef == null) {
+				log.error("'noderef' parameter is required.");
 				throw new WebScriptException("'noderef' parameter is required.");
 			}
 			
@@ -80,6 +93,9 @@ public class IsPdfTransformable extends AbstractWebScript {
 		        	if (transformer != null) {
 		        		result = "OK";
 		        	}
+		        } else {
+		        	log.error("Unable to get document content.");
+		        	throw new WebScriptException("Unable to get document content.");
 		        }
 			}
 			res.getWriter().write(result);
@@ -91,7 +107,6 @@ public class IsPdfTransformable extends AbstractWebScript {
 		AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
 
 			public Object doWork() throws Exception {
-				// Ex�cution du traitement au sein d'une transaction Alfresco
 				retryingTransactionHelper.doInTransaction(processCallBack,
 						false, false);
 				return null;

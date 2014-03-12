@@ -66,26 +66,32 @@ public class SigningWebScript extends DeclarativeWebScript {
 			    	return null;
 			    }
 			    final ContentReader keyContentReader = contentService.getReader(keyNodeRef, ContentModel.PROP_CONTENT);
-				ks.load(keyContentReader.getContentInputStream(), keyPassword.toCharArray());
-		        final X509Certificate c = (X509Certificate) ks.getCertificate(keyAlias);
-		        final Principal subject = c.getSubjectDN();
-		        
-		        keyInfoDTO.setAlias(keyAlias);
-		        keyInfoDTO.setAlgorithm(c.getSigAlgName());
-		        keyInfoDTO.setSubject(subject.toString());
-		        keyInfoDTO.setType(c.getType());
-		        keyInfoDTO.setFirstDayValidity(c.getNotBefore());
-		        keyInfoDTO.setLastDayValidity(c.getNotAfter());
-		        
-		        final Date now = new Date();
-				long diff = keyInfoDTO.getLastDayValidity().getTime() - now.getTime();
-				long diffDays = diff / (24 * 60 * 60 * 1000);
-				if (diffDays < 0) {
-					keyInfoDTO.setHasExpired(true);
-				} else {
-					keyInfoDTO.setHasExpired(false);
-					keyInfoDTO.setExpire(Long.toString(diffDays));
-				}
+			    if (keyContentReader != null && ks != null && keyPassword != null) {
+				    ks.load(keyContentReader.getContentInputStream(), keyPassword.toCharArray());
+			        final X509Certificate c = (X509Certificate) ks.getCertificate(keyAlias);
+			        if (c != null) {
+				        final Principal subject = c.getSubjectDN();
+				        
+				        keyInfoDTO.setAlias(keyAlias);
+				        keyInfoDTO.setAlgorithm(c.getSigAlgName());
+				        if (subject != null) {
+				        	keyInfoDTO.setSubject(subject.toString());
+				        }
+				        keyInfoDTO.setType(c.getType());
+				        keyInfoDTO.setFirstDayValidity(c.getNotBefore());
+				        keyInfoDTO.setLastDayValidity(c.getNotAfter());
+				        
+				        final Date now = new Date();
+						long diff = keyInfoDTO.getLastDayValidity().getTime() - now.getTime();
+						long diffDays = diff / (24 * 60 * 60 * 1000);
+						if (diffDays < 0) {
+							keyInfoDTO.setHasExpired(true);
+						} else {
+							keyInfoDTO.setHasExpired(false);
+							keyInfoDTO.setExpire(Long.toString(diffDays));
+						}
+			        }
+			    }
 			}
 		} catch (KeyStoreException e) {
 			return null;

@@ -25,12 +25,24 @@ public class IsPdfTransformable extends BaseEvaluator {
 			final String uri = "/api/digitalSigning/isPdfTransformable?noderef=" + sNodeRef;
 
 			final RequestContext context = ThreadLocalRequestContext.getRequestContext();
-			final Connector connector = context.getServiceRegistry().getConnectorService().getConnector("alfresco", context.getUserId(), ServletUtil.getSession());
-			final Response res = connector.call(uri);
-			final String alfrescoWebScriptResponse = res.getResponse();
-			
-			if ("OK".compareTo(alfrescoWebScriptResponse) == 0) {
-				return true;
+			if (context != null) {
+				final Connector connector = context.getServiceRegistry().getConnectorService().getConnector("alfresco", context.getUserId(), ServletUtil.getSession());
+				if (connector != null) {
+					final Response res = connector.call(uri);
+					if (res != null) {
+						final String alfrescoWebScriptResponse = res.getResponse();
+						
+						if ("OK".compareTo(alfrescoWebScriptResponse) == 0) {
+							return true;
+						} else {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				} else {
+					return false;
+				}
 			} else {
 				return false;
 			}

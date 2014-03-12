@@ -15,12 +15,15 @@ import org.alfresco.plugin.digitalSigning.dto.VerifyingDTO;
 import org.alfresco.plugin.digitalSigning.model.SigningConstants;
 import org.alfresco.plugin.digitalSigning.model.SigningModel;
 import org.alfresco.plugin.digitalSigning.service.SigningService;
+import org.alfresco.plugin.digitalSigning.utils.SigningUtils;
 import org.alfresco.repo.jscript.BaseScopableProcessorExtension;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -31,6 +34,11 @@ import org.mozilla.javascript.Scriptable;
  * @author Emmanuel ROUX
  */
 public class SigningServiceScript extends BaseScopableProcessorExtension {
+	
+	/**
+	 * Logger.
+	 */
+	private final Log log = LogFactory.getLog(SigningServiceScript.class);
 
 	/**
 	 * Sign service.
@@ -152,35 +160,53 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 					signingDTO.setKeyFile(privateKey);
 				}
 			} catch (Exception e) {
-				throw new AlfrescoRuntimeException("keyFile must be a valid nodeRef");
+				log.error("keyFile must be a valid nodeRef.");
+				throw new AlfrescoRuntimeException("keyFile must be a valid nodeRef.");
 			}
 		} else {
-			// Get key from current user
+			// Get current user key
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-				final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-				final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-				final Iterator<ChildAssociationRef> itChildren = children.iterator();
-				boolean foundKey = false;
-				while (itChildren.hasNext() && !foundKey) {
-					final ChildAssociationRef childAssoc = itChildren.next();
-					final NodeRef child = childAssoc.getChildRef();
-					if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
-						signingDTO.setKeyFile(child);
-						foundKey = true;
+				if (currentUserHomeFolder != null) {
+					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+					if (signingFolderNodeRef != null) {
+						final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+						if (children != null && children.size() > 0) {
+							final Iterator<ChildAssociationRef> itChildren = children.iterator();
+							boolean foundKey = false;
+							while (itChildren.hasNext() && !foundKey) {
+								final ChildAssociationRef childAssoc = itChildren.next();
+								final NodeRef child = childAssoc.getChildRef();
+								if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
+									signingDTO.setKeyFile(child);
+									foundKey = true;
+								}
+							}
+							if (!foundKey) {
+								log.error("No key file uploaded for user " + currentUser + ".");
+								throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
+							}
+						} else {
+							log.error("No key file uploaded for user " + currentUser + ".");
+							throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
+						}
+					} else {
+						log.error("No key file uploaded for user " + currentUser + ".");
+						throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
 					}
-				}
-				if (!foundKey) {
-					throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser);
+				} else {
+					log.error("User '" + currentUser + "' have no home folder.");
+					throw new AlfrescoRuntimeException("User '" + currentUser + "' have no home folder.");
 				}
 			}
 		}
 		if (keyPassword != null) {
 			signingDTO.setKeyPassword(keyPassword);
 		} else {
-			throw new AlfrescoRuntimeException("key-password parameter is required");
+			log.error("key-password parameter is required.");
+			throw new AlfrescoRuntimeException("key-password parameter is required.");
 		}
 		if (fileToSignStr != null) {
 			try {
@@ -189,10 +215,12 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 					signingDTO.setFileToSign(fileToSign);
 				}
 			} catch (Exception e) {
-				throw new AlfrescoRuntimeException("document must be a valid nodeRef");
+				log.error("document must be a valid nodeRef.");
+				throw new AlfrescoRuntimeException("document must be a valid nodeRef.");
 			}
 		} else {
-			throw new AlfrescoRuntimeException("document parameter is required");
+			log.error("document parameter is required.");
+			throw new AlfrescoRuntimeException("document parameter is required.");
 		}
 		if (destinationFolderStr != null) {
 			try {
@@ -201,10 +229,12 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 					signingDTO.setDestinationFolder(destinationFolder);
 				}
 			} catch (Exception e) {
-				throw new AlfrescoRuntimeException("destination must be a valid nodeRef");
+				log.error("destination must be a valid nodeRef.");
+				throw new AlfrescoRuntimeException("destination must be a valid nodeRef.");
 			}
 		} else {
-			throw new AlfrescoRuntimeException("destination parameter is required");
+			log.error("destination parameter is required.");
+			throw new AlfrescoRuntimeException("destination parameter is required.");
 		}
 		if (reason != null) {
 			signingDTO.setSignReason(reason);
@@ -222,24 +252,31 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 				signingDTO.setImage(image);
 				} 
 			} catch (Exception e) {
-				throw new AlfrescoRuntimeException("image must be a valid nodeRef");
+				log.error("image must be a valid nodeRef.");
+				throw new AlfrescoRuntimeException("image must be a valid nodeRef.");
 			}
 		} else {
-			// Get image from current user
+			// Get current user image
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-				final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-				final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-				final Iterator<ChildAssociationRef> itChildren = children.iterator();
-				boolean foundImage = false;
-				while (itChildren.hasNext() && !foundImage) {
-					final ChildAssociationRef childAssoc = itChildren.next();
-					final NodeRef child = childAssoc.getChildRef();
-					if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
-						signingDTO.setImage(child);
-						foundImage = true;
+				if (currentUserHomeFolder != null) {
+					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+					if (signingFolderNodeRef != null) {
+						final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+						if (children != null && children.size() > 0) {
+							final Iterator<ChildAssociationRef> itChildren = children.iterator();
+							boolean foundImage = false;
+							while (itChildren.hasNext() && !foundImage) {
+								final ChildAssociationRef childAssoc = itChildren.next();
+								final NodeRef child = childAssoc.getChildRef();
+								if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
+									signingDTO.setImage(child);
+									foundImage = true;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -275,10 +312,18 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 			signingDTO.setSignHeight(height);
 		}
 		
+		// Validate DTO
+		SigningUtils.validateSignInfo(signingDTO);
+		
 		digitalSigningService.sign(signingDTO);
 	}
 	
-	
+	/**
+	 * Verify sign.
+	 * 
+	 * @param parameters parameter
+	 * @return verify result
+	 */
 	public Scriptable verify(final NativeObject parameters) {
 		final VerifyingDTO verifyingDTO = new VerifyingDTO();
 		
@@ -302,35 +347,53 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 					verifyingDTO.setKeyFile(privateKey);
 				}
 			} catch (Exception e) {
-				throw new AlfrescoRuntimeException("keyFile must be a valid nodeRef");
+				log.error("keyFile must be a valid nodeRef.");
+				throw new AlfrescoRuntimeException("keyFile must be a valid nodeRef.");
 			}
 		} else {
-			// Get key from current user
+			// Get current user key
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-				final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-				final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-				final Iterator<ChildAssociationRef> itChildren = children.iterator();
-				boolean foundKey = false;
-				while (itChildren.hasNext() && !foundKey) {
-					final ChildAssociationRef childAssoc = itChildren.next();
-					final NodeRef child = childAssoc.getChildRef();
-					if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
-						verifyingDTO.setKeyFile(child);
-						foundKey = true;
+				if (currentUserHomeFolder != null) {
+					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+					if (signingFolderNodeRef != null) {
+						final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+						if (children != null && children.size() > 0) {
+							final Iterator<ChildAssociationRef> itChildren = children.iterator();
+							boolean foundKey = false;
+							while (itChildren.hasNext() && !foundKey) {
+								final ChildAssociationRef childAssoc = itChildren.next();
+								final NodeRef child = childAssoc.getChildRef();
+								if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
+									verifyingDTO.setKeyFile(child);
+									foundKey = true;
+								}
+							}
+							if (!foundKey) {
+								log.error("No key file uploaded for user " + currentUser + ".");
+								throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
+							}
+						} else {
+							log.error("No key file uploaded for user " + currentUser + ".");
+							throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
+						}
+					} else {
+						log.error("No key file uploaded for user " + currentUser + ".");
+						throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
 					}
-				}
-				if (!foundKey) {
-					throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser);
+				} else {
+					log.error("User '" + currentUser + "' have no home folder.");
+					throw new AlfrescoRuntimeException("User '" + currentUser + "' have no home folder.");
 				}
 			}
 		}
 		if (keyPassword != null) {
 			verifyingDTO.setKeyPassword(keyPassword);
 		} else {
-			throw new AlfrescoRuntimeException("key-password parameter is required");
+			log.error("key-password parameter is required.");
+			throw new AlfrescoRuntimeException("key-password parameter is required.");
 		}
 		if (fileToVerifyStr != null) {
 			try {
@@ -339,16 +402,17 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 					verifyingDTO.setFileToVerify(fileToVerify);
 				}
 			} catch (Exception e) {
-				throw new AlfrescoRuntimeException("document must be a valid nodeRef");
+				log.error("document must be a valid nodeRef.");
+				throw new AlfrescoRuntimeException("document must be a valid nodeRef.");
 			}
 		} else {
-			throw new AlfrescoRuntimeException("document parameter is required");
+			log.error("document parameter is required.");
+			throw new AlfrescoRuntimeException("document parameter is required.");
 		}
 		
 		final List<VerifyResultDTO> result = digitalSigningService.verifySign(verifyingDTO);
 		
 		return Context.getCurrentContext().newArray(getScope(), result.toArray());
-		
 	}
 
 	/**
