@@ -34,5 +34,16 @@
          </list>
       </property>
    </bean>
+   
+   <bean id="evaluator.doclib.action.digitalSigning.isPdfTransformable" class="org.alfresco.plugin.digitalSigning.action.evaluator.IsPdfTransformable" />
+   
+   <bean id="evaluator.doclib.action.digitalSigning.canSign" parent="evaluator.doclib.action.chainedMatchOne">
+      <property name="evaluators">
+         <list>
+            <ref bean="evaluator.doclib.action.digitalSigning.pdfMimetype" />
+            <ref bean="evaluator.doclib.action.digitalSigning.isPdfTransformable" />
+         </list>
+      </property>
+   </bean>
 
 </beans>

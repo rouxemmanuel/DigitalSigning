@@ -22,6 +22,7 @@
 		<property name="dictionaryService" ref="dictionaryService" />
 		<property name="contentService" ref="contentService" />
 		<property name="fileFolderService" ref="fileFolderService" />
+		<property name="contentTransformerRegistry" ref="contentTransformerRegistry" />
 	</bean>
 	
 	<!-- Digital Signing action -->
@@ -118,6 +119,28 @@
 		</property>
 		<property name="personService">
 			<ref bean="personService" />
+		</property>
+	</bean>
+	
+	<!-- Verify if nodeRef is transformable in PDF WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.information.isPdfTransformable.get"
+		class="org.alfresco.plugin.digitalSigning.webscript.IsPdfTransformable"
+		parent="webscript">
+		<property name="contentTransformerRegistry">
+			<ref bean="contentTransformerRegistry" />
+		</property>
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="dictionaryService">
+			<ref bean="dictionaryService" />
 		</property>
 	</bean>
 
