@@ -3,8 +3,6 @@
  */
 package org.alfresco.plugin.digitalSigning.webscript;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
+import org.alfresco.plugin.digitalSigning.model.SigningConstants;
+import org.alfresco.plugin.digitalSigning.model.SigningModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
@@ -25,17 +26,12 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONObject;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.servlet.FormData;
 import org.springframework.extensions.webscripts.servlet.FormData.FormField;
-
-import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
-import org.alfresco.plugin.digitalSigning.model.SigningConstants;
-import org.alfresco.plugin.digitalSigning.model.SigningModel;
 
 /**
  * Sign upload Web Script.

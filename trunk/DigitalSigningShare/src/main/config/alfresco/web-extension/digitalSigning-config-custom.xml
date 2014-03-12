@@ -19,7 +19,7 @@
             	<permissions>
                		<permission allow="true">Write</permission>
             	</permissions>
-            	<evaluator>evaluator.doclib.action.digitalSigning.pdfMimetype</evaluator>
+            	<evaluator>evaluator.doclib.action.digitalSigning.canSign</evaluator>
          	</action>
 		</actions>
 
