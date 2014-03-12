@@ -9,6 +9,11 @@ import java.util.List;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.plugin.digitalSigning.dto.DigitalSigningDTO;
+import org.alfresco.plugin.digitalSigning.model.SigningConstants;
+import org.alfresco.plugin.digitalSigning.model.SigningModel;
+import org.alfresco.plugin.digitalSigning.service.SigningService;
+import org.alfresco.plugin.digitalSigning.utils.SigningUtils;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
 import org.alfresco.service.cmr.action.Action;
@@ -19,11 +24,8 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
-
-import org.alfresco.plugin.digitalSigning.dto.DigitalSigningDTO;
-import org.alfresco.plugin.digitalSigning.model.SigningConstants;
-import org.alfresco.plugin.digitalSigning.model.SigningModel;
-import org.alfresco.plugin.digitalSigning.service.SigningService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Signing action
@@ -31,6 +33,11 @@ import org.alfresco.plugin.digitalSigning.service.SigningService;
  * @author Emmanuel ROUX
  */
 public class SigningActionExecuter extends ActionExecuterAbstractBase {
+	
+	/**
+	 * Logger.
+	 */
+	private final Log log = LogFactory.getLog(SigningActionExecuter.class);
 
 	public static final String PARAM_PRIVATE_KEY = "key-file";
 	public static final String PARAM_KEY_PASSWORD = "key-password";
@@ -77,64 +84,83 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 	protected void executeImpl(Action ruleAction, NodeRef actionedUponNodeRef) {
 		final NodeRef privateKey = (NodeRef)ruleAction.getParameterValue(PARAM_PRIVATE_KEY);
 		final String keyPassword = (String)ruleAction.getParameterValue(PARAM_KEY_PASSWORD);
-		
 		final NodeRef destinationFolder = (NodeRef)ruleAction.getParameterValue(PARAM_DESTINATION_FOLDER);
-		
 		final String reason = (String)ruleAction.getParameterValue(PARAM_REASON);
 		final String location = (String)ruleAction.getParameterValue(PARAM_LOCATION);
 		final String contact = (String)ruleAction.getParameterValue(PARAM_CONTACT);
-		
 		final NodeRef image = (NodeRef)ruleAction.getParameterValue(PARAM_IMAGE);
-		
 		final String field = (String)ruleAction.getParameterValue(PARAM_FIELD);
-		
 		final String position = (String)ruleAction.getParameterValue(PARAM_POSITION);
 		final String page = (String)ruleAction.getParameterValue(PARAM_PAGE);
 		final String depth = (String)ruleAction.getParameterValue(PARAM_DEPTH);
-		
-		final int locationX = getInteger(ruleAction.getParameterValue(PARAM_LOCATION_X));
-		final int locationY = getInteger(ruleAction.getParameterValue(PARAM_LOCATION_Y));
-		final int marginX = getInteger(ruleAction.getParameterValue(PARAM_MARGIN_X));
-		final int marginY = getInteger(ruleAction.getParameterValue(PARAM_MARGIN_Y));
-		final int height = getInteger(ruleAction.getParameterValue(PARAM_HEIGHT));
-		final int width = getInteger(ruleAction.getParameterValue(PARAM_WIDTH));
+		final Integer locationX = getInteger(ruleAction.getParameterValue(PARAM_LOCATION_X));
+		final Integer locationY = getInteger(ruleAction.getParameterValue(PARAM_LOCATION_Y));
+		final Integer marginX = getInteger(ruleAction.getParameterValue(PARAM_MARGIN_X));
+		final Integer marginY = getInteger(ruleAction.getParameterValue(PARAM_MARGIN_Y));
+		final Integer height = getInteger(ruleAction.getParameterValue(PARAM_HEIGHT));
+		final Integer width = getInteger(ruleAction.getParameterValue(PARAM_WIDTH));
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
+		
+		if (actionedUponNodeRef != null) {
+			signingDTO.setFileToSign(actionedUponNodeRef);
+		}
 		
 		if (privateKey != null) {
 			signingDTO.setKeyFile(privateKey);
 		} else {
-			// Get key from current user
+			// Get current user key
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-				final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-				final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-				final Iterator<ChildAssociationRef> itChildren = children.iterator();
-				boolean foundKey = false;
-				while (itChildren.hasNext() && !foundKey) {
-					final ChildAssociationRef childAssoc = itChildren.next();
-					final NodeRef child = childAssoc.getChildRef();
-					if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
-						signingDTO.setKeyFile(child);
-						foundKey = true;
+				if (currentUserHomeFolder != null) {
+					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+					if (signingFolderNodeRef != null) {
+						final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+						if (children != null && children.size() > 0) {
+							final Iterator<ChildAssociationRef> itChildren = children.iterator();
+							boolean foundKey = false;
+							while (itChildren.hasNext() && !foundKey) {
+								final ChildAssociationRef childAssoc = itChildren.next();
+								final NodeRef child = childAssoc.getChildRef();
+								if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
+									signingDTO.setKeyFile(child);
+									foundKey = true;
+								}
+							}
+							if (!foundKey) {
+								log.error("No key file uploaded for user " + currentUser + ".");
+								throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
+							}
+						} else {
+							log.error("No key file uploaded for user " + currentUser + ".");
+							throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
+						}
+					} else {
+						log.error("No key file uploaded for user " + currentUser + ".");
+						throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser + ".");
 					}
+				} else {
+					log.error("User '" + currentUser + "' have no home folder.");
+					throw new AlfrescoRuntimeException("User '" + currentUser + "' have no home folder.");
 				}
-				if (!foundKey) {
-					throw new AlfrescoRuntimeException("No key file uploaded for user " + currentUser);
-				}
+			} else {
+				log.error("Unable to get current user.");
+				throw new AlfrescoRuntimeException("Unable to get current user.");
 			}
 		}
 		if (keyPassword != null) {
 			signingDTO.setKeyPassword(keyPassword);
 		} else {
-			throw new AlfrescoRuntimeException("key-password parameter is required");
+			log.error("key-password parameter is required.");
+			throw new AlfrescoRuntimeException("key-password parameter is required.");
 		}
 		if (destinationFolder != null) {
 			signingDTO.setDestinationFolder(destinationFolder);
 		} else {
-			throw new AlfrescoRuntimeException("destination parameter is required");
+			log.error("destination parameter is required.");
+			throw new AlfrescoRuntimeException("destination parameter is required.");
 		}
 		if (reason != null) {
 			signingDTO.setSignReason(reason);
@@ -148,21 +174,27 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		if (image != null) {
 			signingDTO.setImage(image);
 		} else {
-			// Get image from current user
+			// Get current user image
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-				final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-				final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-				final Iterator<ChildAssociationRef> itChildren = children.iterator();
-				boolean foundImage = false;
-				while (itChildren.hasNext() && !foundImage) {
-					final ChildAssociationRef childAssoc = itChildren.next();
-					final NodeRef child = childAssoc.getChildRef();
-					if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
-						signingDTO.setImage(child);
-						foundImage = true;
+				if (currentUserHomeFolder != null) {
+					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+					if (signingFolderNodeRef != null) {
+						final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+						if (children != null && children.size() > 0) {
+							final Iterator<ChildAssociationRef> itChildren = children.iterator();
+							boolean foundImage = false;
+							while (itChildren.hasNext() && !foundImage) {
+								final ChildAssociationRef childAssoc = itChildren.next();
+								final NodeRef child = childAssoc.getChildRef();
+								if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
+									signingDTO.setImage(child);
+									foundImage = true;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -179,12 +211,27 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		if (depth != null) {
 			signingDTO.setDepth(depth);
 		}
-		signingDTO.setLocationX(locationX);
-		signingDTO.setLocationY(locationY);
-		signingDTO.setxMargin(marginX);
-		signingDTO.setyMargin(marginY);
-		signingDTO.setSignWidth(width);
-		signingDTO.setSignHeight(height);
+		if (locationX != null) {
+			signingDTO.setLocationX(locationX);
+		}
+		if (locationY != null) {
+			signingDTO.setLocationY(locationY);
+		}
+		if (marginX != null) {
+			signingDTO.setxMargin(marginX);
+		}
+		if (marginY != null) {
+			signingDTO.setyMargin(marginY);
+		}
+		if (width != null) {
+			signingDTO.setSignWidth(width);
+		}
+		if (height != null) {
+			signingDTO.setSignHeight(height);
+		}
+		
+		// Validate DTO
+		SigningUtils.validateSignInfo(signingDTO);
 		
 		digitalSigningService.sign(signingDTO);
 	}
@@ -215,16 +262,16 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 	 * Get int value form serialized object.
 	 * 
 	 * @param val serialized object
-	 * @return int value of serialized object
+	 * @return Integer value of serialized object
 	 */
-	protected int getInteger(Serializable val) {
+	protected Integer getInteger(Serializable val) {
         if(val == null) { 
-        	return 0;
+        	return null;
         }
         try {
         	return Integer.parseInt(val.toString());
         } catch(NumberFormatException nfe) {
-        	return 0;
+        	return null;
         }
     }
 

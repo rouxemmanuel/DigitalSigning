@@ -30,6 +30,7 @@ public class DigitalSigningDTO {
     public static final String POSITION_TOPRIGHT = "topright";
     public static final String POSITION_BOTTOMLEFT = "bottomleft";
     public static final String POSITION_BOTTOMRIGHT = "bottomright";
+    public static final String POSITION_CUSTOM = "custom";
     
     /**
      * Image depth.
@@ -101,32 +102,32 @@ public class DigitalSigningDTO {
 	/**
 	 * Sign X location (in pixel).
 	 */
-	private int locationX = 100;
+	private Integer locationX = 100;
     
 	/**
 	 * Sign Y position (in pixel).
 	 */
-	private int locationY = 100;
+	private Integer locationY = 100;
 	
 	/**
 	 * X margin (in pixel).
 	 */
-	private int xMargin = 100;
+	private Integer xMargin = 100;
 	
 	/**
 	 * Y margin (in pixel).
 	 */
-	private int yMargin = 100;
+	private Integer yMargin = 100;
 	
 	/**
 	 * Sign width (in pixel).
 	 */
-	private int signWidth = 100;
+	private Integer signWidth = 100;
 	
 	/**
 	 * Sign height (in pixel).
 	 */
-	private int signHeight = 100;
+	private Integer signHeight = 100;
 	
 	/**
 	 * @return the fileToSign
@@ -271,84 +272,84 @@ public class DigitalSigningDTO {
 	/**
 	 * @return the locationX
 	 */
-	public final int getLocationX() {
+	public final Integer getLocationX() {
 		return locationX;
 	}
 
 	/**
 	 * @param locationX the locationX to set
 	 */
-	public final void setLocationX(int locationX) {
+	public final void setLocationX(Integer locationX) {
 		this.locationX = locationX;
 	}
 
 	/**
 	 * @return the locationY
 	 */
-	public final int getLocationY() {
+	public final Integer getLocationY() {
 		return locationY;
 	}
 
 	/**
 	 * @param locationY the locationY to set
 	 */
-	public final void setLocationY(int locationY) {
+	public final void setLocationY(Integer locationY) {
 		this.locationY = locationY;
 	}
 
 	/**
 	 * @return the xMargin
 	 */
-	public final int getxMargin() {
+	public final Integer getxMargin() {
 		return xMargin;
 	}
 
 	/**
 	 * @param xMargin the xMargin to set
 	 */
-	public final void setxMargin(int xMargin) {
+	public final void setxMargin(Integer xMargin) {
 		this.xMargin = xMargin;
 	}
 
 	/**
 	 * @return the yMargin
 	 */
-	public final int getyMargin() {
+	public final Integer getyMargin() {
 		return yMargin;
 	}
 
 	/**
 	 * @param yMargin the yMargin to set
 	 */
-	public final void setyMargin(int yMargin) {
+	public final void setyMargin(Integer yMargin) {
 		this.yMargin = yMargin;
 	}
 
 	/**
 	 * @return the signWidth
 	 */
-	public final int getSignWidth() {
+	public final Integer getSignWidth() {
 		return signWidth;
 	}
 
 	/**
 	 * @param signWidth the signWidth to set
 	 */
-	public final void setSignWidth(int signWidth) {
+	public final void setSignWidth(Integer signWidth) {
 		this.signWidth = signWidth;
 	}
 
 	/**
 	 * @return the signHeight
 	 */
-	public final int getSignHeight() {
+	public final Integer getSignHeight() {
 		return signHeight;
 	}
 
 	/**
 	 * @param signHeight the signHeight to set
 	 */
-	public final void setSignHeight(int signHeight) {
+	public final void setSignHeight(Integer signHeight) {
 		this.signHeight = signHeight;
 	}
 

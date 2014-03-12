@@ -9,8 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
+import org.alfresco.plugin.digitalSigning.model.SigningConstants;
+import org.alfresco.plugin.digitalSigning.model.SigningModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
@@ -24,10 +26,6 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
-
-import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
-import org.alfresco.plugin.digitalSigning.model.SigningConstants;
-import org.alfresco.plugin.digitalSigning.model.SigningModel;
 
 /**
  * Signature informations WebScript.
@@ -77,62 +75,74 @@ public class SignatureInformation extends SigningWebScript {
 							final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 							if (currentUserNodeRef != null) {
 								NodeRef keyNodeRef = null;
-								NodeRef imageNodeRef = null;
 								
 								final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-								final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-								if (signingFolderNodeRef != null) {
-									final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-									final Iterator<ChildAssociationRef> itChildren = children.iterator();
-									boolean foundKey = false;
-									boolean foundImage = false;
-									while (itChildren.hasNext()) {
-										final ChildAssociationRef childAssoc = itChildren.next();
-										final NodeRef child = childAssoc.getChildRef();
-										if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
-											keyNodeRef = child;
-											foundKey = true;
-										}
-										if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
-											imageNodeRef = child;
-											foundImage = true;
-										}
-									}
-									if (!foundKey) {
-										model.put("errorNumber", "1");
-									} else {
-										final KeyInfoDTO keyInfoDTO = new KeyInfoDTO();
-										keyInfoDTO.setAlgorithm((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM));
-										keyInfoDTO.setAlias((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALIAS));
-										keyInfoDTO.setFirstDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY));
-										keyInfoDTO.setLastDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY));
-										keyInfoDTO.setSubject((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT));
-										keyInfoDTO.setType((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYTYPE));
-										
-										final Date now = new Date();
-										long diff = keyInfoDTO.getLastDayValidity().getTime() - now.getTime();
-										long diffDays = diff / (24 * 60 * 60 * 1000);
-										if (diffDays < 0) {
-											keyInfoDTO.setHasExpired(true);
-										} else {
-											keyInfoDTO.setHasExpired(false);
-											if (diffDays < 100) {
-												keyInfoDTO.setExpire(Long.toString(diffDays));
-											} else {
-												keyInfoDTO.setExpire(null);
+								if (currentUserHomeFolder != null) {
+									final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+									if (signingFolderNodeRef != null) {
+										final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+										if (children != null && children.size() > 0) {
+											final Iterator<ChildAssociationRef> itChildren = children.iterator();
+											boolean foundKey = false;
+											boolean foundImage = false;
+											while (itChildren.hasNext()) {
+												final ChildAssociationRef childAssoc = itChildren.next();
+												final NodeRef child = childAssoc.getChildRef();
+												if (nodeService.hasAspect(child, SigningModel.ASPECT_KEY)) {
+													keyNodeRef = child;
+													foundKey = true;
+												}
+												if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
+													foundImage = true;
+												}
 											}
+											if (!foundKey) {
+												model.put("errorNumber", "1");
+											} else {
+												final KeyInfoDTO keyInfoDTO = new KeyInfoDTO();
+												keyInfoDTO.setAlgorithm((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM));
+												keyInfoDTO.setAlias((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALIAS));
+												keyInfoDTO.setFirstDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY));
+												keyInfoDTO.setLastDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY));
+												keyInfoDTO.setSubject((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT));
+												keyInfoDTO.setType((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYTYPE));
+												
+												final Date now = new Date();
+												long diff = keyInfoDTO.getLastDayValidity().getTime() - now.getTime();
+												long diffDays = diff / (24 * 60 * 60 * 1000);
+												if (diffDays < 0) {
+													keyInfoDTO.setHasExpired(true);
+												} else {
+													keyInfoDTO.setHasExpired(false);
+													if (diffDays < 100) {
+														keyInfoDTO.setExpire(Long.toString(diffDays));
+													} else {
+														keyInfoDTO.setExpire(null);
+													}
+												}
+												
+												model.put("keyInfos", keyInfoDTO);
+											}
+											if (foundImage) {
+												model.put("hasImage", true);
+											} else {
+												model.put("hasImage", false);
+											}
+										} else {
+											log.error("No key file uploaded for user " + currentUser + ".");
+											model.put("errorNumber", "1");
 										}
-										
-										model.put("keyInfos", keyInfoDTO);
-									}
-									if (foundImage) {
-										model.put("hasImage", true);
 									} else {
-										model.put("hasImage", false);
+										log.error("No key file uploaded for user " + currentUser + ".");
+										model.put("errorNumber", "1");
 									}
 								} else {
+									log.error("User '" + currentUser + "' have no home folder.");
 									model.put("errorNumber", "1");
 								}
+							} else {
+								log.error("Unable to get current user.");
+								model.put("errorNumber", "1");
 							}
 
 						} catch (final WebScriptException e) {

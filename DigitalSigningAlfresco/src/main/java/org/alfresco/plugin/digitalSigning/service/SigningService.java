@@ -113,207 +113,283 @@ public class SigningService {
 	 * 
 	 */
 	public void sign(final DigitalSigningDTO signingDTO) {
-		File tempDir = null;
-		File fileConverted = null;
-		try {
-			Security.addProvider(new BouncyCastleProvider());
-			final File alfTempDir = TempFileProvider.getTempDir();
-			
-			final String keyType = (String) nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYTYPE);
-			
-			if (SigningConstants.KEY_TYPE_X509.equals(keyType)) {
-				// Sign the file
-				final KeyStore ks = KeyStore.getInstance("pkcs12");
-				final ContentReader keyContentReader = getReader(signingDTO.getKeyFile());
-				ks.load(keyContentReader.getContentInputStream(), signingDTO.getKeyPassword().toCharArray());
+		if (signingDTO != null) {
+			File tempDir = null;
+			File fileConverted = null;
+			try {
+				Security.addProvider(new BouncyCastleProvider());
+				final File alfTempDir = TempFileProvider.getTempDir();
 				
-				final String alias = (String) nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYALIAS);
-				//final String alias = (String)ks.aliases().nextElement();
-				
-				final PrivateKey key = (PrivateKey)ks.getKey(alias, signingDTO.getKeyPassword().toCharArray());
-				final Certificate[] chain = ks.getCertificateChain(alias);
-				
-				ContentReader fileToSignContentReader = getReader(signingDTO.getFileToSign());
-				if (fileToSignContentReader != null) {
-					// Check if document is PDF or transform it
-					if (!MimetypeMap.MIMETYPE_PDF.equals(fileToSignContentReader.getMimetype())) {
-						// Transform document in PDF document
-						final ContentTransformer tranformer = contentTransformerRegistry.getTransformer(fileToSignContentReader.getMimetype(), fileToSignContentReader.getSize(), MimetypeMap.MIMETYPE_PDF, new TransformationOptions());
+				if (alfTempDir != null) {
+					final String keyType = (String) nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYTYPE);
+					
+					if (SigningConstants.KEY_TYPE_X509.equals(keyType)) {
+						// Sign the file
+						final KeyStore ks = KeyStore.getInstance("pkcs12");
+						final ContentReader keyContentReader = getReader(signingDTO.getKeyFile());
 						
-						if (tranformer != null) {
+						if (keyContentReader != null && ks != null && signingDTO.getKeyPassword() != null) {
+							ks.load(keyContentReader.getContentInputStream(), signingDTO.getKeyPassword().toCharArray());
 							
-							tempDir = new File(alfTempDir.getPath() + File.separatorChar + signingDTO.getFileToSign().getId());
-					        tempDir.mkdir();
-					        fileConverted = new File(tempDir, fileFolderService.getFileInfo(signingDTO.getFileToSign()).getName() + ".pdf");
-							final ContentWriter newDoc = new FileContentWriter(fileConverted);
-							newDoc.setMimetype(MimetypeMap.MIMETYPE_PDF);
-							tranformer.transform(fileToSignContentReader, newDoc);
-							fileToSignContentReader = new FileContentReader(fileConverted);
-						} else {
-							throw new AlfrescoRuntimeException("No suitable converter found to convert the document in PDF.");
-						}
-					}
-				
-					final PdfReader reader = new PdfReader(fileToSignContentReader.getContentInputStream());
-			        
-			        tempDir = new File(alfTempDir.getPath() + File.separatorChar + signingDTO.getFileToSign().getId());
-			        tempDir.mkdir();
-			        final File file = new File(tempDir, fileFolderService.getFileInfo(signingDTO.getFileToSign()).getName());
-			
-			        final FileOutputStream fout = new FileOutputStream(file);
-			        final PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0');
-			        
-					final PdfSignatureAppearance sap = stp.getSignatureAppearance();
-					sap.setCrypto(key, chain, null, PdfSignatureAppearance.WINCER_SIGNED);
-					sap.setReason(signingDTO.getSignReason());
-					sap.setLocation(signingDTO.getSignLocation());
-					sap.setContact(signingDTO.getSignContact());
-					sap.setCertificationLevel(PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
-					sap.setImageScale(1);
-					
-					// digital signature
-			        final ContentReader imageContentReader = getReader(signingDTO.getImage());
-			        
-					if (signingDTO.getSigningField() != null && !signingDTO.getSigningField().trim().equalsIgnoreCase("")) {
-						Image img = null;
-						if (imageContentReader != null) {
-							final AcroFields af = reader.getAcroFields();
-							if (af != null) {
-								final List<FieldPosition> positions = af.getFieldPositions(signingDTO.getSigningField());
-								if (positions != null && positions.size() > 0 && positions.get(0) != null && positions.get(0).position != null) {
-									final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, Float.valueOf(positions.get(0).position.getWidth()).intValue(), Float.valueOf(positions.get(0).position.getHeight()).intValue());
-									img = Image.getInstance(newImg, null);
-								} else {
-									throw new AlfrescoRuntimeException("The field '" + signingDTO.getSigningField() + "' doesn't exist in the document.");
+							final String alias = (String) nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYALIAS);
+							
+							final PrivateKey key = (PrivateKey)ks.getKey(alias, signingDTO.getKeyPassword().toCharArray());
+							final Certificate[] chain = ks.getCertificateChain(alias);
+							
+							ContentReader fileToSignContentReader = getReader(signingDTO.getFileToSign());
+							if (fileToSignContentReader != null) {
+								// Check if document is PDF or transform it
+								if (!MimetypeMap.MIMETYPE_PDF.equals(fileToSignContentReader.getMimetype())) {
+									// Transform document in PDF document
+									final ContentTransformer tranformer = contentTransformerRegistry.getTransformer(fileToSignContentReader.getMimetype(), fileToSignContentReader.getSize(), MimetypeMap.MIMETYPE_PDF, new TransformationOptions());
+									
+									if (tranformer != null) {
+										
+										tempDir = new File(alfTempDir.getPath() + File.separatorChar + signingDTO.getFileToSign().getId());
+								        if (tempDir != null) {
+											tempDir.mkdir();
+									        fileConverted = new File(tempDir, fileFolderService.getFileInfo(signingDTO.getFileToSign()).getName() + ".pdf");
+											if (fileConverted != null) {
+										        final ContentWriter newDoc = new FileContentWriter(fileConverted);
+										        if (newDoc != null) {
+													newDoc.setMimetype(MimetypeMap.MIMETYPE_PDF);
+													tranformer.transform(fileToSignContentReader, newDoc);
+													fileToSignContentReader = new FileContentReader(fileConverted);
+										        }
+											}
+								        }
+									} else {
+										log.error("No suitable converter found to convert the document in PDF.");
+										throw new AlfrescoRuntimeException("No suitable converter found to convert the document in PDF.");
+									}
 								}
+							
+								final PdfReader reader = new PdfReader(fileToSignContentReader.getContentInputStream());
+						        
+								if (signingDTO.getFileToSign() != null) {
+							        tempDir = new File(alfTempDir.getPath() + File.separatorChar + signingDTO.getFileToSign().getId());
+							        if (tempDir != null) {
+								        tempDir.mkdir();
+								        final File file = new File(tempDir, fileFolderService.getFileInfo(signingDTO.getFileToSign()).getName());
+								        
+								        if (file != null) {
+									        final FileOutputStream fout = new FileOutputStream(file);
+									        final PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0');
+									        
+									        if (stp != null) {
+												final PdfSignatureAppearance sap = stp.getSignatureAppearance();
+												if (sap != null) {
+													sap.setCrypto(key, chain, null, PdfSignatureAppearance.WINCER_SIGNED);
+													sap.setReason(signingDTO.getSignReason());
+													sap.setLocation(signingDTO.getSignLocation());
+													sap.setContact(signingDTO.getSignContact());
+													sap.setCertificationLevel(PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
+													sap.setImageScale(1);
+													
+													// digital signature
+											        final ContentReader imageContentReader = getReader(signingDTO.getImage());
+													if (signingDTO.getSigningField() != null && !signingDTO.getSigningField().trim().equalsIgnoreCase("")) {
+														Image img = null;
+														if (imageContentReader != null) {
+															final AcroFields af = reader.getAcroFields();
+															if (af != null) {
+																final List<FieldPosition> positions = af.getFieldPositions(signingDTO.getSigningField());
+																if (positions != null && positions.size() > 0 && positions.get(0) != null && positions.get(0).position != null) {
+																	final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, Float.valueOf(positions.get(0).position.getWidth()).intValue(), Float.valueOf(positions.get(0).position.getHeight()).intValue());
+																	img = Image.getInstance(newImg, null);
+																} else {
+																	log.error("The field '" + signingDTO.getSigningField() + "' doesn't exist in the document.");
+																	throw new AlfrescoRuntimeException("The field '" + signingDTO.getSigningField() + "' doesn't exist in the document.");
+																}
+															}
+													        if (img == null) {
+													        	img = Image.getInstance(ImageIO.read(imageContentReader.getContentInputStream()), null);
+													        }
+													        sap.setImage(img);
+														}
+														sap.setVisibleSignature(signingDTO.getSigningField());
+													} else {
+														if (imageContentReader != null) {
+															// Resize image
+													        final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, signingDTO.getSignWidth(), signingDTO.getSignHeight());
+													        final Image img = Image.getInstance(newImg, null);
+															sap.setImage(img);
+														}
+														if(signingDTO.getPosition() != null && !DigitalSigningDTO.POSITION_CUSTOM.equalsIgnoreCase(signingDTO.getPosition().trim())) {
+											                final Rectangle pageRect = reader.getPageSizeWithRotation(1);
+											                sap.setVisibleSignature(positionSignature(signingDTO.getPosition(), pageRect, signingDTO.getSignWidth(), signingDTO.getSignHeight(), signingDTO.getxMargin(), signingDTO.getyMargin()), 1, null);
+														} else {
+											                sap.setVisibleSignature(new Rectangle(signingDTO.getLocationX(), signingDTO.getLocationY(), signingDTO.getLocationX() + signingDTO.getSignWidth(), signingDTO.getLocationY() - signingDTO.getSignHeight()), 1, null);
+														}
+													}
+													stp.close();
+												
+										            final NodeRef destinationNode = createDestinationNode(file.getName(), signingDTO.getDestinationFolder(), signingDTO.getFileToSign());
+										            if (destinationNode != null) {
+											            final ContentWriter writer = contentService.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+											            if (writer != null) {
+												            writer.setEncoding(fileToSignContentReader.getEncoding());
+												            writer.setMimetype("application/pdf");
+												            writer.putContent(file);
+												            file.delete();
+												            
+												            if (fileConverted != null) {
+												            	fileConverted.delete();
+												            }
+											            
+												            nodeService.addAspect(destinationNode, SigningModel.ASPECT_SIGNED, new HashMap<QName, Serializable>());
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_REASON, signingDTO.getSignReason());
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_LOCATION, signingDTO.getSignLocation());
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_SIGNATUREDATE, new java.util.Date());
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_SIGNEDBY, AuthenticationUtil.getRunAsUser());
+												            
+												            final X509Certificate c = (X509Certificate) ks.getCertificate(alias);
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_VALIDITY, c.getNotAfter());
+											            }
+										            } else {
+										            	log.error("Destination folder is not a valid NodeRef.");
+										    			throw new AlfrescoRuntimeException("Destination folder is not a valid NodeRef.");
+										            }
+												} else {
+													log.error("Unable to get PDF appearance signature.");
+													throw new AlfrescoRuntimeException("Unable to get PDF appearance signature.");
+												}
+									        } else {
+									        	log.error("Unable to create PDF signature.");
+												throw new AlfrescoRuntimeException("Unable to create PDF signature.");
+											}
+								        }
+							        }
+								} else {
+									log.error("Unable to get document to sign content.");
+									throw new AlfrescoRuntimeException("Unable to get document to sign content.");
+								}
+							} else {
+								log.error("The document has no content.");
+								throw new AlfrescoRuntimeException("The document has no content.");
 							}
-					        if (img == null) {
-					        	img = Image.getInstance(ImageIO.read(imageContentReader.getContentInputStream()), null);
-					        }
-					        sap.setImage(img);
-						}
-				        
-						sap.setVisibleSignature(signingDTO.getSigningField());
-					
-					} else { 
-						if (imageContentReader != null) {
-							// Resize image
-					        final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, signingDTO.getSignWidth(), signingDTO.getSignHeight());
-					        final Image img = Image.getInstance(newImg, null);
-							sap.setImage(img);
-						}
-						if(signingDTO.getPosition() != null && !signingDTO.getPosition().trim().equalsIgnoreCase("")) {
-			                final Rectangle pageRect = reader.getPageSizeWithRotation(1);
-			                sap.setVisibleSignature(positionSignature(signingDTO.getPosition(), pageRect, signingDTO.getSignWidth(), signingDTO.getSignHeight(), signingDTO.getxMargin(), signingDTO.getyMargin()), 1, null);
 						} else {
-			                sap.setVisibleSignature(new Rectangle(signingDTO.getLocationX(), signingDTO.getLocationY(), signingDTO.getLocationX() + signingDTO.getSignWidth(), signingDTO.getLocationY() - signingDTO.getSignHeight()), 1, null);
+							log.error("Unable to get key content, key type or key password.");
+							throw new AlfrescoRuntimeException("Unable to get key content, key type or key password.");
 						}
 					}
-				
-					stp.close();
-				
-				
-		            final NodeRef destinationNode = createDestinationNode(file.getName(), signingDTO.getDestinationFolder(), signingDTO.getFileToSign());
-		            final ContentWriter writer = contentService.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
-		            writer.setEncoding(fileToSignContentReader.getEncoding());
-		            writer.setMimetype("application/pdf");
-		            writer.putContent(file);
-		
-		            file.delete();
-		            
-		            if (fileConverted != null) {
-		            	fileConverted.delete();
-		            }
-	            
-		            nodeService.addAspect(destinationNode, SigningModel.ASPECT_SIGNED, new HashMap<QName, Serializable>());
-		            nodeService.setProperty(destinationNode, SigningModel.PROP_REASON, signingDTO.getSignReason());
-		            nodeService.setProperty(destinationNode, SigningModel.PROP_LOCATION, signingDTO.getSignLocation());
-		            nodeService.setProperty(destinationNode, SigningModel.PROP_SIGNATUREDATE, new java.util.Date());
-		            nodeService.setProperty(destinationNode, SigningModel.PROP_SIGNEDBY, AuthenticationUtil.getRunAsUser());
-		            
-		            final X509Certificate c = (X509Certificate) ks.getCertificate(alias);
-		            nodeService.setProperty(destinationNode, SigningModel.PROP_VALIDITY, c.getNotAfter());
 				} else {
-					throw new AlfrescoRuntimeException("The document has no content.");
+					log.error("Unable to get temporary directory.");
+					throw new AlfrescoRuntimeException("Unable to get temporary directory.");
 				}
-			}
-		} catch (KeyStoreException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (ContentIOException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (NoSuchAlgorithmException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (CertificateException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (IOException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (UnrecoverableKeyException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (DocumentException e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} catch (Exception e) {
-			log.error(e);
-			throw new AlfrescoRuntimeException(e.getMessage(), e);
-		} finally {
-            if (tempDir != null) {
-                try {
-                    tempDir.delete();
-                } catch (Exception ex) {
-                	log.error(ex);
-                    throw new AlfrescoRuntimeException(ex.getMessage(), ex);
-                }
-            }
-        }
+			} catch (KeyStoreException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (ContentIOException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (NoSuchAlgorithmException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (CertificateException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (IOException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (UnrecoverableKeyException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (DocumentException e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (Exception e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} finally {
+	            if (tempDir != null) {
+	                try {
+	                    tempDir.delete();
+	                } catch (Exception ex) {
+	                	log.error(ex);
+	                    throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+	                }
+	            }
+	        }
+		} else {
+			log.error("No object with signing informations.");
+			throw new AlfrescoRuntimeException("No object with signing informations.");
+		}
 	}
 	
 	
 	public List<VerifyResultDTO> verifySign(final VerifyingDTO verifyingDTO) {
 		final List<VerifyResultDTO> result = new ArrayList<VerifyResultDTO>();
 		try {
-			final String keyType = (String) nodeService.getProperty(verifyingDTO.getKeyFile(), SigningModel.PROP_KEYTYPE);
-			
-			final KeyStore ks = KeyStore.getInstance(keyType);
-			final ContentReader keyContentReader = getReader(verifyingDTO.getKeyFile());
-			ks.load(keyContentReader.getContentInputStream(), verifyingDTO.getKeyPassword().toCharArray());
-			final ContentReader fileToVerifyContentReader = getReader(verifyingDTO.getFileToVerify());
-			final PdfReader reader = new PdfReader(fileToVerifyContentReader.getContentInputStream());
-			final AcroFields af = reader.getAcroFields();
-			final ArrayList<String> names = af.getSignatureNames();
-			for (int k = 0; k < names.size(); ++k) {
-				final VerifyResultDTO verifyResultDTO = new VerifyResultDTO();
-				final String name = (String)names.get(k);
-				verifyResultDTO.setName(name);
-				verifyResultDTO.setSignatureCoversWholeDocument(af.signatureCoversWholeDocument(name));
-				verifyResultDTO.setRevision(af.getRevision(name));
-				verifyResultDTO.setTotalRevision(af.getTotalRevisions());
-			   
-				final PdfPKCS7 pk = af.verifySignature(name);
-	            final Calendar cal = pk.getSignDate();
-	            final Certificate[] pkc = pk.getCertificates();
-	            Object fails[] = PdfPKCS7.verifyCertificates(pkc, ks, null, cal);
-	 		   	if (fails == null) {
-	 		   		verifyResultDTO.setIsSignValid(true);
-	 		   	} else {
-	 		   		verifyResultDTO.setIsSignValid(false);
-	 		   		verifyResultDTO.setFailReason(fails[1]);   
-	 		   	}
-	            verifyResultDTO.setSignSubject(PdfPKCS7.getSubjectFields(pk.getSigningCertificate()).toString());           
-				verifyResultDTO.setIsDocumentModified(!pk.verify());
-				verifyResultDTO.setSignDate(pk.getSignDate());
-				verifyResultDTO.setSignLocation(pk.getLocation());
-				verifyResultDTO.setSignInformationVersion(pk.getSigningInfoVersion());
-				verifyResultDTO.setSignReason(pk.getReason());
-				verifyResultDTO.setSignVersion(pk.getVersion());
-				verifyResultDTO.setSignName(pk.getSignName());
+			if (verifyingDTO != null) {
+				final String keyType = (String) nodeService.getProperty(verifyingDTO.getKeyFile(), SigningModel.PROP_KEYTYPE);
 				
-				result.add(verifyResultDTO);
+				final KeyStore ks = KeyStore.getInstance(keyType);
+				final ContentReader keyContentReader = getReader(verifyingDTO.getKeyFile());
+				if (keyContentReader != null && ks != null  && verifyingDTO.getKeyPassword() != null) {
+					ks.load(keyContentReader.getContentInputStream(), verifyingDTO.getKeyPassword().toCharArray());
+					final ContentReader fileToVerifyContentReader = getReader(verifyingDTO.getFileToVerify());
+					if (fileToVerifyContentReader != null) {
+						final PdfReader reader = new PdfReader(fileToVerifyContentReader.getContentInputStream());
+						if (reader != null) {
+							final AcroFields af = reader.getAcroFields();
+							if (af != null) {
+								final ArrayList<String> names = af.getSignatureNames();
+								if (names != null) {
+									for (int k = 0; k < names.size(); ++k) {
+										final VerifyResultDTO verifyResultDTO = new VerifyResultDTO();
+										final String name = (String)names.get(k);
+										verifyResultDTO.setName(name);
+										verifyResultDTO.setSignatureCoversWholeDocument(af.signatureCoversWholeDocument(name));
+										verifyResultDTO.setRevision(af.getRevision(name));
+										verifyResultDTO.setTotalRevision(af.getTotalRevisions());
+									   
+										final PdfPKCS7 pk = af.verifySignature(name);
+										if (pk != null) {
+								            final Calendar cal = pk.getSignDate();
+								            final Certificate[] pkc = pk.getCertificates();
+								            Object fails[] = PdfPKCS7.verifyCertificates(pkc, ks, null, cal);
+								 		   	if (fails == null) {
+								 		   		verifyResultDTO.setIsSignValid(true);
+								 		   	} else {
+								 		   		verifyResultDTO.setIsSignValid(false);
+								 		   		verifyResultDTO.setFailReason(fails[1]);   
+								 		   	}
+								            verifyResultDTO.setSignSubject(PdfPKCS7.getSubjectFields(pk.getSigningCertificate()).toString());           
+											verifyResultDTO.setIsDocumentModified(!pk.verify());
+											verifyResultDTO.setSignDate(pk.getSignDate());
+											verifyResultDTO.setSignLocation(pk.getLocation());
+											verifyResultDTO.setSignInformationVersion(pk.getSigningInfoVersion());
+											verifyResultDTO.setSignReason(pk.getReason());
+											verifyResultDTO.setSignVersion(pk.getVersion());
+											verifyResultDTO.setSignName(pk.getSignName());
+											
+											result.add(verifyResultDTO);
+										} else {
+											log.error("Unable to verify signature.");
+											throw new AlfrescoRuntimeException("Unable to verify signature.");
+										}
+									}
+								} else {
+									log.error("Unable to get signature names.");
+									throw new AlfrescoRuntimeException("Unable to get signature names.");
+								}
+							} else {
+								log.error("Unable to get PDF fields.");
+								throw new AlfrescoRuntimeException("Unable to get PDF fields.");
+							}
+						}
+					} else {
+						log.error("Unable to get document to verify content.");
+						throw new AlfrescoRuntimeException("Unable to get document to verify content.");
+					}
+				} else {
+					log.error("Unable to get key content, key type or key password.");
+					throw new AlfrescoRuntimeException("Unable to get key content, key type or key password.");
+				}
+			} else {
+				log.error("No object with verification informations.");
+				throw new AlfrescoRuntimeException("No object with verification informations.");
 			}
 		} catch (KeyStoreException e) {
 			log.error(e);

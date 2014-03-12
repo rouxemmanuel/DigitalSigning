@@ -103,43 +103,59 @@ public class Image extends AbstractWebScript {
 				final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 				if (currentUserNodeRef != null) {
 					final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
-					NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
-					
-					final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
-					final Iterator<ChildAssociationRef> itChildren = children.iterator();
-					NodeRef imageNodeRef = null;
-					boolean foundImage = false;
-					while (itChildren.hasNext() && !foundImage) {
-						final ChildAssociationRef childAssoc = itChildren.next();
-						final NodeRef child = childAssoc.getChildRef();
-						if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
-							imageNodeRef = child;
-							foundImage = true;
+					if (currentUserHomeFolder != null) {
+						final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
+						if (signingFolderNodeRef != null) {
+							final List<ChildAssociationRef> children = nodeService.getChildAssocs(signingFolderNodeRef);
+							if (children != null && children.size() > 0) {
+								final Iterator<ChildAssociationRef> itChildren = children.iterator();
+								NodeRef imageNodeRef = null;
+								boolean foundImage = false;
+								while (itChildren.hasNext() && !foundImage) {
+									final ChildAssociationRef childAssoc = itChildren.next();
+									final NodeRef child = childAssoc.getChildRef();
+									if (nodeService.hasAspect(child, SigningModel.ASPECT_IMAGE)) {
+										imageNodeRef = child;
+										foundImage = true;
+									}
+								}
+								
+								if (imageNodeRef != null) {
+									
+									final Date lastModifiedDate = (Date) nodeService.getProperty(imageNodeRef, ContentModel.PROP_MODIFIED);
+									
+									ContentReader reader = contentService.getReader(imageNodeRef, ContentModel.PROP_CONTENT);
+									if (reader != null) {
+										String mimetype = reader.getMimetype();
+										res.setContentType(mimetype);
+								        res.setContentEncoding(reader.getEncoding());
+								        res.setHeader("Content-Length", Long.toString(reader.getSize()));
+										
+								        // set caching
+								        Cache cache = new Cache();
+								        cache.setNeverCache(false);
+								        cache.setMustRevalidate(true);
+								        cache.setMaxAge(0L);
+								        cache.setLastModified(lastModifiedDate);
+								        cache.setETag(String.valueOf(lastModifiedDate.getTime()));
+								        res.setCache(cache);
+								        
+								        reader.getContent(res.getOutputStream());
+									} else {
+										log.error("Unable to get image content.");
+									}
+								}
+							} else {
+								log.error("No image file uploaded for user " + currentUser + ".");
+							}
+						} else {
+							log.error("No image file uploaded for user " + currentUser + ".");
 						}
+					} else {
+						log.error("User '" + currentUser + "' have no home folder.");
 					}
-					
-					if (imageNodeRef != null) {
-						
-						final Date lastModifiedDate = (Date) nodeService.getProperty(imageNodeRef, ContentModel.PROP_MODIFIED);
-						
-						ContentReader reader = contentService.getReader(imageNodeRef, ContentModel.PROP_CONTENT);
-						String mimetype = reader.getMimetype();
-						res.setContentType(mimetype);
-				        res.setContentEncoding(reader.getEncoding());
-				        res.setHeader("Content-Length", Long.toString(reader.getSize()));
-						
-				        // set caching
-				        Cache cache = new Cache();
-				        cache.setNeverCache(false);
-				        cache.setMustRevalidate(true);
-				        cache.setMaxAge(0L);
-				        cache.setLastModified(lastModifiedDate);
-				        cache.setETag(String.valueOf(lastModifiedDate.getTime()));
-				        res.setCache(cache);
-				        
-				        reader.getContent(res.getOutputStream());
-						
-					}
+				} else {
+					log.error("Unable to get current user.");
 				}
 				
 				return null;
