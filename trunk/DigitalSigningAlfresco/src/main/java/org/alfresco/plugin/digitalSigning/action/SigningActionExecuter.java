@@ -38,6 +38,11 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 	 * Logger.
 	 */
 	private final Log log = LogFactory.getLog(SigningActionExecuter.class);
+	
+	/**
+	 * Action name.
+	 */
+	public static final String NAME = "DigitalSigning";
 
 	public static final String PARAM_PRIVATE_KEY = "key-file";
 	public static final String PARAM_KEY_PASSWORD = "key-password";
