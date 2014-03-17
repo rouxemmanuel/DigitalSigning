@@ -58,28 +58,33 @@
             <div class="yui-u"><input id="${el}-field" type="text" name="field" value="" /></div>
          </div>
          <div class="yui-gd">
-            <div class="yui-u first"><label for="${el}-locationX">${msg("label.locationX")}:</label></div>
-            <div class="yui-u"><input id="${el}-locationX" type="text" name="locationX" value="" /></div>
+            <div id="${el}-customPropertiesHeader" class="yui-u first, alfresco-twister alfresco-twister-closed" onclick="javascript:collapseCustomProperties();">${msg("label.customProperties")}</div>
          </div>
-         <div class="yui-gd">
-            <div class="yui-u first"><label for="${el}-locationY">${msg("label.locationY")}:</label></div>
-            <div class="yui-u"><input id="${el}-locationY" type="text" name="locationY" value="" /></div>
-         </div>
-         <div class="yui-gd">
-            <div class="yui-u first"><label for="${el}-marginX">${msg("label.marginX")}:</label></div>
-            <div class="yui-u"><input id="${el}-marginX" type="text" name="marginX" value="" /></div>
-         </div>
-         <div class="yui-gd">
-            <div class="yui-u first"><label for="${el}-marginY">${msg("label.marginY")}:</label></div>
-            <div class="yui-u"><input id="${el}-marginY" type="text" name="marginY" value="" /></div>
-         </div>
-         <div class="yui-gd">
-            <div class="yui-u first"><label for="${el}-height">${msg("label.height")}:</label></div>
-            <div class="yui-u"><input id="${el}-height" type="text" name="height" value="" /></div>
-         </div>
-         <div class="yui-gd">
-            <div class="yui-u first"><label for="${el}-width">${msg("label.width")}:</label></div>
-            <div class="yui-u"><input id="${el}-width" type="text" name="width" value="" /></div>
+         <div id="${el}-customProperties" style="display : none;">
+        	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-locationX">${msg("label.locationX")}:</label></div>
+            	<div class="yui-u"><input id="${el}-locationX" type="text" name="locationX" value="" /></div>
+         	</div>
+         	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-locationY">${msg("label.locationY")}:</label></div>
+            	<div class="yui-u"><input id="${el}-locationY" type="text" name="locationY" value="" /></div>
+         	</div>
+         	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-marginX">${msg("label.marginX")}:</label></div>
+            	<div class="yui-u"><input id="${el}-marginX" type="text" name="marginX" value="" /></div>
+         	</div>
+         	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-marginY">${msg("label.marginY")}:</label></div>
+            	<div class="yui-u"><input id="${el}-marginY" type="text" name="marginY" value="" /></div>
+         	</div>
+         	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-height">${msg("label.height")}:</label></div>
+            	<div class="yui-u"><input id="${el}-height" type="text" name="height" value="" /></div>
+         	</div>
+         	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-width">${msg("label.width")}:</label></div>
+            	<div class="yui-u"><input id="${el}-width" type="text" name="width" value="" /></div>
+         	</div>
          </div>
 	 	<div class="bdft">
 	    	<input type="submit" id="${el}-ok" value="${msg("button.ok")}" tabindex="0" />
@@ -88,3 +93,14 @@
      </form>
    </div>
 </div>
+<script type="text/javascript">//<![CDATA[
+    function collapseCustomProperties() {
+    	if (document.getElementById("${el}-customProperties").style.display == "none") {
+			document.getElementById("${el}-customProperties").style.display = "block";
+			document.getElementById("${el}-customPropertiesHeader").className= "yui-u first, alfresco-twister alfresco-twister-open";
+		} else {
+			document.getElementById("${el}-customProperties").style.display = "none";
+			document.getElementById("${el}-customPropertiesHeader").className= "yui-u first, alfresco-twister alfresco-twister-closed";
+		}
+    }
+</script>
