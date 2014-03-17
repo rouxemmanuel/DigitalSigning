@@ -137,7 +137,10 @@ public class SigningService {
 							final Certificate[] chain = ks.getCertificateChain(alias);
 							
 							ContentReader fileToSignContentReader = getReader(signingDTO.getFileToSign());
+							
 							if (fileToSignContentReader != null) {
+								String newName = null;
+								
 								// Check if document is PDF or transform it
 								if (!MimetypeMap.MIMETYPE_PDF.equals(fileToSignContentReader.getMimetype())) {
 									// Transform document in PDF document
@@ -155,6 +158,10 @@ public class SigningService {
 													newDoc.setMimetype(MimetypeMap.MIMETYPE_PDF);
 													tranformer.transform(fileToSignContentReader, newDoc);
 													fileToSignContentReader = new FileContentReader(fileConverted);
+													
+													final String originalName = (String) nodeService.getProperty(signingDTO.getFileToSign(), ContentModel.PROP_NAME);
+													
+													newName = originalName.substring(0, originalName.lastIndexOf(".")) + ".pdf";
 										        }
 											}
 								        }
@@ -242,6 +249,10 @@ public class SigningService {
 												            nodeService.setProperty(destinationNode, SigningModel.PROP_LOCATION, signingDTO.getSignLocation());
 												            nodeService.setProperty(destinationNode, SigningModel.PROP_SIGNATUREDATE, new java.util.Date());
 												            nodeService.setProperty(destinationNode, SigningModel.PROP_SIGNEDBY, AuthenticationUtil.getRunAsUser());
+												            
+												            if (newName != null) {
+												            	nodeService.setProperty(destinationNode, ContentModel.PROP_NAME, newName);
+												            }
 												            
 												            final X509Certificate c = (X509Certificate) ks.getCertificate(alias);
 												            nodeService.setProperty(destinationNode, SigningModel.PROP_VALIDITY, c.getNotAfter());
