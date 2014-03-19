@@ -62,8 +62,8 @@
 				Dom.get("yui-keyInfosAlgorithm").innerHTML = algorithm + "<br />";
 				Dom.get("yui-keyInfosFirstDayLabel").style.display = "";
 				Dom.get("yui-keyInfosFirstDay").innerHTML = firstValidity + "<br />";
-				Dom.get("yui-keyInfosFirstDayLabel").style.display = "";
-				Dom.get("yui-keyInfosFirstDay").innerHTML = lastValidity;
+				Dom.get("yui-keyInfosLastDayLabel").style.display = "";
+				Dom.get("yui-keyInfosLastDay").innerHTML = lastValidity;
 			}
 			if (hasExpired || expire != null) {
 				Dom.get("yui-expireTr").style.display = "";
@@ -72,6 +72,8 @@
 				} else if (expire != null) {
 					Dom.get("yui-expireMessageText").innerHTML = signatureInstance.msg("signature.warning.day", expire);
 				}
+			} else {
+				Dom.get("yui-expireTr").style.display = "none";
 			}
 			if (hasImage != null) {
 				Dom.get("yui-imageInfosTr").style.display = "";
@@ -84,6 +86,9 @@
 				oImg.setAttribute('width', '200px');
 				oImg.setAttribute('border', '0');
 				Dom.get("yui-imageInfosImage").appendChild(oImg);
+			} else {
+				Dom.get("yui-imageInfosTr").style.display = "none";
+				Dom.get("yui-imageInfosImage").innerHTML = "";
 			}
 		}
 		signatureConfigDialog.hide();
