@@ -18,6 +18,9 @@
             
             <div class="yui-u first"><label for="${el}-signatureImage">${msg("label.image")}</label></div>
             <div class="yui-u"><input id="${el}-signatureImage" type="file" name="image" tabindex="4" />&nbsp;</div>
+            
+            <div class="yui-u first"><label for="${el}-signatureAlert">${msg("label.alert")}</label></div>
+            <div class="yui-u"><select id="${el}-signatureAlert" name="alert"><option value="1">1</option><option value="3">3</option><option value="6">6</option></select>&nbsp;</div>
          </div>
          <div class="bdft">
             <input type="submit" id="${el}-ok" value="${msg("button.ok")}" tabindex="0" />

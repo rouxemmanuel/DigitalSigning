@@ -151,7 +151,7 @@ public class SigningService {
 										tempDir = new File(alfTempDir.getPath() + File.separatorChar + signingDTO.getFileToSign().getId());
 								        if (tempDir != null) {
 											tempDir.mkdir();
-									        fileConverted = new File(tempDir, fileFolderService.getFileInfo(signingDTO.getFileToSign()).getName() + ".pdf");
+									        fileConverted = new File(tempDir, fileFolderService.getFileInfo(signingDTO.getFileToSign()).getName() + "_" + System.currentTimeMillis() + ".pdf");
 											if (fileConverted != null) {
 										        final ContentWriter newDoc = new FileContentWriter(fileConverted);
 										        if (newDoc != null) {
@@ -256,6 +256,13 @@ public class SigningService {
 												            
 												            final X509Certificate c = (X509Certificate) ks.getCertificate(alias);
 												            nodeService.setProperty(destinationNode, SigningModel.PROP_VALIDITY, c.getNotAfter());
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_ORIGINAL_DOC, signingDTO.getFileToSign());
+												            
+												            if (!nodeService.hasAspect(signingDTO.getFileToSign(), SigningModel.ASPECT_ORIGINAL_DOC)) {
+												            	nodeService.addAspect(signingDTO.getFileToSign(), SigningModel.ASPECT_ORIGINAL_DOC, new HashMap<QName, Serializable>());
+												            }
+												            nodeService.createAssociation(signingDTO.getFileToSign(), destinationNode, SigningModel.PROP_RELATED_DOC);
+												            
 											            }
 										            } else {
 										            	log.error("Destination folder is not a valid NodeRef.");

@@ -18,6 +18,7 @@
 				"algorithm":"${keyInfos.algorithm}",
 				"firstDayValidity":"${keyInfos.firstDayValidity?string("dd-MM-yyyy HH:mm:ss")}",
 				"lastDayValidity":"${keyInfos.lastDayValidity?string("dd-MM-yyyy HH:mm:ss")}",
+				"alert":"${keyInfos.alert}",
 				"hasExpired":${keyInfos.hasExpired?string("true","false")}
 				<#if keyInfos.expire??>
 				,"expire":"${keyInfos.expire}"

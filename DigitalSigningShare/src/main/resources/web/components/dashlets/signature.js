@@ -28,7 +28,7 @@
       return this;
    };
    
-   submitCallBack = function signature_submitCallBack(errorNumber, errorMessage, alias, subject, type, algorithm, firstValidity, lastValidity, hasExpired, expire, hasImage)
+   submitCallBack = function signature_submitCallBack(errorNumber, errorMessage, alias, subject, type, algorithm, firstValidity, lastValidity, hasExpired, expire, hasImage, alert)
    {
 		if (errorNumber != null) {
 			Dom.get("yui-errors").style.display = "";
@@ -50,7 +50,7 @@
 			Dom.get("yui-errorImageKey").style.display = "none";
 			Dom.get("yui-errorMessageText").style.display = "none";
 			
-			if (alias != null && subject != null && type != null && algorithm != null && firstValidity != null && lastValidity != null) {
+			if (alias != null && subject != null && type != null && algorithm != null && firstValidity != null && lastValidity != null && alert != null) {
 				Dom.get("yui-keyInfosTr").style.display = "";
 				Dom.get("yui-keyInfosTypeLabel").style.display = "";
 				Dom.get("yui-keyInfosType").innerHTML = type + "<br />";
@@ -64,6 +64,8 @@
 				Dom.get("yui-keyInfosFirstDay").innerHTML = firstValidity + "<br />";
 				Dom.get("yui-keyInfosLastDayLabel").style.display = "";
 				Dom.get("yui-keyInfosLastDay").innerHTML = lastValidity;
+				Dom.get("yui-keyInfosAlertLabel").style.display = "";
+				Dom.get("yui-keyInfosAlert").innerHTML = alert;
 			}
 			if (hasExpired || expire != null) {
 				Dom.get("yui-expireTr").style.display = "";

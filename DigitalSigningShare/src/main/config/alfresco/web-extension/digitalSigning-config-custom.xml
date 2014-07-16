@@ -78,6 +78,25 @@
 		</forms>
 	</config>
 	
+	<config evaluator="aspect" condition="dgtsgn:originalDoc">
+      <forms>
+         <form>
+            <field-visibility>
+	           	<show id="dgtsgn:relatedDocList" for-mode="view"/>
+			</field-visibility> 
+			<appearance>
+				<field id="dgtsgn:relatedDocList" label-id="prop.dgtsgn_relatedDocType">
+					<control template="/org/alfresco/components/form/controls/association.ftl">
+						<control-param name="displayMode">items</control-param>
+						<control-param name="showTargetLink">true</control-param>
+						<control-param name="allowNavigationToContentChildren">true</control-param>
+					</control>
+				</field>
+			</appearance>
+         </form>
+      </forms>
+    </config>
+	
 	<!-- Document Library config section -->
    	<config evaluator="string-compare" condition="DocumentLibrary">
 		<indicators>

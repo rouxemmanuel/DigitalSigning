@@ -97,6 +97,7 @@ public class SignUpload extends SigningWebScript {
 							String imageMimetype = null;
 							String password = null;
 							String alias = null;
+							String alert = null;
 							
 							final Object formReq = req.parseContent();
 							if (formReq != null && formReq instanceof FormData) {
@@ -124,6 +125,9 @@ public class SignUpload extends SigningWebScript {
 										if ("alias".equals(field.getName().toLowerCase())) {
 											alias = field.getValue();
 										}
+										if ("alert".equals(field.getName().toLowerCase())) {
+											alert = field.getValue();
+										}
 									}
 								}
 							} else {
@@ -142,6 +146,9 @@ public class SignUpload extends SigningWebScript {
 							}
 							if (StringUtils.isBlank(alias)) {
 								throw new WebScriptException("Parameter 'alias' is required.");
+							}
+							if (StringUtils.isBlank(alert)) {
+								throw new WebScriptException("Parameter 'alert' is required.");
 							}
 							
 							final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
@@ -191,11 +198,14 @@ public class SignUpload extends SigningWebScript {
 										
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALIAS, alias);
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYTYPE, keyType);
-										final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password);
+										final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password, alert);
+										keyInfoDTO.setHasAlerted(false);
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
+										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALERT, keyInfoDTO.getAlert());
+										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
 										
 										if (keyInfoDTO.getExpire() != null && Integer.parseInt(keyInfoDTO.getExpire()) >= 100) {
 											keyInfoDTO.setExpire(null);

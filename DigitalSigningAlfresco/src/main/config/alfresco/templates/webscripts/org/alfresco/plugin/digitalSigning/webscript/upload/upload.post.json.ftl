@@ -18,6 +18,7 @@
 				"algorithm":"${signingKey.properties["dgtsgn:keyAlgorithm"]}",
 				"firstDayValidity":"${signingKey.properties["dgtsgn:keyFirstValidity"]?string("dd-MM-yyyy HH:mm:ss")}",
 				"lastDayValidity":"${signingKey.properties["dgtsgn:keyLastValidity"]?string("dd-MM-yyyy HH:mm:ss")}",
+				"alert":"${signingKey.properties["dgtsgn:keyAlert"]}",
 				"hasExpired":${keyInfos.hasExpired?string("true","false")}
 				<#if keyInfos.expire??>
 				,"expire":"${keyInfos.expire}"
