@@ -56,7 +56,7 @@ public class SigningWebScript extends DeclarativeWebScript {
 	 * @param keyPassword key password
 	 * @return key informations
 	 */
-	protected KeyInfoDTO getKeyInformation(final NodeRef keyNodeRef, final String keyAlias, final String keyType, final String keyPassword) {
+	protected KeyInfoDTO getKeyInformation(final NodeRef keyNodeRef, final String keyAlias, final String keyType, final String keyPassword, final String alert) {
 		final KeyInfoDTO keyInfoDTO = new KeyInfoDTO() ;
 		try {
 			if (SigningConstants.KEY_TYPE_X509.equals(keyType)) {
@@ -73,6 +73,7 @@ public class SigningWebScript extends DeclarativeWebScript {
 				        final Principal subject = c.getSubjectDN();
 				        
 				        keyInfoDTO.setAlias(keyAlias);
+				        keyInfoDTO.setAlert(alert);
 				        keyInfoDTO.setAlgorithm(c.getSigAlgName());
 				        if (subject != null) {
 				        	keyInfoDTO.setSubject(subject.toString());

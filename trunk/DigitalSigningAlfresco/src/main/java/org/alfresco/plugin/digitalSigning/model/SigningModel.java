@@ -21,6 +21,7 @@ public class SigningModel {
     public static final QName PROP_LOCATION = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "location");
     public static final QName PROP_SIGNEDBY = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "signedby");
     public static final QName PROP_VALIDITY = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "validity");
+    public static final QName PROP_ORIGINAL_DOC = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "originalDoc");
     
     // Key aspect and properties
     public static final QName ASPECT_KEY = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "key");
@@ -30,8 +31,13 @@ public class SigningModel {
     public static final QName PROP_KEYFIRSTVALIDITY = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyFirstValidity");
     public static final QName PROP_KEYLASTVALIDITY = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyLastValidity");
     public static final QName PROP_KEYALGORITHM = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyAlgorithm");
+    public static final QName PROP_KEYALERT = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyAlert");
+    public static final QName PROP_KEYHASALERT = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyHasAlerted");
     
     // Image aspect and properties
     public static final QName ASPECT_IMAGE = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "image");
     
+    // Original doc aspect and properties
+    public static final QName ASPECT_ORIGINAL_DOC = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "originalDoc");
+    public static final QName PROP_RELATED_DOC = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "relatedDocList");
 }

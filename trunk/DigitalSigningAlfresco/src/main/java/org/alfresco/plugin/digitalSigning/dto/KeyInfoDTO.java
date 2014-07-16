@@ -51,7 +51,17 @@ public class KeyInfoDTO {
      * Indicate if key has expired or not.
      */
     private boolean hasExpired;
+    
+    /**
+     * Alert in month.
+     */
+    private String alert;
 
+    /**
+     * Indicate if already alerted.
+     */
+    private Boolean hasAlerted;
+    
 	/**
 	 * @return the alias
 	 */
@@ -162,6 +172,34 @@ public class KeyInfoDTO {
 	 */
 	public final void setHasExpired(boolean hasExpired) {
 		this.hasExpired = hasExpired;
+	}
+
+	/**
+	 * @return the alert
+	 */
+	public String getAlert() {
+		return alert;
+	}
+
+	/**
+	 * @param alret the alert to set
+	 */
+	public void setAlert(String alert) {
+		this.alert = alert;
+	}
+
+	/**
+	 * @return the hasAlerted
+	 */
+	public Boolean getHasAlerted() {
+		return hasAlerted;
+	}
+
+	/**
+	 * @param hasAlerted the hasAlerted to set
+	 */
+	public void setHasAlerted(Boolean hasAlerted) {
+		this.hasAlerted = hasAlerted;
 	}
 
 }

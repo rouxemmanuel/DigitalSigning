@@ -3,7 +3,7 @@
   	<groupId>com.alfresco.plugin</groupId>
   	<artifactId>digitalSigningShare</artifactId>
   	<packaging>amp</packaging>
-  	<version>1.0.0</version>
+  	<version>1.0.1</version>
   	<name>Alfresco Digital Signing Plugin</name>
   	<description>Alfresco Digital Signing Plugin</description>
   	
@@ -39,6 +39,10 @@
 		<repository>
 			<id>alfresco-private</id>
 			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+		</repository>
+		<repository>
+			<id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
 		</repository>
 		<repository>
 			<id>alfresco-thirdparty</id>

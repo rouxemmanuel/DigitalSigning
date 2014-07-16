@@ -106,6 +106,7 @@ public class SignatureInformation extends SigningWebScript {
 												keyInfoDTO.setLastDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY));
 												keyInfoDTO.setSubject((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT));
 												keyInfoDTO.setType((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYTYPE));
+												keyInfoDTO.setAlert((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALERT));
 												
 												final Date now = new Date();
 												long diff = keyInfoDTO.getLastDayValidity().getTime() - now.getTime();
