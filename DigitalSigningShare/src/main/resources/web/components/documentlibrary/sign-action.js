@@ -92,14 +92,19 @@
 					this.widgets.filterPathDialog = new Alfresco.module.DoclibGlobalFolder(this.id + "-selectFilterPath");
 					var allowedViewModes =
 					[
-					  Alfresco.module.DoclibGlobalFolder.VIEW_MODE_REPOSITORY
+					 Alfresco.module.DoclibGlobalFolder.VIEW_MODE_SITE, 
+					 Alfresco.module.DoclibGlobalFolder.VIEW_MODE_RECENT_SITES,
+					 Alfresco.module.DoclibGlobalFolder.VIEW_MODE_FAVOURITE_SITES,
+					 Alfresco.module.DoclibGlobalFolder.VIEW_MODE_REPOSITORY, 
+					 Alfresco.module.DoclibGlobalFolder.VIEW_MODE_USERHOME,
+					 Alfresco.module.DoclibGlobalFolder.VIEW_MODE_SHARED
 					];
 					this.widgets.filterPathDialog.setOptions(
 					{
 					  allowedViewModes: allowedViewModes,
 					  siteId: this.options.siteId,
 					  containerId: this.options.containerId,
-					  title: "Configure",
+					  title: this.msg("message.sign.select.destination"),
 					  nodeRef: "alfresco://company/home"
 					});
 					YAHOO.Bubbling.on("folderSelected", function (layer, args) {
