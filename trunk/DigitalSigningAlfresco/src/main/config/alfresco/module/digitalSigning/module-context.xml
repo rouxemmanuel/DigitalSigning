@@ -2,6 +2,21 @@
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
 
+	<bean id="digitalSigningPropertiesPlaceHolder"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders">
+			<value>true</value>
+		</property>
+		<property name="ignoreResourceNotFound">
+			<value>true</value>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:alfresco/module/digitalSigning/digitalSigning.properties</value>
+			</list>
+		</property>
+	</bean>
+
 	<!-- load the custom content model -->
     <bean id="digitalSigning-model" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
 		<property name="models">
@@ -141,6 +156,61 @@
 		</property>
 		<property name="dictionaryService">
 			<ref bean="dictionaryService" />
+		</property>
+	</bean>
+	
+	<!-- Certificate alert process definition -->
+	<bean id="certificateAlert" class="org.alfresco.plugin.digitalSigning.scheduledAction.CertificateAlert">
+		<property name="retryingTransactionHelper">
+            <ref bean="retryingTransactionHelper"/>
+        </property>
+        <property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+		<property name="actionService">
+			<ref bean="actionService" />
+		</property>
+		<property name="fromEmail">
+			<value>${mail.from.default}</value>
+		</property>
+		<property name="templateService">
+			<ref bean="templateService" />
+		</property>
+		<property name="tenantService">
+            <ref bean="tenantService"></ref>
+        </property>
+        <property name="preferenceService">
+            <ref bean="preferenceService"></ref>
+        </property>
+	</bean>
+	
+	<!-- Alert on certificate expiration job definition -->
+	<bean id="certificateAlertJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass">
+			<value>org.alfresco.plugin.digitalSigning.scheduledAction.CertificateAlertJob</value>
+		</property>
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="certificateAlert">
+					<ref bean="certificateAlert" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<!-- Alert on certificate expiration trigger definition -->
+	<bean id="certificateAlertTrigger" class="org.alfresco.util.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="certificateAlertJobDetail" />
+		</property>
+		<property name="scheduler">
+			<ref bean="schedulerFactory" />
+		</property>
+		<property name="cronExpression">
+			<value>${digitalSigning.alert.cron}</value>
 		</property>
 	</bean>
 
