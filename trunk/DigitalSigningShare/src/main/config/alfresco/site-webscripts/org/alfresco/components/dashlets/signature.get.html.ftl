@@ -91,7 +91,7 @@
 									<span id="yui-keyInfosFirstDayLabel" <#if keyInfos??>style=""<#else>style="display:none;"</#if> ><b>${msg("signature.firstDayValidity")}</b></span>
 									<span id="yui-keyInfosFirstDay"><#if keyInfos??>${keyInfos.firstDayValidity}<br /></#if></span>
 									<span id="yui-keyInfosLastDayLabel" <#if keyInfos??>style=""<#else>style="display:none;"</#if> ><b>${msg("signature.lastDayValidity")}</b></span>
-									<span id="yui-keyInfosLastDay"><#if keyInfos??>${keyInfos.lastDayValidity}</#if></span>
+									<span id="yui-keyInfosLastDay"><#if keyInfos??>${keyInfos.lastDayValidity}<br /></#if></span>
 									<span id="yui-keyInfosAlertLabel" <#if keyInfos??>style=""<#else>style="display:none;"</#if> ><b>${msg("signature.alert")}</b></span>
 									<span id="yui-keyInfosAlert"><#if keyInfos??>${keyInfos.alert}</#if></span>
 								</div>
