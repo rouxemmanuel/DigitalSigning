@@ -7,8 +7,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -48,7 +50,6 @@ import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.TempFileProvider;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
 import org.alfresco.plugin.digitalSigning.dto.DigitalSigningDTO;
 import org.alfresco.plugin.digitalSigning.dto.VerifyResultDTO;
 import org.alfresco.plugin.digitalSigning.dto.VerifyingDTO;
@@ -57,15 +58,22 @@ import org.alfresco.plugin.digitalSigning.model.SigningModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.AcroFields.FieldPosition;
+import com.itextpdf.text.pdf.PdfArray;
+import com.itextpdf.text.pdf.PdfDictionary;
+import com.itextpdf.text.pdf.PdfImportedPage;
+import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfPKCS7;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfString;
+import com.itextpdf.text.pdf.PdfWriter;
 
 /**
  * Sign service for Alfresco
@@ -171,7 +179,10 @@ public class SigningService {
 									}
 								}
 							
-								final PdfReader reader = new PdfReader(fileToSignContentReader.getContentInputStream());
+								// Convert PDF in PDF/A format
+								final File pdfAFile = convertPdfToPdfA(fileToSignContentReader.getContentInputStream());
+								
+								final PdfReader reader = new PdfReader(new FileInputStream(pdfAFile));
 						        
 								if (signingDTO.getFileToSign() != null) {
 							        tempDir = new File(alfTempDir.getPath() + File.separatorChar + signingDTO.getFileToSign().getId());
@@ -282,6 +293,11 @@ public class SigningService {
 									log.error("Unable to get document to sign content.");
 									throw new AlfrescoRuntimeException("Unable to get document to sign content.");
 								}
+								
+								if (pdfAFile != null) {
+									pdfAFile.delete();
+								}
+								
 							} else {
 								log.error("The document has no content.");
 								throw new AlfrescoRuntimeException("The document has no content.");
@@ -575,6 +591,52 @@ public class SigningService {
         destinationNode = fileInfo.getNodeRef();
 
         return destinationNode;
+    }
+    
+    private File convertPdfToPdfA(final InputStream source) throws Exception{
+    	
+    	final File pdfAFile = TempFileProvider.createTempFile("digitalSigning-" + System.currentTimeMillis(), ".pdf");
+    	
+        //Reads a PDF document. 
+        PdfReader reader = new PdfReader(source); 
+        //PdfStamper: Applies extra content to the pages of a PDF document. This extra content can be all the objects allowed in 
+        //PdfContentByte including pages from other Pdfs. 
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(pdfAFile)); 
+        //A generic Document class. 
+        Document document = new Document(); 
+        // we create a writer that listens to the document 
+        PdfWriter writer = stamper.getWriter(); 
+        int numberPages = reader.getNumberOfPages(); 
+        writer.setPDFXConformance(PdfWriter.PDFA1A); 
+        document.open(); 
+
+        //PdfDictionary:A dictionary is an associative table containing pairs of objects. 
+        //The first element of each pair is called the key and the second  element is called the value 
+        //<CODE>PdfName</CODE> is an object that can be used as a name in a PDF-file 
+        PdfDictionary outi = new PdfDictionary(PdfName.OUTPUTINTENT); 
+        outi.put(PdfName.OUTPUTCONDITIONIDENTIFIER, new PdfString("sRGB IEC61966-2.1")); 
+        outi.put(PdfName.INFO, new PdfString("sRGB IEC61966-2.1")); 
+        outi.put(PdfName.S, PdfName.GTS_PDFA1); 
+        writer.getExtraCatalog().put(PdfName.OUTPUTINTENTS, new PdfArray(outi)); 
+
+        //Add pages 
+        PdfImportedPage p = null; 
+        Image image; 
+        for(int i=0; i< numberPages; i++){ 
+            p = writer.getImportedPage(reader, i+1); 
+            image = Image.getInstance(p); 
+            document.add(image); 
+        } 
+        writer.createXmpMetadata(); 
+
+        document.close(); 
+
+        //Add Metadata from source pdf 
+        HashMap<String, String> info = reader.getInfo(); 
+        stamper.setMoreInfo(info); 
+        stamper.close();
+        
+        return pdfAFile;
     }
 
 
