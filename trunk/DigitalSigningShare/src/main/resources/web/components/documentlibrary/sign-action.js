@@ -44,7 +44,9 @@
                fn: function dlA_doSetupFormsValidation(p_form)
                {
 			 	p_form.addValidation(this.id + "-sign-password", Alfresco.forms.validation.mandatory, null, "keyup");
-				p_form.addValidation(this.id + "-sign-filterPathView", function(field, args, event, form, silent, message)
+				
+			 	//TODO : Supprimer la validation sur le champ -sign-filterPathView
+			 	p_form.addValidation(this.id + "-sign-filterPathView", function(field, args, event, form, silent, message)
                 {
 					if (Dom.get(currentId + "-sign-pathNodeRef").value == "") {
 						return false;
@@ -103,7 +105,7 @@
 					{
 					  allowedViewModes: allowedViewModes,
 					  siteId: this.options.siteId,
-					  containerId: this.options.containerId,
+					  //containerId: this.options.containerId,
 					  title: this.msg("message.sign.select.destination"),
 					  nodeRef: "alfresco://company/home"
 					});
