@@ -33,6 +33,7 @@ public class SigningModel {
     public static final QName PROP_KEYALGORITHM = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyAlgorithm");
     public static final QName PROP_KEYALERT = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyAlert");
     public static final QName PROP_KEYHASALERT = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyHasAlerted");
+    public static final QName PROP_KEYCRYPTSECRET = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "keyCryptSecret");
     
     // Image aspect and properties
     public static final QName ASPECT_IMAGE = QName.createQName(DIGITAL_SIGNING_MODEL_1_0_URI, "image");

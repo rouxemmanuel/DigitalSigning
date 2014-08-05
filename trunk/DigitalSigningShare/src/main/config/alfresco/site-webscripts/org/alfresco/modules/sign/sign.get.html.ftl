@@ -8,7 +8,7 @@
 		<div class="yui-gd">
             <div class="yui-u first"><label for="${el}-destination">${msg("label.destination")}:</label></div>
             <div class="yui-u">
-               <button type="button" name="-" id="${el}-selectFilterPath-button">${msg("label.browse")}</button> * 
+               <button type="button" name="-" id="${el}-selectFilterPath-button">${msg("label.browse")}</button> <i>${msg("label.destination.information")}</i> 
                <br /><span id="${el}-filterPathView"></span>
             </div>
          </div>

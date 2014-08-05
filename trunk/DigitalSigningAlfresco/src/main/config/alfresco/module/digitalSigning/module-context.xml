@@ -38,6 +38,7 @@
 		<property name="contentService" ref="contentService" />
 		<property name="fileFolderService" ref="fileFolderService" />
 		<property name="contentTransformerRegistry" ref="contentTransformerRegistry" />
+		<property name="metadataEncryptor" ref="metadataEncryptor" />
 	</bean>
 	
 	<!-- Digital Signing action -->
@@ -87,6 +88,9 @@
 		</property>
 		<property name="personService">
 			<ref bean="personService" />
+		</property>
+		<property name="metadataEncryptor">
+			<ref bean="metadataEncryptor" />
 		</property>
 	</bean>
 	

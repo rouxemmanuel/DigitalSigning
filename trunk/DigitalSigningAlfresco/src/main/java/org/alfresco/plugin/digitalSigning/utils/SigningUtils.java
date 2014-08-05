@@ -28,9 +28,11 @@ public class SigningUtils {
 				throw new AlfrescoRuntimeException("key password parameter is required.");
 			}
 			
+			/*
 			if (digitalSigningDTO.getDestinationFolder() == null) {
 				throw new AlfrescoRuntimeException("destination folder parameter is required.");
 			}
+			*/
 			
 			if (digitalSigningDTO.getFileToSign() == null) {
 				throw new AlfrescoRuntimeException("document to sign parameter is required.");

@@ -13,7 +13,6 @@
 	<config evaluator="string-compare" condition="DocLibActions">
 		<!-- paramedit action -->
 		<actions>
-         	
          	<action id="sign" type="javascript" icon="sign" label="actions.sign">
             	<param name="function">onActionSign</param>
             	<permissions>

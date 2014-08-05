@@ -222,7 +222,7 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 			log.error("document parameter is required.");
 			throw new AlfrescoRuntimeException("document parameter is required.");
 		}
-		if (destinationFolderStr != null) {
+		if (destinationFolderStr != null && destinationFolderStr.compareTo("") != 0) {
 			try {
 				final NodeRef destinationFolder = new NodeRef(destinationFolderStr);
 				if (destinationFolder != null) {
@@ -233,8 +233,9 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 				throw new AlfrescoRuntimeException("destination must be a valid nodeRef.");
 			}
 		} else {
-			log.error("destination parameter is required.");
-			throw new AlfrescoRuntimeException("destination parameter is required.");
+			signingDTO.setDestinationFolder(null);
+			//log.error("destination parameter is required.");
+			//throw new AlfrescoRuntimeException("destination parameter is required.");
 		}
 		if (reason != null) {
 			signingDTO.setSignReason(reason);

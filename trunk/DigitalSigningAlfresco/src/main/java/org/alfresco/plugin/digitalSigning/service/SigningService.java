@@ -31,11 +31,18 @@ import javax.imageio.ImageIO;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.plugin.digitalSigning.dto.DigitalSigningDTO;
+import org.alfresco.plugin.digitalSigning.dto.VerifyResultDTO;
+import org.alfresco.plugin.digitalSigning.dto.VerifyingDTO;
+import org.alfresco.plugin.digitalSigning.model.SigningConstants;
+import org.alfresco.plugin.digitalSigning.model.SigningModel;
+import org.alfresco.plugin.digitalSigning.utils.CryptUtils;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.content.filestore.FileContentReader;
 import org.alfresco.repo.content.filestore.FileContentWriter;
 import org.alfresco.repo.content.transform.ContentTransformer;
 import org.alfresco.repo.content.transform.ContentTransformerRegistry;
+import org.alfresco.repo.node.encryption.MetadataEncryptor;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.model.FileFolderService;
@@ -49,14 +56,9 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.TempFileProvider;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.alfresco.plugin.digitalSigning.dto.DigitalSigningDTO;
-import org.alfresco.plugin.digitalSigning.dto.VerifyResultDTO;
-import org.alfresco.plugin.digitalSigning.dto.VerifyingDTO;
-import org.alfresco.plugin.digitalSigning.model.SigningConstants;
-import org.alfresco.plugin.digitalSigning.model.SigningModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -109,9 +111,14 @@ public class SigningService {
 	private FileFolderService fileFolderService;
 	
 	/**
-	 * Content Transformer registry
+	 * Content Transformer registry.
 	 */
 	private ContentTransformerRegistry contentTransformerRegistry;
+	
+	/**
+	 * Metadata encryptor.
+	 */
+	private MetadataEncryptor metadataEncryptor;
 	
 	/**
 	 * Sign file.
@@ -137,7 +144,15 @@ public class SigningService {
 						final ContentReader keyContentReader = getReader(signingDTO.getKeyFile());
 						
 						if (keyContentReader != null && ks != null && signingDTO.getKeyPassword() != null) {
-							ks.load(keyContentReader.getContentInputStream(), signingDTO.getKeyPassword().toCharArray());
+							
+							// Get crypted secret key and decrypt it
+							final Serializable encryptedPropertyValue = nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYCRYPTSECRET);
+							final Serializable decryptedPropertyValue = metadataEncryptor.decrypt(SigningModel.PROP_KEYCRYPTSECRET, encryptedPropertyValue);
+							
+							// Decrypt key content
+							final InputStream decryptedKeyContent = CryptUtils.decrypt(decryptedPropertyValue.toString(), keyContentReader.getContentInputStream());
+							
+							ks.load(decryptedKeyContent, signingDTO.getKeyPassword().toCharArray());
 							
 							final String alias = (String) nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYALIAS);
 							
@@ -242,9 +257,21 @@ public class SigningService {
 													}
 													stp.close();
 												
-										            final NodeRef destinationNode = createDestinationNode(file.getName(), signingDTO.getDestinationFolder(), signingDTO.getFileToSign());
+													NodeRef destinationNode = null;
+													NodeRef originalDoc = null;
+													boolean addAsNewVersion = false;
+													if (signingDTO.getDestinationFolder() == null) {
+														destinationNode = signingDTO.getFileToSign();
+														nodeService.addAspect(destinationNode, ContentModel.ASPECT_VERSIONABLE, null);
+														addAsNewVersion = true;
+													} else {
+														originalDoc = signingDTO.getFileToSign();
+														destinationNode = createDestinationNode(file.getName(), signingDTO.getDestinationFolder(), signingDTO.getFileToSign());
+													}
+										            
 										            if (destinationNode != null) {
-											            final ContentWriter writer = contentService.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+											            
+										            	final ContentWriter writer = contentService.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 											            if (writer != null) {
 												            writer.setEncoding(fileToSignContentReader.getEncoding());
 												            writer.setMimetype("application/pdf");
@@ -267,17 +294,19 @@ public class SigningService {
 												            
 												            final X509Certificate c = (X509Certificate) ks.getCertificate(alias);
 												            nodeService.setProperty(destinationNode, SigningModel.PROP_VALIDITY, c.getNotAfter());
-												            nodeService.setProperty(destinationNode, SigningModel.PROP_ORIGINAL_DOC, signingDTO.getFileToSign());
+												            nodeService.setProperty(destinationNode, SigningModel.PROP_ORIGINAL_DOC, originalDoc);
 												            
-												            if (!nodeService.hasAspect(signingDTO.getFileToSign(), SigningModel.ASPECT_ORIGINAL_DOC)) {
-												            	nodeService.addAspect(signingDTO.getFileToSign(), SigningModel.ASPECT_ORIGINAL_DOC, new HashMap<QName, Serializable>());
+												            if (!addAsNewVersion) {
+													            if (!nodeService.hasAspect(originalDoc, SigningModel.ASPECT_ORIGINAL_DOC)) {
+													            	nodeService.addAspect(originalDoc, SigningModel.ASPECT_ORIGINAL_DOC, new HashMap<QName, Serializable>());
+													            }
+													            nodeService.createAssociation(originalDoc, destinationNode, SigningModel.PROP_RELATED_DOC);
 												            }
-												            nodeService.createAssociation(signingDTO.getFileToSign(), destinationNode, SigningModel.PROP_RELATED_DOC);
 												            
 											            }
 										            } else {
-										            	log.error("Destination folder is not a valid NodeRef.");
-										    			throw new AlfrescoRuntimeException("Destination folder is not a valid NodeRef.");
+										            	log.error("Destination node is not a valid NodeRef.");
+										    			throw new AlfrescoRuntimeException("Destination node is not a valid NodeRef.");
 										            }
 												} else {
 													log.error("Unable to get PDF appearance signature.");
@@ -335,6 +364,9 @@ public class SigningService {
 			} catch (Exception e) {
 				log.error(e);
 				throw new AlfrescoRuntimeException(e.getMessage(), e);
+			} catch (Throwable e) {
+				log.error(e);
+				throw new AlfrescoRuntimeException(e.getMessage(), e);
 			} finally {
 	            if (tempDir != null) {
 	                try {
@@ -361,7 +393,17 @@ public class SigningService {
 				final KeyStore ks = KeyStore.getInstance(keyType);
 				final ContentReader keyContentReader = getReader(verifyingDTO.getKeyFile());
 				if (keyContentReader != null && ks != null  && verifyingDTO.getKeyPassword() != null) {
-					ks.load(keyContentReader.getContentInputStream(), verifyingDTO.getKeyPassword().toCharArray());
+					
+					// Get crypted secret key and decrypt it
+					final Serializable encryptedPropertyValue = nodeService.getProperty(verifyingDTO.getKeyFile(), SigningModel.PROP_KEYCRYPTSECRET);
+					final Serializable decryptedPropertyValue = metadataEncryptor.decrypt(SigningModel.PROP_KEYCRYPTSECRET, encryptedPropertyValue);
+					
+					// Decrypt key content
+					final InputStream decryptedKeyContent = CryptUtils.decrypt(decryptedPropertyValue.toString(), keyContentReader.getContentInputStream());
+					
+					ks.load(decryptedKeyContent, verifyingDTO.getKeyPassword().toCharArray());
+					
+					
 					final ContentReader fileToVerifyContentReader = getReader(verifyingDTO.getFileToVerify());
 					if (fileToVerifyContentReader != null) {
 						final PdfReader reader = new PdfReader(fileToVerifyContentReader.getContentInputStream());
@@ -441,6 +483,9 @@ public class SigningService {
 			log.error(e);
 			throw new AlfrescoRuntimeException(e.getMessage(), e);
 		} catch (GeneralSecurityException e) {
+			log.error(e);
+			throw new AlfrescoRuntimeException(e.getMessage(), e);
+		} catch (Throwable e) {
 			log.error(e);
 			throw new AlfrescoRuntimeException(e.getMessage(), e);
 		}
@@ -678,5 +723,13 @@ public class SigningService {
 	public final void setContentTransformerRegistry(
 			ContentTransformerRegistry contentTransformerRegistry) {
 		this.contentTransformerRegistry = contentTransformerRegistry;
+	}
+
+
+	/**
+	 * @param metadataEncryptor the metadataEncryptor to set
+	 */
+	public final void setMetadataEncryptor(MetadataEncryptor metadataEncryptor) {
+		this.metadataEncryptor = metadataEncryptor;
 	}
 }
