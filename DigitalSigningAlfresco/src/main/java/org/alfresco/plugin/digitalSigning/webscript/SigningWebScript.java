@@ -4,6 +4,7 @@
 package org.alfresco.plugin.digitalSigning.webscript;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +14,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.node.encryption.MetadataEncryptor;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
@@ -21,9 +23,9 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
-
 import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
 import org.alfresco.plugin.digitalSigning.model.SigningConstants;
+import org.alfresco.plugin.digitalSigning.utils.CryptUtils;
 
 /**
  * Global signing class.
@@ -48,16 +50,23 @@ public class SigningWebScript extends DeclarativeWebScript {
 	protected ContentService contentService;
 	
 	/**
+	 * Metadata encryptor bean.
+	 */
+	protected MetadataEncryptor metadataEncryptor;
+	
+	/**
 	 * Get key informations.
 	 * 
 	 * @param keyNodeRef key nodeRef
 	 * @param keyAlias key alias
 	 * @param keyType key type
 	 * @param keyPassword key password
+	 * @param keySecretCrypt key secret crypt
 	 * @return key informations
 	 */
-	protected KeyInfoDTO getKeyInformation(final NodeRef keyNodeRef, final String keyAlias, final String keyType, final String keyPassword, final String alert) {
+	protected KeyInfoDTO getKeyInformation(final NodeRef keyNodeRef, final String keyAlias, final String keyType, final String keyPassword, final String alert, final String keySecretCrypt) {
 		final KeyInfoDTO keyInfoDTO = new KeyInfoDTO() ;
+		keyInfoDTO.setError(null);
 		try {
 			if (SigningConstants.KEY_TYPE_X509.equals(keyType)) {
 				final KeyStore ks = KeyStore.getInstance("pkcs12");
@@ -67,7 +76,11 @@ public class SigningWebScript extends DeclarativeWebScript {
 			    }
 			    final ContentReader keyContentReader = contentService.getReader(keyNodeRef, ContentModel.PROP_CONTENT);
 			    if (keyContentReader != null && ks != null && keyPassword != null) {
-				    ks.load(keyContentReader.getContentInputStream(), keyPassword.toCharArray());
+				    
+			    	// Decrypt key content
+					final InputStream decryptedKeyContent = CryptUtils.decrypt(keySecretCrypt, keyContentReader.getContentInputStream());
+			    	
+			    	ks.load(decryptedKeyContent, keyPassword.toCharArray());
 			        final X509Certificate c = (X509Certificate) ks.getCertificate(keyAlias);
 			        if (c != null) {
 				        final Principal subject = c.getSubjectDN();
@@ -95,15 +108,17 @@ public class SigningWebScript extends DeclarativeWebScript {
 			    }
 			}
 		} catch (KeyStoreException e) {
-			return null;
+			keyInfoDTO.setError(e.getMessage());
 		} catch (ContentIOException e) {
-			return null;
+			keyInfoDTO.setError(e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
-			return null;
+			keyInfoDTO.setError(e.getMessage());
 		} catch (CertificateException e) {
-			return null;
+			keyInfoDTO.setError(e.getMessage());
 		} catch (IOException e) {
-			return null;
+			keyInfoDTO.setError(e.getMessage());
+		} catch (Throwable e) {
+			keyInfoDTO.setError(e.getMessage());
 		}
 		
 		return keyInfoDTO;
@@ -128,6 +143,13 @@ public class SigningWebScript extends DeclarativeWebScript {
 	 */
 	public final void setContentService(ContentService contentService) {
 		this.contentService = contentService;
+	}
+	
+	/**
+	 * @param metadataEncryptor the metadataEncryptor to set
+	 */
+	public final void setMetadataEncryptor(MetadataEncryptor metadataEncryptor) {
+		this.metadataEncryptor = metadataEncryptor;
 	}
 
 }

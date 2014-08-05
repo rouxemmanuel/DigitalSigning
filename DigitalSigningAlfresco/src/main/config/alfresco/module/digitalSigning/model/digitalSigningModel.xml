@@ -83,6 +83,12 @@
                       	<title>Alert</title>
                         <type>d:boolean</type>
                 </property>
+                <property name="dgtsgn:keyCryptSecret">
+                     	<title>Secret</title>
+                       	<type>d:encrypted</type>
+						<protected>true</protected>
+						<default></default>
+                </property>
             </properties>
         </aspect>
         

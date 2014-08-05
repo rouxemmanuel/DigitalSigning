@@ -62,6 +62,11 @@ public class KeyInfoDTO {
      */
     private Boolean hasAlerted;
     
+    /**
+     * Error message.
+     */
+    private String error = null;
+    
 	/**
 	 * @return the alias
 	 */
@@ -200,6 +205,20 @@ public class KeyInfoDTO {
 	 */
 	public void setHasAlerted(Boolean hasAlerted) {
 		this.hasAlerted = hasAlerted;
+	}
+
+	/**
+	 * @return the error
+	 */
+	public final String getError() {
+		return error;
+	}
+
+	/**
+	 * @param error the error to set
+	 */
+	public final void setError(String error) {
+		this.error = error;
 	}
 
 }

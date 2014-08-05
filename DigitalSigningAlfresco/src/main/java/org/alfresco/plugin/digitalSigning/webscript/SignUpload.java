@@ -4,6 +4,7 @@
 package org.alfresco.plugin.digitalSigning.webscript;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
 import org.alfresco.plugin.digitalSigning.model.SigningConstants;
 import org.alfresco.plugin.digitalSigning.model.SigningModel;
+import org.alfresco.plugin.digitalSigning.utils.CryptUtils;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
@@ -23,6 +25,8 @@ import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.QName;
+import org.alfresco.util.PropertyMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,7 +69,6 @@ public class SignUpload extends SigningWebScript {
 	 * File folder service.
 	 */
 	private FileFolderService fileFolderService;
-	
 	
 	/**
 	 * Process.
@@ -185,8 +188,20 @@ public class SignUpload extends SigningWebScript {
 									nodeService.setProperty(keyNodeRef, ContentModel.PROP_NAME, keyFilename);
 									final ContentWriter keyContentWriter = contentService.getWriter(keyNodeRef, ContentModel.PROP_CONTENT, true);
 									if (keyContentWriter != null) {
+										
+										// Generate random crypt secret key and encrypt it
+										final String secret = currentUser + "_" + CryptUtils.getRamdomInt() + "_" + System.currentTimeMillis();
+										
+										// Encrypt secret key with Alfresco mechanism
+										Map<QName, Serializable> encryptedProperties = new PropertyMap();
+										encryptedProperties.put(SigningModel.PROP_KEYCRYPTSECRET, secret);
+										encryptedProperties = metadataEncryptor.encrypt(encryptedProperties);
+										
+										// Crypt key content
+										final InputStream encryptedKeyContent = CryptUtils.encrypt(secret, keyContent);
+										
 										keyContentWriter.setMimetype(keyMimetype);
-										keyContentWriter.putContent(keyContent);
+										keyContentWriter.putContent(encryptedKeyContent);
 										
 										// Add aspect and properties on key file
 										if (!nodeService.hasAspect(keyNodeRef, ContentModel.ASPECT_VERSIONABLE)) {
@@ -198,7 +213,10 @@ public class SignUpload extends SigningWebScript {
 										
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALIAS, alias);
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYTYPE, keyType);
-										final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password, alert);
+										final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password, alert, secret);
+										if (keyInfoDTO.getError() != null) {
+											throw new WebScriptException(keyInfoDTO.getError());
+										}
 										keyInfoDTO.setHasAlerted(false);
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
@@ -206,6 +224,7 @@ public class SignUpload extends SigningWebScript {
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALERT, keyInfoDTO.getAlert());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
+										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYCRYPTSECRET, encryptedProperties.get(SigningModel.PROP_KEYCRYPTSECRET));
 										
 										if (keyInfoDTO.getExpire() != null && Integer.parseInt(keyInfoDTO.getExpire()) >= 100) {
 											keyInfoDTO.setExpire(null);
@@ -316,4 +335,5 @@ public class SignUpload extends SigningWebScript {
 	public final void setFileFolderService(FileFolderService fileFolderService) {
 		this.fileFolderService = fileFolderService;
 	}
+
 }
