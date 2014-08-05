@@ -45,20 +45,19 @@
                {
 			 	p_form.addValidation(this.id + "-sign-password", Alfresco.forms.validation.mandatory, null, "keyup");
 				
-			 	//TODO : Supprimer la validation sur le champ -sign-filterPathView
-			 	p_form.addValidation(this.id + "-sign-filterPathView", function(field, args, event, form, silent, message)
-                {
-					if (Dom.get(currentId + "-sign-pathNodeRef").value == "") {
-						return false;
-			 		} else {
-			 			return true;
-			 		}
-                }, null, "blur", this.msg("message.validation.position"));
+			 	//p_form.addValidation(this.id + "-sign-filterPathView", function(field, args, event, form, silent, message)
+                //{
+				//	if (Dom.get(currentId + "-sign-pathNodeRef").value == "") {
+				//		return false;
+			 	//	} else {
+			 	//		return true;
+			 	//	}
+                //}, null, "blur", this.msg("message.validation.position"));
 				
-				p_form.addValidation(this.id + "-sign-position", function(field, args, event, form, silent, message)
-                {
-					return true;
-                }, null, "change", this.msg("message.validation.position"));
+				//p_form.addValidation(this.id + "-sign-position", function(field, args, event, form, silent, message)
+                //{
+				//	return true;
+                //}, null, "change", this.msg("message.validation.position"));
 				
 				p_form.addValidation(this.id + "-sign-field", function(field, args, event, form, silent, message)
                 {
