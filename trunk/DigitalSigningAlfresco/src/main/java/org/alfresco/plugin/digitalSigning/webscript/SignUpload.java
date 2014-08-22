@@ -207,17 +207,31 @@ public class SignUpload extends SigningWebScript {
 										if (!nodeService.hasAspect(keyNodeRef, ContentModel.ASPECT_VERSIONABLE)) {
 											nodeService.addAspect(keyNodeRef, ContentModel.ASPECT_VERSIONABLE, null);
 										}
-										if (!nodeService.hasAspect(keyNodeRef, SigningModel.ASPECT_KEY)) {
-											nodeService.addAspect(keyNodeRef, SigningModel.ASPECT_KEY, null);
+										if (nodeService.hasAspect(keyNodeRef, SigningModel.ASPECT_KEY)) {
+											nodeService.removeAspect(keyNodeRef, SigningModel.ASPECT_KEY);
 										}
 										
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALIAS, alias);
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYTYPE, keyType);
 										final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password, alert, secret);
 										if (keyInfoDTO.getError() != null) {
 											throw new WebScriptException(keyInfoDTO.getError());
 										}
 										keyInfoDTO.setHasAlerted(false);
+										
+										final Map<QName, Serializable> keyProperties = new HashMap<QName, Serializable>();
+										keyProperties.put(SigningModel.PROP_KEYCRYPTSECRET, encryptedProperties.get(SigningModel.PROP_KEYCRYPTSECRET));
+										keyProperties.put(SigningModel.PROP_KEYALIAS, alias);
+										keyProperties.put(SigningModel.PROP_KEYTYPE, keyType);
+										keyProperties.put(SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
+										keyProperties.put(SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
+										keyProperties.put(SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
+										keyProperties.put(SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
+										keyProperties.put(SigningModel.PROP_KEYALERT, keyInfoDTO.getAlert());
+										keyProperties.put(SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
+										
+										nodeService.addAspect(keyNodeRef, SigningModel.ASPECT_KEY, keyProperties);
+										/*
+										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALIAS, alias);
+										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYTYPE, keyType);
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
@@ -225,6 +239,7 @@ public class SignUpload extends SigningWebScript {
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALERT, keyInfoDTO.getAlert());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
 										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYCRYPTSECRET, encryptedProperties.get(SigningModel.PROP_KEYCRYPTSECRET));
+										*/
 										
 										if (keyInfoDTO.getExpire() != null && Integer.parseInt(keyInfoDTO.getExpire()) >= 100) {
 											keyInfoDTO.setExpire(null);
@@ -234,7 +249,7 @@ public class SignUpload extends SigningWebScript {
 										model.put("keyInfos", keyInfoDTO);
 										
 									
-										if (imageContent != null && imageFilename != null && imageMimetype != null) {
+										if (imageContent != null && imageFilename != null && imageFilename.compareTo("") != 0 && imageMimetype != null) {
 											if (imageNodeRef == null) {
 												// Create new image file
 												final FileInfo fileInfo = fileFolderService.create(signingFolderNodeRef, imageFilename, ContentModel.TYPE_CONTENT);
@@ -260,11 +275,8 @@ public class SignUpload extends SigningWebScript {
 												throw new WebScriptException("Unable to get image content.");
 											}
 										} else {
-											if (imageNodeRef != null) {
-												model.put("hasImage", true);
-											} else {
-												model.put("hasImage", false);
-											}
+											nodeService.deleteNode(imageNodeRef);
+											model.put("hasImage", false);
 										}
 									} else {
 										throw new WebScriptException("Unable to get key content.");
