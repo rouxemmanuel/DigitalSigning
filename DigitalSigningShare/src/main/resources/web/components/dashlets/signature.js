@@ -77,7 +77,7 @@
 			} else {
 				Dom.get("yui-expireTr").style.display = "none";
 			}
-			if (hasImage != null) {
+			if (hasImage != null && hasImage == true) {
 				Dom.get("yui-imageInfosTr").style.display = "";
 				Dom.get("yui-imageInfosImage").innerHTML = "";
 				var oImg=document.createElement("img");

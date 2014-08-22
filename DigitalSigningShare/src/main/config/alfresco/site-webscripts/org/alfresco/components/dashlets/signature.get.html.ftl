@@ -98,15 +98,15 @@
 							</div>
 						</td>
 					</tr>
-					<tr class="yui-dt-rec yui-dt-last yui-dt-even" id="yui-imageInfosTr" <#if hasImage??>style=""<#else>style="display:none;"</#if> >
+					<tr class="yui-dt-rec yui-dt-last yui-dt-even" id="yui-imageInfosTr" <#if hasImage?? && hasImage>style=""<#else>style="display:none;"</#if> >
 						<td class="yui-dt14-col-icon yui-dt-col-icon yui-dt-first" style="width: 52px;border-right: 0px">
 							<div class="yui-dt-liner" style="width: 52px;">
-								<#if hasImage??><img src="${url.context}/res/components/images/help-signing-bw-32.png" id="yui-imageInfosIcon"></#if>
+								<#if hasImage?? && hasImage><img src="${url.context}/res/components/images/help-signing-bw-32.png" id="yui-imageInfosIcon"></#if>
 							</div>
 						</td>
 						<td class="yui-dt14-col-detail yui-dt-col-detail" id="yui-imageInfosTd" style="border-right: 0px;">
 							<div class="yui-dt-liner" id="yui-imageInfosDiv">
-								<span id="yui-imageInfosImage"><#if hasImage??><img src="${url.context}/proxy/alfresco/api/digitalSigning/image" alt="${msg("signature.image.alt")}" border="0" width="200" /></#if></span>
+								<span id="yui-imageInfosImage"><#if hasImage?? && hasImage><img src="${url.context}/proxy/alfresco/api/digitalSigning/image" alt="${msg("signature.image.alt")}" border="0" width="200" /></#if></span>
 							</div>
 						</td>
 					</tr>
