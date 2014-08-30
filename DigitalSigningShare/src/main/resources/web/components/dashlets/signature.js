@@ -66,6 +66,8 @@
 				Dom.get("yui-keyInfosLastDay").innerHTML = lastValidity;
 				Dom.get("yui-keyInfosAlertLabel").style.display = "";
 				Dom.get("yui-keyInfosAlert").innerHTML = alert;
+				
+				Dom.get("yui-keyInfosImageDiv").innerHTML = "<img src='" + Alfresco.constants.URL_CONTEXT + "res/components/images/help-key-bw-32.png' id='yui-keyInfosImage'>";
 			}
 			if (hasExpired || expire != null) {
 				Dom.get("yui-expireTr").style.display = "";
@@ -88,9 +90,11 @@
 				oImg.setAttribute('width', '200px');
 				oImg.setAttribute('border', '0');
 				Dom.get("yui-imageInfosImage").appendChild(oImg);
+				Dom.get("yui-imageInfosImageDiv").innerHTML = "<img src='" + Alfresco.constants.URL_CONTEXT + "res/components/images/help-signing-bw-32.png' id='yui-imageInfosIcon'>";
 			} else {
 				Dom.get("yui-imageInfosTr").style.display = "none";
 				Dom.get("yui-imageInfosImage").innerHTML = "";
+				Dom.get("yui-imageInfosImageDiv").innerHTML = "";
 			}
 		}
 		signatureConfigDialog.hide();

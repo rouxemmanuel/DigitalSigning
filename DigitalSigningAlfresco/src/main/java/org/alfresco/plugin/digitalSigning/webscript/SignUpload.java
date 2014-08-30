@@ -181,6 +181,10 @@ public class SignUpload extends SigningWebScript {
 									
 									if (keyNodeRef == null) {
 										// Create new key file
+										final NodeRef keyFile = fileFolderService.searchSimple(signingFolderNodeRef, keyFilename); 
+										if (keyFile != null) {
+											fileFolderService.delete(keyFile);
+										}
 										final FileInfo fileInfo = fileFolderService.create(signingFolderNodeRef, keyFilename, ContentModel.TYPE_CONTENT);
 										keyNodeRef = fileInfo.getNodeRef();
 									}
@@ -252,6 +256,10 @@ public class SignUpload extends SigningWebScript {
 										if (imageContent != null && imageFilename != null && imageFilename.compareTo("") != 0 && imageMimetype != null) {
 											if (imageNodeRef == null) {
 												// Create new image file
+												final NodeRef imageFile = fileFolderService.searchSimple(signingFolderNodeRef, imageFilename); 
+												if (imageFile != null) {
+													fileFolderService.delete(imageFile);
+												}
 												final FileInfo fileInfo = fileFolderService.create(signingFolderNodeRef, imageFilename, ContentModel.TYPE_CONTENT);
 												imageNodeRef = fileInfo.getNodeRef();
 											}
@@ -275,7 +283,9 @@ public class SignUpload extends SigningWebScript {
 												throw new WebScriptException("Unable to get image content.");
 											}
 										} else {
-											nodeService.deleteNode(imageNodeRef);
+											if (imageNodeRef != null) {
+												nodeService.deleteNode(imageNodeRef);
+											}
 											model.put("hasImage", false);
 										}
 									} else {
