@@ -13,7 +13,7 @@
 		"key":
 			{
 				"alias":"${signingKey.properties["dgtsgn:keyAlias"]}",
-				"subject":"${signingKey.properties["dgtsgn:keySubject"]}",
+				<#if signingKey.properties["dgtsgn:keySubject"]??>"subject":"${signingKey.properties["dgtsgn:keySubject"]}",</#if>
 				"type":"${signingKey.properties["dgtsgn:keyType"]}",
 				"algorithm":"${signingKey.properties["dgtsgn:keyAlgorithm"]}",
 				"firstDayValidity":"${signingKey.properties["dgtsgn:keyFirstValidity"]?string("dd-MM-yyyy HH:mm:ss")}",

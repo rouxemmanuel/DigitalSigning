@@ -100,7 +100,7 @@
 					</tr>
 					<tr class="yui-dt-rec yui-dt-last yui-dt-even" id="yui-imageInfosTr" <#if hasImage?? && hasImage>style=""<#else>style="display:none;"</#if> >
 						<td class="yui-dt14-col-icon yui-dt-col-icon yui-dt-first" style="width: 52px;border-right: 0px">
-							<div class="yui-dt-liner" style="width: 52px;">
+							<div class="yui-dt-liner" style="width: 52px;" id="yui-imageInfosImageDiv">
 								<#if hasImage?? && hasImage><img src="${url.context}/res/components/images/help-signing-bw-32.png" id="yui-imageInfosIcon"></#if>
 							</div>
 						</td>
