@@ -3,6 +3,7 @@
  */
 package org.alfresco.plugin.digitalSigning.webscript;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -26,6 +27,7 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
 import org.alfresco.plugin.digitalSigning.model.SigningConstants;
 import org.alfresco.plugin.digitalSigning.utils.CryptUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Global signing class.
@@ -80,7 +82,7 @@ public class SigningWebScript extends DeclarativeWebScript {
 			    	// Decrypt key content
 					final InputStream decryptedKeyContent = CryptUtils.decrypt(keySecretCrypt, keyContentReader.getContentInputStream());
 			    	
-			    	ks.load(decryptedKeyContent, keyPassword.toCharArray());
+			    	ks.load(new ByteArrayInputStream(IOUtils.toByteArray(decryptedKeyContent)), keyPassword.toCharArray());
 			        final X509Certificate c = (X509Certificate) ks.getCertificate(keyAlias);
 			        if (c != null) {
 				        final Principal subject = c.getSubjectDN();

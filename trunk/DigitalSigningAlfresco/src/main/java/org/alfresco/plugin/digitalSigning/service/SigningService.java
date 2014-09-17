@@ -6,6 +6,7 @@ package org.alfresco.plugin.digitalSigning.service;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -56,6 +57,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.TempFileProvider;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -152,7 +154,7 @@ public class SigningService {
 							// Decrypt key content
 							final InputStream decryptedKeyContent = CryptUtils.decrypt(decryptedPropertyValue.toString(), keyContentReader.getContentInputStream());
 							
-							ks.load(decryptedKeyContent, signingDTO.getKeyPassword().toCharArray());
+							ks.load(new ByteArrayInputStream(IOUtils.toByteArray(decryptedKeyContent)), signingDTO.getKeyPassword().toCharArray());
 							
 							final String alias = (String) nodeService.getProperty(signingDTO.getKeyFile(), SigningModel.PROP_KEYALIAS);
 							
@@ -220,10 +222,10 @@ public class SigningService {
 													sap.setImageScale(1);
 													
 													// digital signature
-											        final ContentReader imageContentReader = getReader(signingDTO.getImage());
 													if (signingDTO.getSigningField() != null && !signingDTO.getSigningField().trim().equalsIgnoreCase("")) {
 														Image img = null;
-														if (imageContentReader != null) {
+														if (signingDTO.getImage() != null) {
+															final ContentReader imageContentReader = getReader(signingDTO.getImage());
 															final AcroFields af = reader.getAcroFields();
 															if (af != null) {
 																final List<FieldPosition> positions = af.getFieldPositions(signingDTO.getSigningField());
@@ -242,7 +244,8 @@ public class SigningService {
 														}
 														sap.setVisibleSignature(signingDTO.getSigningField());
 													} else {
-														if (imageContentReader != null) {
+														if (signingDTO.getImage() != null) {
+															final ContentReader imageContentReader = getReader(signingDTO.getImage());
 															// Resize image
 													        final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, signingDTO.getSignWidth(), signingDTO.getSignHeight());
 													        final Image img = Image.getInstance(newImg, null);
@@ -401,7 +404,7 @@ public class SigningService {
 					// Decrypt key content
 					final InputStream decryptedKeyContent = CryptUtils.decrypt(decryptedPropertyValue.toString(), keyContentReader.getContentInputStream());
 					
-					ks.load(decryptedKeyContent, verifyingDTO.getKeyPassword().toCharArray());
+					ks.load(new ByteArrayInputStream(IOUtils.toByteArray(decryptedKeyContent)), verifyingDTO.getKeyPassword().toCharArray());
 					
 					
 					final ContentReader fileToVerifyContentReader = getReader(verifyingDTO.getFileToVerify());
