@@ -309,4 +309,12 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		this.nodeService = nodeService;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.alfresco.repo.action.executer.ActionExecuterAbstractBase#init()
+	 */
+	@Override
+	public void init() {
+		publicAction = false;
+	}
+
 }
