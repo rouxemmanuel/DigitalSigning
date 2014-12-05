@@ -66,21 +66,21 @@
 				
 				p_form.addValidation(this.id + "-sign-locationX", function(field, args, event, form, silent, message)
                 {
-					if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "") {			 			
+					if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "" && Dom.get(currentId + "-sign-locationX").value == "") {			 			
 						return false;
 					} else {
 						return true;
 					}
-                }, null, "onFocus", this.msg("message.validation.position"));
+                }, null, "keyup", this.msg("message.validation.position"));
 				
 			 	p_form.addValidation(this.id + "-sign-locationY", function(field, args, event, form, silent, message)
                 {
-					if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "") {			 			
+					if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "" && Dom.get(currentId + "-sign-locationY").value == "") {			 			
 						return false;
 					} else {
 						return true;
 					}
-                }, null, "onFocus", this.msg("message.validation.position"));
+                }, null, "keyup", this.msg("message.validation.position"));
 				
 			 	p_form.setShowSubmitStateDynamically(true, false);
 				
