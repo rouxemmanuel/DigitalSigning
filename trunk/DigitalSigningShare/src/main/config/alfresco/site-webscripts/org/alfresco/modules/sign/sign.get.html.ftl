@@ -22,11 +22,11 @@
          </div>
          <div class="yui-gd">
             <div class="yui-u first"><label for="${el}-location">${msg("label.location")}:</label></div>
-            <div class="yui-u"><input id="${el}-location" type="text" name="location" value="${user.location}" /></div>
+            <div class="yui-u"><input id="${el}-location" type="text" name="location" value="<#if user.location??>${user.location}<#else></#if>" /></div>
          </div>
          <div class="yui-gd">
             <div class="yui-u first"><label for="${el}-contact">${msg("label.contact")}:</label></div>
-            <div class="yui-u"><input id="${el}-contact" type="text" name="contact" value="${user.firstName} ${user.lastName}" /></div>
+            <div class="yui-u"><input id="${el}-contact" type="text" name="contact" value="<#if user.firstName??>${user.firstName} <#else></#if><#if user.lastName??>${user.lastName}<#else></#if>" /></div>
          </div>
          <div class="yui-gd">
             <div class="yui-u first"><label for="${el}-position">${msg("label.position")}:</label></div>
