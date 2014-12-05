@@ -43,7 +43,7 @@
             {
                fn: function dlA_doSetupFormsValidation(p_form)
                {
-			 	p_form.addValidation(this.id + "-sign-password", Alfresco.forms.validation.mandatory, null, "keyup");
+			 	p_form.addValidation(this.id + "-sign-password", Alfresco.forms.validation.mandatory, null, "change");
 				
 			 	//p_form.addValidation(this.id + "-sign-filterPathView", function(field, args, event, form, silent, message)
                 //{
@@ -54,10 +54,10 @@
 			 	//	}
                 //}, null, "blur", this.msg("message.validation.position"));
 				
-				//p_form.addValidation(this.id + "-sign-position", function(field, args, event, form, silent, message)
-                //{
-				//	return true;
-                //}, null, "change", this.msg("message.validation.position"));
+				p_form.addValidation(this.id + "-sign-position", function(field, args, event, form, silent, message)
+                {
+					return true;
+                }, null, "change", this.msg("message.validation.position"));
 				
 				p_form.addValidation(this.id + "-sign-field", function(field, args, event, form, silent, message)
                 {
