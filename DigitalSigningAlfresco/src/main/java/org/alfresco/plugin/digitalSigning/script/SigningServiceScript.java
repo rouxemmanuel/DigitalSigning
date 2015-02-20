@@ -4,6 +4,7 @@
 package org.alfresco.plugin.digitalSigning.script;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -74,9 +75,9 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		if (parameters.get("keyPassword", null) instanceof String) {
 			keyPassword = (String) parameters.get("keyPassword", null);
 		}
-		String fileToSignStr = null;
+		String filesToSignStr = null;
 		if (parameters.get("document", null) instanceof String) {
-			fileToSignStr = (String) parameters.get("document", null);
+			filesToSignStr = (String) parameters.get("document", null);
 		}
 		String destinationFolderStr = null;
 		if (parameters.get("destination", null) instanceof String) {
@@ -208,20 +209,6 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 			log.error("key-password parameter is required.");
 			throw new AlfrescoRuntimeException("key-password parameter is required.");
 		}
-		if (fileToSignStr != null) {
-			try {
-				final NodeRef fileToSign = new NodeRef(fileToSignStr);
-				if (fileToSign != null) {
-					signingDTO.setFileToSign(fileToSign);
-				}
-			} catch (Exception e) {
-				log.error("document must be a valid nodeRef.");
-				throw new AlfrescoRuntimeException("document must be a valid nodeRef.");
-			}
-		} else {
-			log.error("document parameter is required.");
-			throw new AlfrescoRuntimeException("document parameter is required.");
-		}
 		if (destinationFolderStr != null && destinationFolderStr.compareTo("") != 0) {
 			try {
 				final NodeRef destinationFolder = new NodeRef(destinationFolderStr);
@@ -311,6 +298,29 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		}
 		if (height != null) {
 			signingDTO.setSignHeight(height);
+		}
+		
+		// Get file(s) to sign
+		if (filesToSignStr != null) {
+			final String[] nodeRefs = filesToSignStr.split(",");
+			final List<NodeRef> nodeRefsToSign = new ArrayList<NodeRef>();
+			signingDTO.setFilesToSign(nodeRefsToSign);
+			
+			for (int i = 0; i < nodeRefs.length ; i++) {
+				final String nodeRef = nodeRefs[i];
+				try {
+					final NodeRef fileToSign = new NodeRef(nodeRef);
+					if (fileToSign != null) {
+						signingDTO.getFilesToSign().add(fileToSign);
+					}
+				} catch (Exception e) {
+					log.error("document must be a valid nodeRef.");
+					throw new AlfrescoRuntimeException("document must be a valid nodeRef : " + nodeRef);
+				}
+			}
+		} else {
+			log.error("document(s) parameter is required.");
+			throw new AlfrescoRuntimeException("document parameter is required.");
 		}
 		
 		// Validate DTO

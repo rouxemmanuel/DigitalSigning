@@ -3,6 +3,8 @@
  */
 package org.alfresco.plugin.digitalSigning.dto;
 
+import java.util.List;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
@@ -42,7 +44,7 @@ public class DigitalSigningDTO {
 	/**
 	 * File to sign.
 	 */
-	private NodeRef fileToSign;
+	private List<NodeRef> filesToSign;
 	
 	/**
 	 * Key file to sign.
@@ -132,15 +134,15 @@ public class DigitalSigningDTO {
 	/**
 	 * @return the fileToSign
 	 */
-	public final NodeRef getFileToSign() {
-		return fileToSign;
+	public final List<NodeRef> getFilesToSign() {
+		return filesToSign;
 	}
 
 	/**
 	 * @param fileToSign the fileToSign to set
 	 */
-	public final void setFileToSign(NodeRef fileToSign) {
-		this.fileToSign = fileToSign;
+	public final void setFilesToSign(List<NodeRef> filesToSign) {
+		this.filesToSign = filesToSign;
 	}
 
 	/**

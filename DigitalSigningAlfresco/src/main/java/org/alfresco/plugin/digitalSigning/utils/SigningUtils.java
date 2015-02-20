@@ -34,8 +34,8 @@ public class SigningUtils {
 			}
 			*/
 			
-			if (digitalSigningDTO.getFileToSign() == null) {
-				throw new AlfrescoRuntimeException("document to sign parameter is required.");
+			if (digitalSigningDTO.getFilesToSign() == null && digitalSigningDTO.getFilesToSign().size() == 0) {
+				throw new AlfrescoRuntimeException("document(s) to sign parameter is required.");
 			}
 			
 			if (DigitalSigningDTO.POSITION_CUSTOM.equalsIgnoreCase(digitalSigningDTO.getPosition()) && digitalSigningDTO.getLocationX() == null && digitalSigningDTO.getLocationY() == null) {
