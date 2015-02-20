@@ -11,6 +11,8 @@
 	  var signatureElmtId = null;
 	  
 	  var signatureInstance = null;
+	  
+	  var waitDialog = null;
 
    /**
     * Alfresco Slingshot aliases
@@ -24,12 +26,20 @@
       // Initialise prototype properties
       signatureConfigDialog = null;
 	  signatureElmtId = htmlId;
+	  waitDialog = null;
 	  
       return this;
    };
    
    submitCallBack = function signature_submitCallBack(errorNumber, errorMessage, alias, subject, type, algorithm, firstValidity, lastValidity, hasExpired, expire, hasImage, alert)
    {
+	    // Hide waiting dialog
+	    if (waitDialog)
+	    {
+	    	waitDialog.destroy();
+	    	waitDialog = null;
+	    }
+	   
 		if (errorNumber != null) {
 			Dom.get("yui-errors").style.display = "";
 			Dom.get("yui-errorImageKey").style.display = "block";
@@ -159,7 +169,7 @@
                {
                   fn: function Signature_onConfigSignature_callback(response)
                   {
-                		alert(response.serverResponse.responseText);
+                	  alert(response.serverResponse.responseText);
                 	  
                 	  //var div = Dom.get(this.id + "-iframeWrapper");
 	                  //div.innerHTML = response.serverResponse.responseText + '<div class="resize-mask"></div>';
@@ -188,7 +198,19 @@
                 	  form.addValidation(signatureConfigDialog.id + "-signatureAlias", Alfresco.forms.validation.mandatory, null, "keyup");
                   },
                   scope: this
-               }
+               },
+               doBeforeFormSubmit :
+   	           {
+   	            fn: function(form, obj)
+   	            {
+   	            	waitDialog = Alfresco.util.PopupManager.displayMessage({
+   		                text : signatureInstance.msg("upload.signature.processing"),
+   		                spanClass : "wait",
+   		                displayTime : 0
+   		             });
+   	            },
+   	            scope: this
+   	         }
             });
          }
          signatureConfigDialog.show();

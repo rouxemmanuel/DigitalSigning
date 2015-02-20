@@ -1,5 +1,10 @@
+.toolbar .onActionSign
+{
+   background-image: url(./actions/sign-16.png);
+}
+
 .alfresco-share .yui-panel .yui-gd .yui-u {
-	width: 35%;
+	width: 55%;
 }
 
 .alfresco-share .yui-panel .yui-gd .yui-u.first {
