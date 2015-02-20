@@ -4,6 +4,7 @@
 package org.alfresco.plugin.digitalSigning.action;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -108,7 +109,9 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
 		
 		if (actionedUponNodeRef != null) {
-			signingDTO.setFileToSign(actionedUponNodeRef);
+			List<NodeRef> nodeRefs = new ArrayList<NodeRef>();
+			nodeRefs.add(actionedUponNodeRef);
+			signingDTO.setFilesToSign(nodeRefs);
 		}
 		
 		if (privateKey != null) {
