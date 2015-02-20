@@ -31,7 +31,7 @@
 					<tr class="yui-dt-rec yui-dt-first yui-dt-even" id="yui-errors" <#if errorNumber??>style=""<#else>style="display:none;"</#if> >
 						<td class="yui-dt14-col-icon yui-dt-col-icon yui-dt-first" id="yui-errorImage" style="width: 52px;border-right: 0px">
 							<div class="yui-dt-liner" id="yui-errorImageKey" <#if errorNumber??>style="width: 52px;"<#else>style="width: 52px; display:none;"</#if>>
-								<img src="${url.context}/res/components/images/help-key-bw-32.png" id="yui-errorKeyImage">
+								<img src="${url.context}/res/components/images/help-key-error-bw-32.png" id="yui-errorKeyImage">
 							</div>
 						</td>
 						<td class="yui-dt14-col-detail yui-dt-col-detail" id="yui-errorMessage" style="border-right: 0px;">
@@ -56,16 +56,17 @@
 					</tr>
 					
      				<tr id="yui-expireTr" <#if keyInfos?? && (keyInfos.hasExpired?? || keyInfos.expire??)>style=""<#else>style="display:none;"</#if> >
-     					<td colspan="2" class="yui-dt-empty" style="text-align: center;color: red; font-weight: bold;border-right: 0px;">
+     					<td colspan="2" class="yui-dt-empty" style="text-align: center; border-right: 0px;">
      						<div class="yui-dt-liner" id="yui-expireMessageText">
+     							<img src="${url.context}/res/components/images/warning-sign-key-16.png" />
      							<#if keyInfos??>
      								<#if keyInfos.hasExpired??>
      									<#if keyInfos.hasExpired>
-     										${msg("signature.warning.end")}<br /><br />
+     										${msg("signature.warning.end")}<br />
      									</#if>
      								</#if>
      								<#if keyInfos.expire??>
-     									${msg("signature.warning.day", keyInfos.expire)}<br /><br />
+     									${msg("signature.warning.day", keyInfos.expire)}<br />
      								</#if>
      							</#if>
      						</div>
@@ -106,7 +107,7 @@
 						</td>
 						<td class="yui-dt14-col-detail yui-dt-col-detail" id="yui-imageInfosTd" style="border-right: 0px;">
 							<div class="yui-dt-liner" id="yui-imageInfosDiv">
-								<span id="yui-imageInfosImage"><#if hasImage?? && hasImage><img src="${url.context}/proxy/alfresco/api/digitalSigning/image" alt="${msg("signature.image.alt")}" border="0" width="200" /></#if></span>
+								<span id="yui-imageInfosImage"><#if hasImage?? && hasImage><img src="${url.context}/proxy/alfresco/api/digitalSigning/image" alt="${msg("signature.image.alt")}" title="${msg("signature.image.alt")}" border="0" width="200" /></#if></span>
 							</div>
 						</td>
 					</tr>
