@@ -21,7 +21,7 @@
             	<evaluator>evaluator.doclib.action.digitalSigning.canSign</evaluator>
          	</action>
 		</actions>
-
+		
 		<actionGroups>
 			<actionGroup id="document-browse">
 				<action index="120" id="sign" />
@@ -97,12 +97,17 @@
     </config>
 	
 	<!-- Document Library config section -->
+	
    	<config evaluator="string-compare" condition="DocumentLibrary">
 		<indicators>
 			<indicator id="signed-doc" index="10" label="indicator.signed">
 		    	<evaluator>evaluator.doclib.indicator.digitalSigning.signedDoc</evaluator>
 			</indicator>
 		</indicators>
+		
+		<multi-select>
+         <action type="action-link" id="onActionSign" label="menu.selected-items.sign" />
+      	</multi-select>
 	</config>
 
 </alfresco-config>
