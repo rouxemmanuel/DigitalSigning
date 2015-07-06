@@ -18,11 +18,14 @@ public class DigitalSigningDTO {
 	/**
 	 * Signing page.
 	 */
+	public static final String PAGE_FIRST = "first";
+	public static final String PAGE_LAST = "last";
+	/*
 	public static final String PAGE_ALL = "all";
-    public static final String PAGE_ODD = "odd";
+	public static final String PAGE_ODD = "odd";
     public static final String PAGE_EVEN = "even";
-    public static final String PAGE_FIRST = "first";
-    public static final String PAGE_LAST = "last";
+    */
+    public static final String PAGE_SPECIFIC = "specific";
 
     /**
      * Sign position.
@@ -130,6 +133,11 @@ public class DigitalSigningDTO {
 	 * Sign height (in pixel).
 	 */
 	private Integer signHeight = 100;
+	
+	/**
+	 * Page number to sign.
+	 */
+	private Integer pageNumber;
 	
 	/**
 	 * @return the fileToSign
@@ -381,6 +389,20 @@ public class DigitalSigningDTO {
 	 */
 	public final void setDestinationFolder(NodeRef destinationFolder) {
 		this.destinationFolder = destinationFolder;
+	}
+
+	/**
+	 * @return the pageNumber
+	 */
+	public final Integer getPageNumber() {
+		return pageNumber;
+	}
+
+	/**
+	 * @param pageNumber the pageNumber to set
+	 */
+	public final void setPageNumber(Integer pageNumber) {
+		this.pageNumber = pageNumber;
 	}
 	
 }

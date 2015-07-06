@@ -47,11 +47,15 @@
             <div class="yui-u">
             	<select name="page" id="${el}-page">
             		<option value="first">${msg("label.first")}</option>
-            		<option value="all">${msg("label.all")}</option>
             		<option value="last">${msg("label.last")}</option>
+            		<!-- 
+            		<option value="all">${msg("label.all")}</option>
             		<option value="odd">${msg("label.odd")}</option>
             		<option value="even">${msg("label.even")}</option>
+            		-->
+            		<option value="specific">${msg("label.specific")}</option>
             	</select>
+            	&nbsp;&nbsp;&nbsp;<input id="${el}-pageNumber" type="text" name="pageNumber" value="" size="3" disabled />
             </div>
          </div>
          <div class="yui-gd">

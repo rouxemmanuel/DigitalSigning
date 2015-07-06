@@ -41,6 +41,11 @@ public class SigningUtils {
 			if (DigitalSigningDTO.POSITION_CUSTOM.equalsIgnoreCase(digitalSigningDTO.getPosition()) && digitalSigningDTO.getLocationX() == null && digitalSigningDTO.getLocationY() == null) {
 				throw new AlfrescoRuntimeException("locationX and locationY parameters are required when position is set to custom.");
 			}
+			
+			if (DigitalSigningDTO.PAGE_SPECIFIC.equalsIgnoreCase(digitalSigningDTO.getPages()) && digitalSigningDTO.getPageNumber() == null) {
+				throw new AlfrescoRuntimeException("page number parameter is required when page signing is set to 'specific'.");
+			}
+			
 		}
 	}
 }

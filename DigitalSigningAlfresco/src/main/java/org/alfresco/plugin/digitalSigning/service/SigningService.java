@@ -213,6 +213,16 @@ public class SigningService {
 										}
 										sap.setVisibleSignature(signingDTO.getSigningField());
 									} else {
+										int pageToSign = 1;
+						                if (DigitalSigningDTO.PAGE_LAST.equalsIgnoreCase(signingDTO.getPages().trim())) {
+						                	pageToSign = reader.getNumberOfPages();
+						                } else if (DigitalSigningDTO.PAGE_SPECIFIC.equalsIgnoreCase(signingDTO.getPages().trim())) {
+						                	if (signingDTO.getPageNumber() > 0 && signingDTO.getPageNumber() <= reader.getNumberOfPages()) {
+						                		pageToSign = signingDTO.getPageNumber();
+						                	} else {
+						                		throw new AlfrescoRuntimeException("Page number is out of bound.");
+						                	}
+						                }
 										if (signingDTO.getImage() != null) {
 											final ContentReader imageContentReader = getReader(signingDTO.getImage());
 											// Resize image
@@ -221,10 +231,10 @@ public class SigningService {
 											sap.setImage(img);
 										}
 										if(signingDTO.getPosition() != null && !DigitalSigningDTO.POSITION_CUSTOM.equalsIgnoreCase(signingDTO.getPosition().trim())) {
-							                final Rectangle pageRect = reader.getPageSizeWithRotation(1);
-							                sap.setVisibleSignature(positionSignature(signingDTO.getPosition(), pageRect, signingDTO.getSignWidth(), signingDTO.getSignHeight(), signingDTO.getxMargin(), signingDTO.getyMargin()), 1, null);
+											final Rectangle pageRect = reader.getPageSizeWithRotation(1);
+							                sap.setVisibleSignature(positionSignature(signingDTO.getPosition(), pageRect, signingDTO.getSignWidth(), signingDTO.getSignHeight(), signingDTO.getxMargin(), signingDTO.getyMargin()), pageToSign, null);
 										} else {
-							                sap.setVisibleSignature(new Rectangle(signingDTO.getLocationX(), signingDTO.getLocationY(), signingDTO.getLocationX() + signingDTO.getSignWidth(), signingDTO.getLocationY() - signingDTO.getSignHeight()), 1, null);
+							                sap.setVisibleSignature(new Rectangle(signingDTO.getLocationX(), signingDTO.getLocationY(), signingDTO.getLocationX() + signingDTO.getSignWidth(), signingDTO.getLocationY() - signingDTO.getSignHeight()), pageToSign, null);
 										}
 									}
 									stp.close();
@@ -579,6 +589,7 @@ public class SigningService {
      */
     protected static boolean checkPage(final String pages, final int current, final int numpages) {
         boolean markPage = false;
+        /*
         if (pages.equals(DigitalSigningDTO.PAGE_EVEN) || pages.equals(DigitalSigningDTO.PAGE_ODD)) {
             if (current % 2 == 0) {
                 markPage = true;
@@ -587,8 +598,14 @@ public class SigningService {
             if (current % 2 != 0) {
                 markPage = true;
             }
-        } else if (pages.equals(DigitalSigningDTO.PAGE_FIRST)) {
+        } else 
+        */
+        if (pages.equals(DigitalSigningDTO.PAGE_FIRST)) {
             if (current == 1) {
+                markPage = true;
+            }
+        } else if (pages.equals(DigitalSigningDTO.PAGE_LAST)) {
+            if (current == numpages) {
                 markPage = true;
             }
         } else if (pages.equals(DigitalSigningDTO.PAGE_LAST)) {

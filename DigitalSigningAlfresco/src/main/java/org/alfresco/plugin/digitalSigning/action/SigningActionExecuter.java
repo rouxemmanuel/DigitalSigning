@@ -65,6 +65,7 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 	public static final String PARAM_MARGIN_Y = "marginY";
     public static final String PARAM_WIDTH = "width";
     public static final String PARAM_HEIGHT = "height";
+    public static final String PARAM_PAGE_NUMBER = "pageNumber";
 	
 	/**
 	 * Sign service.
@@ -105,6 +106,7 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		final Integer marginY = getInteger(ruleAction.getParameterValue(PARAM_MARGIN_Y));
 		final Integer height = getInteger(ruleAction.getParameterValue(PARAM_HEIGHT));
 		final Integer width = getInteger(ruleAction.getParameterValue(PARAM_WIDTH));
+		final Integer pageNumber = getInteger(ruleAction.getParameterValue(PARAM_PAGE_NUMBER));
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
 		
@@ -237,6 +239,9 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		if (height != null) {
 			signingDTO.setSignHeight(height);
 		}
+		if (pageNumber != null) {
+			signingDTO.setPageNumber(pageNumber);
+		}
 		
 		// Validate DTO
 		SigningUtils.validateSignInfo(signingDTO);
@@ -264,6 +269,7 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		paramList.add(new ParameterDefinitionImpl(PARAM_MARGIN_Y, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_MARGIN_Y)));
         paramList.add(new ParameterDefinitionImpl(PARAM_WIDTH, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_WIDTH)));
         paramList.add(new ParameterDefinitionImpl(PARAM_HEIGHT, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_HEIGHT)));
+        paramList.add(new ParameterDefinitionImpl(PARAM_PAGE_NUMBER, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_PAGE_NUMBER)));
 	}
 	
 	/**

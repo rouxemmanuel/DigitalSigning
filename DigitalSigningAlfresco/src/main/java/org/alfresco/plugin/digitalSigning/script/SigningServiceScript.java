@@ -151,6 +151,12 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 				width = getInteger((String) parameters.get("width", null));
 			}
 		}
+		Integer pageNumber = null;
+		if (parameters.get("pageNumber", null) instanceof String) {
+			if ((String) parameters.get("pageNumber", null) != null && "".compareTo((String) parameters.get("pageNumber", null)) != 0) {
+				width = getInteger((String) parameters.get("pageNumber", null));
+			}
+		}
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
 		
@@ -298,6 +304,9 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		}
 		if (height != null) {
 			signingDTO.setSignHeight(height);
+		}
+		if (pageNumber != null) {
+			signingDTO.setPageNumber(pageNumber);
 		}
 		
 		// Get file(s) to sign

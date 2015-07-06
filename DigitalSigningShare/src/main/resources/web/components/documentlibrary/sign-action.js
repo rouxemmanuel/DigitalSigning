@@ -91,6 +91,16 @@
 						return true;
 					}
                 }, null, "keyup", this.msg("message.validation.position"));
+			 	
+			 	p_form.addValidation(this.id + "-sign-page", function(field, args, event, form, silent, message)
+                {
+			 		if (Dom.get(currentId + "-sign-page").value == "specific") {
+			 			Dom.get(currentId + "-sign-pageNumber").disabled = false;
+			 		} else {
+			 			Dom.get(currentId + "-sign-pageNumber").disabled = true;
+			 		}
+			 		return true;
+                }, null, "change", this.msg("message.validation.position"));
 				
 			 	p_form.setShowSubmitStateDynamically(true, false);
 				

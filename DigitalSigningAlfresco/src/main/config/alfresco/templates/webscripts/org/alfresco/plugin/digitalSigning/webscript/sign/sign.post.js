@@ -16,6 +16,7 @@ try {
 	var marginY = jsonObject.marginY;
 	var height = jsonObject.height;
 	var width = jsonObject.width;
+	var pageNumber = jsonObject.pageNumber;
 	var depth = "over";
 	
 	var parameters = new Object();
@@ -35,6 +36,7 @@ try {
 	parameters.height=height;
 	parameters.width=width;
 	parameters.depth=depth;
+	parameters.pageNumber=pageNumber;
 	
 	digitalSigning.sign(parameters);
 	model.result = "success";
