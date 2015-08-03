@@ -199,7 +199,7 @@ public class SigningService {
 											if (af != null) {
 												final List<FieldPosition> positions = af.getFieldPositions(signingDTO.getSigningField());
 												if (positions != null && positions.size() > 0 && positions.get(0) != null && positions.get(0).position != null) {
-													final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, Float.valueOf(positions.get(0).position.getWidth()).intValue(), Float.valueOf(positions.get(0).position.getHeight()).intValue());
+													final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_ARGB, Float.valueOf(positions.get(0).position.getWidth()).intValue(), Float.valueOf(positions.get(0).position.getHeight()).intValue());
 													img = Image.getInstance(newImg, null);
 												} else {
 													log.error("[" + fileNameToSign + "] The field '" + signingDTO.getSigningField() + "' doesn't exist in the document.");
@@ -226,7 +226,7 @@ public class SigningService {
 										if (signingDTO.getImage() != null) {
 											final ContentReader imageContentReader = getReader(signingDTO.getImage());
 											// Resize image
-									        final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_RGB, signingDTO.getSignWidth(), signingDTO.getSignHeight());
+									        final BufferedImage newImg = scaleImage(ImageIO.read(imageContentReader.getContentInputStream()), BufferedImage.TYPE_INT_ARGB, signingDTO.getSignWidth(), signingDTO.getSignHeight());
 									        final Image img = Image.getInstance(newImg, null);
 											sap.setImage(img);
 										}
@@ -669,6 +669,7 @@ public class SigningService {
         final Graphics2D graphics2D = newImage.createGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         graphics2D.drawImage(image, 0, 0, newWidth, newHeight, null);
+        graphics2D.dispose();
 
         return newImage;
     }
