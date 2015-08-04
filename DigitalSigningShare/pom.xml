@@ -13,14 +13,14 @@
 		<alfresco.module.id>digitalSigning</alfresco.module.id>
 		
 		<!-- Alfresco version -->
-		<alfresco.version>4.2.0</alfresco.version>
+		<alfresco.version>5.0.d</alfresco.version>
 	</properties>
 
 	<!-- Alfresco dependencies -->
 	<dependencies>
 		<dependency>
 			<groupId>org.alfresco</groupId>
-			<artifactId>alfresco-share</artifactId>
+			<artifactId>alfresco-core</artifactId>
 			<version>${alfresco.version}</version>
 			<scope>provided</scope>
 			<exclusions>
@@ -32,17 +32,24 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>share</artifactId>
+			<version>${alfresco.version}</version>
+			<scope>provided</scope>
+			<classifier>classes</classifier>
+		</dependency>
 	</dependencies>
 	
 	<!-- Repositories to download Alfresco dependencies -->
 	<repositories>
 		<repository>
-			<id>alfresco-private</id>
-			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
-		</repository>
-		<repository>
 			<id>alfresco-public</id>
 			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>alfresco-private</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
 		</repository>
 		<repository>
 			<id>alfresco-thirdparty</id>

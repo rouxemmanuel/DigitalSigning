@@ -14,7 +14,7 @@
 		<alfresco.module.id>digitalSigning</alfresco.module.id>
 
 		<!-- Alfresco version -->
-		<alfresco.version>4.2.0</alfresco.version>
+		<alfresco.version>5.0.d</alfresco.version>
 	</properties>
 
 	<!-- Alfresco dependencies -->
