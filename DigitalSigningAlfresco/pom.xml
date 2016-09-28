@@ -91,7 +91,7 @@
 			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
 		</repository>
 		<repository>
-			<id>alfresco-public</id>
+		    <id>alfresco-public</id>
 			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
 		</repository>
 		<repository>
@@ -108,6 +108,29 @@
 		</repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>alfresco-private</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+		</pluginRepository>
+		<pluginRepository>
+		    <id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>alfresco-thirdparty</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/thirdparty</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>alfresco-public-snapshots</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/public-snapshots</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</pluginRepository>
+	</pluginRepositories>	
+	
 	<build>
 		<plugins>
 			<plugin>
