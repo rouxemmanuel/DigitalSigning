@@ -14,60 +14,49 @@
 		<alfresco.module.id>digitalSigning</alfresco.module.id>
 
 		<!-- Alfresco version -->
-		<alfresco.version>5.0.d</alfresco.version>
+		<alfresco.version>5.2.d</alfresco.version>
 	</properties>
 
 	<!-- Alfresco dependencies -->
 	<dependencies>
+		<!--
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-core</artifactId>
 			<version>${alfresco.version}</version>
 			<scope>provided</scope>
-			<!-- <classifier>${alfresco.edition}</classifier> -->
 		</dependency>
+		-->
+		
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-repository</artifactId>
 			<version>${alfresco.version}</version>
 			<scope>provided</scope>
-			<!-- <classifier>${alfresco.edition}</classifier> -->
 		</dependency>
+
+		<!--
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-data-model</artifactId>
 			<version>${alfresco.version}</version>
 			<scope>provided</scope>
-			<!-- <classifier>${alfresco.edition}</classifier> -->
 		</dependency>
+		-->
 
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
-			<version>5.0.6</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>bcmail-jdk14</artifactId>
-					<groupId>org.bouncycastle</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>bcprov-jdk14</artifactId>
-					<groupId>org.bouncycastle</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>bctsp-jdk14</artifactId>
-					<groupId>org.bouncycastle</groupId>
-				</exclusion>
-			</exclusions>
+			<version>5.5.11</version>
 		</dependency>
 		
 		<dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>1.45</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
+    		<groupId>com.itextpdf</groupId>
+    		<artifactId>itext-pdfa</artifactId>
+    		<version>5.5.11</version>
+		</dependency>
+		
+		<!--  
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
@@ -80,8 +69,7 @@
             	</exclusion>
             </exclusions>
         </dependency>
-
-
+		-->
 	</dependencies>
 
 	<!-- Repositories to download Alfresco dependencies -->
@@ -91,7 +79,7 @@
 			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
 		</repository>
 		<repository>
-			<id>alfresco-public</id>
+		    <id>alfresco-public</id>
 			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
 		</repository>
 		<repository>
@@ -108,6 +96,29 @@
 		</repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>alfresco-private</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+		</pluginRepository>
+		<pluginRepository>
+		    <id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>alfresco-thirdparty</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/thirdparty</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>alfresco-public-snapshots</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/public-snapshots</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</pluginRepository>
+	</pluginRepositories>	
+	
 	<build>
 		<plugins>
 			<plugin>

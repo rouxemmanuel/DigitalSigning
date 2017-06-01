@@ -13,11 +13,12 @@
 		<alfresco.module.id>digitalSigning</alfresco.module.id>
 		
 		<!-- Alfresco version -->
-		<alfresco.version>5.0.d</alfresco.version>
+		<alfresco.version>5.2.d</alfresco.version>
 	</properties>
 
 	<!-- Alfresco dependencies -->
 	<dependencies>
+		<!--
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-core</artifactId>
@@ -32,6 +33,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>share</artifactId>
