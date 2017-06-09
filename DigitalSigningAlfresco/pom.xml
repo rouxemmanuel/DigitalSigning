@@ -14,7 +14,7 @@
 		<alfresco.module.id>digitalSigning</alfresco.module.id>
 
 		<!-- Alfresco version -->
-		<alfresco.version>5.2.d</alfresco.version>
+		<alfresco.version>5.0.d</alfresco.version>
 	</properties>
 
 	<!-- Alfresco dependencies -->
@@ -47,16 +47,30 @@
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
-			<version>5.5.11</version>
+			<version>5.0.6</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>bcmail-jdk14</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bcprov-jdk14</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>bctsp-jdk14</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
-    		<groupId>com.itextpdf</groupId>
-    		<artifactId>itext-pdfa</artifactId>
-    		<version>5.5.11</version>
-		</dependency>
-		
-		<!--  
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>1.45</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
@@ -69,7 +83,6 @@
             	</exclusion>
             </exclusions>
         </dependency>
-		-->
 	</dependencies>
 
 	<!-- Repositories to download Alfresco dependencies -->
