@@ -76,7 +76,9 @@
 				
 				p_form.addValidation(this.id + "-sign-locationX", function(field, args, event, form, silent, message)
                 {
-					if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "" && Dom.get(currentId + "-sign-locationX").value == "") {			 			
+					if (Dom.get(currentId + "-sign-position").value == "xml") {
+						return true;
+					} else if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "" && Dom.get(currentId + "-sign-locationX").value == "") {			 			
 						return false;
 					} else {
 						return true;
@@ -85,7 +87,9 @@
 				
 			 	p_form.addValidation(this.id + "-sign-locationY", function(field, args, event, form, silent, message)
                 {
-					if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "" && Dom.get(currentId + "-sign-locationY").value == "") {			 			
+			 		if (Dom.get(currentId + "-sign-position").value == "xml") {
+						return true;
+					} if (Dom.get(currentId + "-sign-position").value == "custom" && Dom.get(currentId + "-sign-field").value == "" && Dom.get(currentId + "-sign-locationY").value == "") {			 			
 						return false;
 					} else {
 						return true;
@@ -95,9 +99,13 @@
 			 	p_form.addValidation(this.id + "-sign-page", function(field, args, event, form, silent, message)
                 {
 			 		if (Dom.get(currentId + "-sign-page").value == "specific") {
-			 			Dom.get(currentId + "-sign-pageNumber").disabled = false;
+			 			if (Dom.get(currentId + "-sign-pageNumber") != null) {
+			 				Dom.get(currentId + "-sign-pageNumber").disabled = false;
+			 			}
 			 		} else {
-			 			Dom.get(currentId + "-sign-pageNumber").disabled = true;
+			 			if (Dom.get(currentId + "-sign-pageNumber") != null) {
+			 				Dom.get(currentId + "-sign-pageNumber").disabled = true;
+			 			}
 			 		}
 			 		return true;
                 }, null, "change", this.msg("message.validation.position"));

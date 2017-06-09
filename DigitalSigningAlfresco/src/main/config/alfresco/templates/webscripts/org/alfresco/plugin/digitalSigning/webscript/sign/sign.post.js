@@ -10,12 +10,12 @@ try {
 	var position = jsonObject.position;
 	var field = jsonObject.field;
 	var page = jsonObject.page;
-	var locationX = jsonObject.locationX;
-	var locationY = jsonObject.locationY;
-	var marginX = jsonObject.marginX;
-	var marginY = jsonObject.marginY;
-	var height = jsonObject.height;
-	var width = jsonObject.width;
+	//var locationX = jsonObject.locationX;
+	//var locationY = jsonObject.locationY;
+	//var marginX = jsonObject.marginX;
+	//var marginY = jsonObject.marginY;
+	//var height = jsonObject.height;
+	//var width = jsonObject.width;
 	var pageNumber = jsonObject.pageNumber;
 	var depth = "over";
 	
@@ -29,14 +29,32 @@ try {
 	parameters.position=position;
 	parameters.field=field;
 	parameters.page=page;
-	parameters.locationX=locationX;
-	parameters.locationY=locationY;
-	parameters.marginX=marginX;
-	parameters.marginY=marginY;
-	parameters.height=height;
-	parameters.width=width;
+	
+	if (jsonObject.locationX != null) {
+		parameters.locationX=jsonObject.locationX;
+	}
+	if (jsonObject.locationY != null) {
+		parameters.locationY=jsonObject.locationY;
+	}
+	if (jsonObject.marginX != null) {
+		parameters.marginX=jsonObject.marginX;
+	}
+	if (jsonObject.marginY != null) {
+		parameters.marginY=jsonObject.marginY;
+	}
+	if (jsonObject.height != null) {
+		parameters.height=jsonObject.height;
+	}
+	if (jsonObject.width != null) {
+		parameters.width=jsonObject.width;
+	}
+	
 	parameters.depth=depth;
 	parameters.pageNumber=pageNumber;
+	if (jsonObject.detachedSignature != null) {
+		parameters.detachedSignature=jsonObject.detachedSignature;
+	}
+	
 	
 	digitalSigning.sign(parameters);
 	model.result = "success";

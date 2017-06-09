@@ -31,6 +31,118 @@
       return this;
    };
    
+   submitCallBackAlias = function signature_submitCallBackAlias(errorNumber, errorMessage, aliasList)
+   {
+	    // Hide waiting dialog
+	    if (waitDialog)
+	    {
+	    	waitDialog.destroy();
+	    	waitDialog = null;
+	    }
+	   
+		if (errorNumber != null) {
+			Dom.get("yui-errors").style.display = "";
+			Dom.get("yui-errorImageKey").style.display = "block";
+			Dom.get("yui-errorMessageText").style.display = "block";
+			Dom.get("yui-expireTr").style.display = "none";
+			Dom.get("yui-keyInfosTr").style.display = "none";
+			Dom.get("yui-imageInfosTr").style.display = "none";
+			if (errorNumber == "1") {
+			   Dom.get("yui-errorMessageTextH3").innerHTML = signatureInstance.msg("signature.noKey");
+			} else if (errorNumber == "2") {
+				Dom.get("yui-errorMessageTextH3").innerHTML = signatureInstance.msg("signature.error");
+				if (errorMessage != null) {
+					Dom.get("yui-technicalErrorText").innerHTML = errorMessage;
+				}
+			}
+			signatureConfigDialog.hide();
+		} else {
+			signatureConfigDialog.hide();
+			
+			// Display Dialog to choose the certifcate alias
+			var actionUrl = Alfresco.constants.PROXY_URI + "api/digitalSigning/chooseAlias.html";
+
+            signatureConfigDialog = new Alfresco.module.SimpleDialog(this.id + "-configDialog").setOptions(
+            {
+               width: "50em",
+               templateUrl: Alfresco.constants.URL_SERVICECONTEXT + "modules/digitalSigning/signature/configAlias?aliasList=" + aliasList,
+			   actionUrl: actionUrl,
+			   clearForm: true,
+               onSuccess:
+               {
+                  fn: function Signature_onConfigSignature_callback(response)
+                  {
+                	  alert(response.serverResponse.responseText);
+                  },
+                  scope: this
+               },
+               doBeforeAjaxRequest:
+			   {
+				  fn: function Signature_doBeforeAjaxRequest(p_config, p_obj)
+				  {
+					// Check 
+					return true;
+				  },
+                  scope: this
+				},
+               doSetupFormsValidation:
+               {
+                  fn: function Signature_doSetupForm_callback(form)
+                  {
+                	  form.addValidation(signatureConfigDialog.id + "-signaturePassword", Alfresco.forms.validation.mandatory, null, "keyup");
+                	  document.getElementById(signatureConfigDialog.id + "-cancel").onclick = function(){
+                		  Alfresco.util.Ajax.jsonRequest({
+                              method: "POST",
+                              url: Alfresco.constants.PROXY_URI + "api/digitalSigning/delete",
+                              dataObj: "",
+                              successCallback: {
+                                 fn: function() {
+                                	Dom.get("yui-errors").style.display = "";
+                         			Dom.get("yui-errorImageKey").style.display = "block";
+                         			Dom.get("yui-errorMessageText").style.display = "block";
+                         			Dom.get("yui-expireTr").style.display = "none";
+                         			Dom.get("yui-keyInfosTr").style.display = "none";
+                         			Dom.get("yui-imageInfosTr").style.display = "none";
+                         			Dom.get("yui-errorMessageTextH3").innerHTML = signatureInstance.msg("signature.noKey");
+                                 },
+                                 scope: this
+                              },
+                              failureCallback:
+                              {
+                            	  fn: function() {
+                            		Dom.get("yui-errors").style.display = "";
+                           			Dom.get("yui-errorImageKey").style.display = "block";
+                           			Dom.get("yui-errorMessageText").style.display = "block";
+                           			Dom.get("yui-expireTr").style.display = "none";
+                           			Dom.get("yui-keyInfosTr").style.display = "none";
+                           			Dom.get("yui-imageInfosTr").style.display = "none";
+                           			Dom.get("yui-errorMessageTextH3").innerHTML = signatureInstance.msg("signature.noKey");
+                                   },
+                                   scope: this
+                              }
+                           });
+                		  
+                	  };
+                  },
+                  scope: this
+               },
+               doBeforeFormSubmit :
+   	           {
+   	            fn: function(form, obj)
+   	            {
+   	            	waitDialog = Alfresco.util.PopupManager.displayMessage({
+   		                text : signatureInstance.msg("upload.signature.processing.alias"),
+   		                spanClass : "wait",
+   		                displayTime : 0
+   		             });
+   	            },
+   	            scope: this
+   	         }
+            });
+	        signatureConfigDialog.show();
+		}
+   }
+   
    submitCallBack = function signature_submitCallBack(errorNumber, errorMessage, alias, subject, type, algorithm, firstValidity, lastValidity, hasExpired, expire, hasImage, alert)
    {
 	    // Hide waiting dialog
@@ -73,7 +185,7 @@
 				Dom.get("yui-keyInfosFirstDayLabel").style.display = "";
 				Dom.get("yui-keyInfosFirstDay").innerHTML = firstValidity + "<br />";
 				Dom.get("yui-keyInfosLastDayLabel").style.display = "";
-				Dom.get("yui-keyInfosLastDay").innerHTML = lastValidity;
+				Dom.get("yui-keyInfosLastDay").innerHTML = lastValidity + "<br />";
 				Dom.get("yui-keyInfosAlertLabel").style.display = "";
 				Dom.get("yui-keyInfosAlert").innerHTML = alert;
 				
@@ -91,10 +203,14 @@
 			}
 			if (hasImage != null && hasImage == true) {
 				Dom.get("yui-imageInfosTr").style.display = "";
-				Dom.get("yui-imageInfosImage").innerHTML = "";
+				//Dom.get("yui-imageInfosImage").innerHTML = "";
+				var imgDiv = document.getElementById("yui-imageInfosImage");
+				if (imgDiv.hasChildNodes()) {
+					imgDiv.removeChild(imgDiv.childNodes[0]);
+				}
 				var oImg=document.createElement("img");
 				var altImageMsg = signatureInstance.msg("signature.image.alt");
-				var srcImage = Alfresco.constants.PROXY_URI + "api/digitalSigning/image";
+				var srcImage = Alfresco.constants.PROXY_URI + "api/digitalSigning/image?cache=" + new Date().getTime();
 				oImg.setAttribute('src', srcImage);
 				oImg.setAttribute('alt', altImageMsg);
 				oImg.setAttribute('width', '200px');
@@ -154,6 +270,7 @@
       onConfigSignatureClick: function Signature_onConfigSignatureClick(e)
       {
          Event.stopEvent(e);
+         signatureConfigDialog = null;
          
          var actionUrl = Alfresco.constants.PROXY_URI + "api/digitalSigning/upload.html";
 
@@ -195,7 +312,7 @@
                   {
                 	  form.addValidation(signatureConfigDialog.id + "-signatureKey", Alfresco.forms.validation.mandatory, null, "keyup");
                 	  form.addValidation(signatureConfigDialog.id + "-signaturePassword", Alfresco.forms.validation.mandatory, null, "keyup");
-                	  form.addValidation(signatureConfigDialog.id + "-signatureAlias", Alfresco.forms.validation.mandatory, null, "keyup");
+                	  //form.addValidation(signatureConfigDialog.id + "-signatureAlias", Alfresco.forms.validation.mandatory, null, "keyup");
                   },
                   scope: this
                },

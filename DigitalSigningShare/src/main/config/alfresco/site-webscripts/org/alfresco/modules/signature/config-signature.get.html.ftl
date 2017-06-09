@@ -12,10 +12,10 @@
            
             <div class="yui-u first"><label for="${el}-signaturePassword">${msg("label.password")}</label></div>
             <div class="yui-u"><input id="${el}-signaturePassword" type="password" name="password" tabindex="2" />&nbsp;*</div>
-            
+            <!--
             <div class="yui-u first"><label for="${el}-signatureAlias">${msg("label.alias")}</label></div>
             <div class="yui-u"><input id="${el}-signatureAlias" type="text" name="alias" tabindex="3" />&nbsp;*</div>
-            
+            -->
             <div class="yui-u first"><label for="${el}-signatureImage">${msg("label.image")}</label></div>
             <div class="yui-u"><input id="${el}-signatureImage" type="file" name="image" tabindex="4" />&nbsp;</div>
             

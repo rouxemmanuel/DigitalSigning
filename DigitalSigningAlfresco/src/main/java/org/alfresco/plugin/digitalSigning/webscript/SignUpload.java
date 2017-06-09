@@ -3,15 +3,17 @@
  */
 package org.alfresco.plugin.digitalSigning.webscript;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.security.KeyStore;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.plugin.digitalSigning.dto.KeyInfoDTO;
 import org.alfresco.plugin.digitalSigning.model.SigningConstants;
 import org.alfresco.plugin.digitalSigning.model.SigningModel;
 import org.alfresco.plugin.digitalSigning.utils.CryptUtils;
@@ -27,6 +29,7 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyMap;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,14 +95,15 @@ public class SignUpload extends SigningWebScript {
 							}
 							
 							String keyFilename = null;
-							InputStream keyContent = null;
+							InputStream keyContent1 = null;
+							InputStream keyContent2 = null;
 							String keyMimetype = null;
 							String keyType = null;
 							String imageFilename = null;
 							InputStream imageContent = null;
 							String imageMimetype = null;
 							String password = null;
-							String alias = null;
+							//String alias = null;
 							String alert = null;
 							
 							final Object formReq = req.parseContent();
@@ -110,7 +114,9 @@ public class SignUpload extends SigningWebScript {
 									final FormField field = formFields[i];
 									if (field != null) {
 										if ("key".equals(field.getName().toLowerCase())	&& field.getIsFile()) {
-											keyContent = field.getInputStream();
+											byte[] byteArray = IOUtils.toByteArray(field.getInputStream());     
+											keyContent1 = new ByteArrayInputStream(byteArray); 
+											keyContent2 = new ByteArrayInputStream(byteArray);
 											keyFilename = field.getFilename();
 											keyMimetype = field.getMimetype();
 										}
@@ -125,9 +131,9 @@ public class SignUpload extends SigningWebScript {
 										if ("password".equals(field.getName().toLowerCase())) {
 											password = field.getValue();
 										}
-										if ("alias".equals(field.getName().toLowerCase())) {
-											alias = field.getValue();
-										}
+										//if ("alias".equals(field.getName().toLowerCase())) {
+										//	alias = field.getValue();
+										//}
 										if ("alert".equals(field.getName().toLowerCase())) {
 											alert = field.getValue();
 										}
@@ -138,7 +144,7 @@ public class SignUpload extends SigningWebScript {
 							}
 
 							// Verification des parametres
-							if (StringUtils.isBlank(keyFilename) || keyContent == null) {
+							if (StringUtils.isBlank(keyFilename) || keyContent1 == null || keyContent2 == null ) {
 								throw new WebScriptException("Parameter 'key' is required.");
 							}
 							if (StringUtils.isBlank(keyType)) {
@@ -147,9 +153,9 @@ public class SignUpload extends SigningWebScript {
 							if (StringUtils.isBlank(password)) {
 								throw new WebScriptException("Parameter 'password' is required.");
 							}
-							if (StringUtils.isBlank(alias)) {
-								throw new WebScriptException("Parameter 'alias' is required.");
-							}
+							//if (StringUtils.isBlank(alias)) {
+							//	throw new WebScriptException("Parameter 'alias' is required.");
+							//}
 							if (StringUtils.isBlank(alert)) {
 								throw new WebScriptException("Parameter 'alert' is required.");
 							}
@@ -202,7 +208,7 @@ public class SignUpload extends SigningWebScript {
 										encryptedProperties = metadataEncryptor.encrypt(encryptedProperties);
 										
 										// Crypt key content
-										final InputStream encryptedKeyContent = CryptUtils.encrypt(secret, keyContent);
+										final InputStream encryptedKeyContent = CryptUtils.encrypt(secret, keyContent1);
 										
 										keyContentWriter.setMimetype(keyMimetype);
 										keyContentWriter.putContent(encryptedKeyContent);
@@ -215,44 +221,44 @@ public class SignUpload extends SigningWebScript {
 											nodeService.removeAspect(keyNodeRef, SigningModel.ASPECT_KEY);
 										}
 										
-										final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password, alert, secret);
-										if (keyInfoDTO.getError() != null) {
-											throw new WebScriptException(keyInfoDTO.getError());
-										}
-										keyInfoDTO.setHasAlerted(false);
+										//final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, keyType, password, alert, secret);
+										//if (keyInfoDTO.getError() != null) {
+										//	throw new WebScriptException(keyInfoDTO.getError());
+										//}
+										//keyInfoDTO.setHasAlerted(false);
 										
 										final Map<QName, Serializable> keyProperties = new HashMap<QName, Serializable>();
 										keyProperties.put(SigningModel.PROP_KEYCRYPTSECRET, encryptedProperties.get(SigningModel.PROP_KEYCRYPTSECRET));
-										keyProperties.put(SigningModel.PROP_KEYALIAS, alias);
+										//keyProperties.put(SigningModel.PROP_KEYALIAS, alias);
 										keyProperties.put(SigningModel.PROP_KEYTYPE, keyType);
-										keyProperties.put(SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
-										keyProperties.put(SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
-										keyProperties.put(SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
-										keyProperties.put(SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
-										keyProperties.put(SigningModel.PROP_KEYALERT, keyInfoDTO.getAlert());
-										keyProperties.put(SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
+										//keyProperties.put(SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
+										//keyProperties.put(SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
+										//keyProperties.put(SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
+										//keyProperties.put(SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
+										keyProperties.put(SigningModel.PROP_KEYALERT, alert);
+										//keyProperties.put(SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
 										
 										nodeService.addAspect(keyNodeRef, SigningModel.ASPECT_KEY, keyProperties);
-										/*
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALIAS, alias);
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYTYPE, keyType);
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALERT, keyInfoDTO.getAlert());
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
-										nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYCRYPTSECRET, encryptedProperties.get(SigningModel.PROP_KEYCRYPTSECRET));
-										*/
 										
-										if (keyInfoDTO.getExpire() != null && Integer.parseInt(keyInfoDTO.getExpire()) >= 100) {
-											keyInfoDTO.setExpire(null);
+										//if (keyInfoDTO.getExpire() != null && Integer.parseInt(keyInfoDTO.getExpire()) >= 100) {
+										//	keyInfoDTO.setExpire(null);
+										//}
+										//model.put("signingKey", keyNodeRef);
+										
+										
+										String aliasList = "";
+										final KeyStore ks = KeyStore.getInstance("pkcs12");
+										ks.load(keyContent2, password.toCharArray());
+										final Enumeration<String> aliases = ks.aliases();
+										while(aliases.hasMoreElements()) {
+											final String alias = aliases.nextElement();
+											aliasList += alias + ";";
 										}
+										aliasList = aliasList.substring(0, aliasList.length()-1);
+										model.put("aliasList", aliasList);
+
 										
-										model.put("signingKey", keyNodeRef);
-										model.put("keyInfos", keyInfoDTO);
 										
-									
 										if (imageContent != null && imageFilename != null && imageFilename.compareTo("") != 0 && imageMimetype != null) {
 											if (imageNodeRef == null) {
 												// Create new image file

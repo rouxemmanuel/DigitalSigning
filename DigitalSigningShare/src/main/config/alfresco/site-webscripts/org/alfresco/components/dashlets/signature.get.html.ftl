@@ -44,6 +44,9 @@
 									<#if errorNumber?? && errorNumber == "2">
 										${msg("signature.error")}
 									</#if>
+									<#if errorNumber?? && errorNumber == "3">
+										${msg("signature.noAlias")}
+									</#if>
 									</h3>
 									<span id="yui-technicalErrorText">
 										<#if errorNumber?? && errorNumber == "2">
@@ -55,7 +58,7 @@
 						</td>
 					</tr>
 					
-     				<tr id="yui-expireTr" <#if keyInfos?? && (keyInfos.hasExpired?? || keyInfos.expire??)>style=""<#else>style="display:none;"</#if> >
+     				<tr id="yui-expireTr" <#if keyInfos?? && ((keyInfos.hasExpired?? && keyInfos.hasExpired == true) || keyInfos.expire??)>style=""<#else>style="display:none;"</#if> >
      					<td colspan="2" class="yui-dt-empty" style="text-align: center; border-right: 0px;">
      						<div class="yui-dt-liner" id="yui-expireMessageText">
      							<img src="${url.context}/res/components/images/warning-sign-key-16.png" />

@@ -106,6 +106,8 @@ public class SigningWebScript extends DeclarativeWebScript {
 							keyInfoDTO.setHasExpired(false);
 							keyInfoDTO.setExpire(Long.toString(diffDays));
 						}
+			        } else {
+			        	keyInfoDTO.setError("No alias '" + keyAlias + "' found in certificate.");
 			        }
 			    }
 			}

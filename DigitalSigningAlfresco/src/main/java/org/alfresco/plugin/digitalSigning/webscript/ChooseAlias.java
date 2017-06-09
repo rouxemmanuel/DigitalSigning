@@ -1,9 +1,6 @@
-/**
- * 
- */
 package org.alfresco.plugin.digitalSigning.webscript;
 
-import java.util.Date;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,24 +17,27 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.servlet.FormData;
+import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 
 /**
- * Signature informations WebScript.
+ * Save alias chosen Web Script.
  * 
  * @author Emmanuel ROUX
  */
-public class SignatureInformation extends SigningWebScript {
-
+public class ChooseAlias extends SigningWebScript  {
 	/**
 	 * Logger.
 	 */
-	private final Log log = LogFactory.getLog(SignatureInformation.class);
+	private final Log log = LogFactory.getLog(ChooseAlias.class);
+	
 	
 	/**
 	 * Authentication service.
@@ -53,7 +53,6 @@ public class SignatureInformation extends SigningWebScript {
 	 * Person service.
 	 */
 	private PersonService personService;
-	
 	
 	/**
 	 * Process.
@@ -72,10 +71,47 @@ public class SignatureInformation extends SigningWebScript {
 					public Map<String, Object> execute() throws Throwable {
 						final Map<String, Object> model = new HashMap<String, Object>();
 						try {
+							if (log.isDebugEnabled()) {
+								log.debug("Retrieve parameters");
+							}
+							
+							String password = null;
+							String alias = null;
+							
+							final Object formReq = req.parseContent();
+							if (formReq != null && formReq instanceof FormData) {
+								final FormData formData = (FormData) formReq;
+								final FormField[] formFields = formData.getFields();
+								for (int i = 0; i < formFields.length; i++) {
+									final FormField field = formFields[i];
+									if (field != null) {
+										if ("password".equals(field.getName().toLowerCase())) {
+											password = field.getValue();
+										}
+										if ("alias".equals(field.getName().toLowerCase())) {
+											alias = field.getValue();
+										}
+									}
+								}
+							} else {
+								throw new WebScriptException("Unable to parse form datas.");
+							}
+
+							// Verification des parametres
+							if (StringUtils.isBlank(password)) {
+								throw new WebScriptException("Parameter 'password' is required.");
+							}
+							if (StringUtils.isBlank(alias)) {
+								throw new WebScriptException("Parameter 'alias' is required.");
+							}
+							
+							
+							
+							// Get current user key
+							final String currentUser = authenticationService.getCurrentUserName();
 							final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
+							NodeRef keyNodeRef = null;
 							if (currentUserNodeRef != null) {
-								NodeRef keyNodeRef = null;
-								
 								final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
 								if (currentUserHomeFolder != null) {
 									final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
@@ -97,64 +133,46 @@ public class SignatureInformation extends SigningWebScript {
 												}
 											}
 											if (!foundKey) {
-												model.put("errorNumber", "1");
+												log.error("No key file uploaded for user " + currentUser + ".");
+												throw new WebScriptException("No key file uploaded for user " + currentUser + ".");
 											} else {
+												final Serializable encryptedPropertyValue = nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYCRYPTSECRET);
+												final Serializable decryptedPropertyValue = metadataEncryptor.decrypt(SigningModel.PROP_KEYCRYPTSECRET, encryptedPropertyValue);
 												
-												final String alias = (String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALIAS);
-												if (alias == null || "".equals(alias)) {
-													log.error("No alias defined for certificate. Please add a key again.");
-													model.put("errorNumber", "3");
-												} else {
-													final KeyInfoDTO keyInfoDTO = new KeyInfoDTO();
-													keyInfoDTO.setAlgorithm((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM));
-													keyInfoDTO.setAlias(alias);
-													keyInfoDTO.setFirstDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY));
-													keyInfoDTO.setLastDayValidity((Date) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY));
-													keyInfoDTO.setSubject((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT));
-													keyInfoDTO.setType((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYTYPE));
-													keyInfoDTO.setAlert((String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALERT));
-													
-													final Date now = new Date();
-													if (keyInfoDTO.getLastDayValidity() != null) {
-														long diff = keyInfoDTO.getLastDayValidity().getTime() - now.getTime();
-														long diffDays = diff / (24 * 60 * 60 * 1000);
-														if (diffDays < 0) {
-															keyInfoDTO.setHasExpired(true);
-														} else {
-															keyInfoDTO.setHasExpired(false);
-															if (diffDays < 100) {
-																keyInfoDTO.setExpire(Long.toString(diffDays));
-															} else {
-																keyInfoDTO.setExpire(null);
-															}
-														}
-													}
-													
-													model.put("keyInfos", keyInfoDTO);
+												final KeyInfoDTO keyInfoDTO = getKeyInformation(keyNodeRef, alias, (String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYTYPE), password, (String) nodeService.getProperty(keyNodeRef, SigningModel.PROP_KEYALERT), decryptedPropertyValue.toString());
+												if (keyInfoDTO.getError() != null) {
+													throw new WebScriptException(keyInfoDTO.getError());
 												}
-											}
-											if (foundImage) {
-												model.put("hasImage", true);
-											} else {
-												model.put("hasImage", false);
+												keyInfoDTO.setHasAlerted(false);
+												
+												nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALIAS, alias);
+												nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYALGORITHM, keyInfoDTO.getAlgorithm());
+												nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYFIRSTVALIDITY, keyInfoDTO.getFirstDayValidity());
+												nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYLASTVALIDITY, keyInfoDTO.getLastDayValidity());
+												nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYSUBJECT, keyInfoDTO.getSubject());
+												nodeService.setProperty(keyNodeRef, SigningModel.PROP_KEYHASALERT, keyInfoDTO.getHasAlerted());
+												
+												if (keyInfoDTO.getExpire() != null && Integer.parseInt(keyInfoDTO.getExpire()) >= 100) {
+													keyInfoDTO.setExpire(null);
+												}
+												
+												model.put("signingKey", keyNodeRef);
+												model.put("keyInfos", keyInfoDTO);
+												model.put("hasImage", foundImage);
 											}
 										} else {
 											log.error("No key file uploaded for user " + currentUser + ".");
-											model.put("errorNumber", "1");
+											throw new WebScriptException("No key file uploaded for user " + currentUser + ".");
 										}
 									} else {
 										log.error("No key file uploaded for user " + currentUser + ".");
-										model.put("errorNumber", "1");
+										throw new WebScriptException("No key file uploaded for user " + currentUser + ".");
 									}
 								} else {
 									log.error("User '" + currentUser + "' have no home folder.");
-									model.put("errorNumber", "1");
+									throw new WebScriptException("User '" + currentUser + "' have no home folder.");
 								}
-							} else {
-								log.error("Unable to get current user.");
-								model.put("errorNumber", "1");
 							}
-
 						} catch (final WebScriptException e) {
 							log.error(e.getMessage(), e);
 							model.put("errorNumber", "2");
@@ -169,6 +187,7 @@ public class SignatureInformation extends SigningWebScript {
 						}
 
 						return model;
+
 					}
 				};
 
@@ -205,5 +224,4 @@ public class SignatureInformation extends SigningWebScript {
 	public final void setPersonService(PersonService personService) {
 		this.personService = personService;
 	}
-	
 }

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
@@ -154,9 +155,18 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		Integer pageNumber = null;
 		if (parameters.get("pageNumber", null) instanceof String) {
 			if ((String) parameters.get("pageNumber", null) != null && "".compareTo((String) parameters.get("pageNumber", null)) != 0) {
-				width = getInteger((String) parameters.get("pageNumber", null));
+				pageNumber = getInteger((String) parameters.get("pageNumber", null));
 			}
 		}
+		
+		boolean detachedSignature = false;
+		if (parameters.get("detachedSignature", null) instanceof String) {
+			if ((String) parameters.get("detachedSignature", null) != null && "".compareTo((String) parameters.get("detachedSignature", null)) != 0) {
+				detachedSignature = Boolean.valueOf((String) parameters.get("detachedSignature", null));
+			}
+		}
+		
+		
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
 		
@@ -254,6 +264,7 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
+				signingDTO.setLocale(((Locale) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_LOCALE)).toString());
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
 				if (currentUserHomeFolder != null) {
 					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
@@ -308,6 +319,10 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		if (pageNumber != null) {
 			signingDTO.setPageNumber(pageNumber);
 		}
+		if (detachedSignature) {
+			signingDTO.setDetached(true);
+		}
+		
 		
 		// Get file(s) to sign
 		if (filesToSignStr != null) {

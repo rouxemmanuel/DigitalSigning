@@ -3,7 +3,7 @@
   	<groupId>com.alfresco.plugin</groupId>
   	<artifactId>digitalSigningShare</artifactId>
   	<packaging>amp</packaging>
-  	<version>1.1.0</version>
+  	<version>1.2.0</version>
   	<name>Alfresco Digital Signing Plugin</name>
   	<description>Alfresco Digital Signing Plugin</description>
   	

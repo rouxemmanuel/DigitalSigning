@@ -7,11 +7,5 @@
 	"errorMessage":"${errorMessage}"
 	</#if>
 }
-<#else>
-	<#if aliasList??>
-	{
-		"aliasList": "${aliasList}"
-	}
-	</#if>
 </#if>
 </#escape>

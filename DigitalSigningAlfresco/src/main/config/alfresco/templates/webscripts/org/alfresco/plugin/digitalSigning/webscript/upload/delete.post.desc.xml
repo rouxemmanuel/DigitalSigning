@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Delete key and image</shortname>
+  <description>Delete key and image</description>
+  <url>/api/digitalSigning/delete</url>
+  <format default="json">extension</format>
+  <authentication>user</authentication>
+  <transaction>required</transaction>
+</webscript>

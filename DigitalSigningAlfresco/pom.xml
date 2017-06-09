@@ -4,7 +4,7 @@
 	<groupId>org.alfresco.plugin</groupId>
 	<artifactId>digitalSigningAlfresco</artifactId>
 	<packaging>amp</packaging>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<name>Alfresco Digital Signing Plugin</name>
 	<description>Alfresco Digital Signing Plugin</description>
 
@@ -56,11 +56,10 @@
     		<version>5.5.11</version>
 		</dependency>
 		
-		<!--  
-        <dependency>
+		<dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.49</version>
+            <version>1.57</version>
             <type>jar</type>
             <exclusions>
             	<exclusion>
@@ -69,7 +68,27 @@
             	</exclusion>
             </exclusions>
         </dependency>
-		-->
+		
+		<dependency>
+    		<groupId>org.apache.santuario</groupId>
+    		<artifactId>xmlsec</artifactId>
+    		<version>1.5.8</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>xml-apis</groupId>
+		    <artifactId>xml-apis</artifactId>
+		    <version>1.4.01</version>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.bouncycastle</groupId>
+		    <artifactId>bcprov-ext-jdk15on</artifactId>
+		    <version>1.57</version>
+		</dependency>
+		
 	</dependencies>
 
 	<!-- Repositories to download Alfresco dependencies -->

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
@@ -66,6 +67,8 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
     public static final String PARAM_WIDTH = "width";
     public static final String PARAM_HEIGHT = "height";
     public static final String PARAM_PAGE_NUMBER = "pageNumber";
+    public static final String PARAM_DETACHED_SIGNATURE = "detachedSignature";
+    public static final String PARAM_LOCALE = "locale";
 	
 	/**
 	 * Sign service.
@@ -107,6 +110,8 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		final Integer height = getInteger(ruleAction.getParameterValue(PARAM_HEIGHT));
 		final Integer width = getInteger(ruleAction.getParameterValue(PARAM_WIDTH));
 		final Integer pageNumber = getInteger(ruleAction.getParameterValue(PARAM_PAGE_NUMBER));
+		final Boolean detachedSignature = (Boolean) ruleAction.getParameterValue(PARAM_DETACHED_SIGNATURE);
+		String locale = (String) ruleAction.getParameterValue(PARAM_LOCALE);
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
 		
@@ -123,6 +128,9 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 			final String currentUser = authenticationService.getCurrentUserName();
 			final NodeRef currentUserNodeRef = personService.getPerson(currentUser);
 			if (currentUserNodeRef != null) {
+				if (locale == null) {
+					locale = ((Locale) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_LOCALE)).toString();
+				}
 				final NodeRef currentUserHomeFolder = (NodeRef) nodeService.getProperty(currentUserNodeRef, ContentModel.PROP_HOMEFOLDER);
 				if (currentUserHomeFolder != null) {
 					final NodeRef signingFolderNodeRef = nodeService.getChildByName(currentUserHomeFolder, ContentModel.ASSOC_CONTAINS, SigningConstants.KEY_FOLDER);
@@ -242,6 +250,12 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		if (pageNumber != null) {
 			signingDTO.setPageNumber(pageNumber);
 		}
+		if (detachedSignature) {
+			signingDTO.setDetached(true);
+		}
+		if (locale != null) {
+			signingDTO.setLocale(locale);
+		}
 		
 		// Validate DTO
 		SigningUtils.validateSignInfo(signingDTO);
@@ -270,6 +284,8 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
         paramList.add(new ParameterDefinitionImpl(PARAM_WIDTH, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_WIDTH)));
         paramList.add(new ParameterDefinitionImpl(PARAM_HEIGHT, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_HEIGHT)));
         paramList.add(new ParameterDefinitionImpl(PARAM_PAGE_NUMBER, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_PAGE_NUMBER)));
+        paramList.add(new ParameterDefinitionImpl(PARAM_DETACHED_SIGNATURE, DataTypeDefinition.BOOLEAN, false, getParamDisplayLabel(PARAM_DETACHED_SIGNATURE)));
+        paramList.add(new ParameterDefinitionImpl(PARAM_LOCALE, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_LOCALE)));
 	}
 	
 	/**

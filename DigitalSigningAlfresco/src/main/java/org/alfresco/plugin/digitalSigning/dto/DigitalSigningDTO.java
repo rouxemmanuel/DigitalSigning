@@ -127,17 +127,24 @@ public class DigitalSigningDTO {
 	/**
 	 * Sign width (in pixel).
 	 */
-	private Integer signWidth = 100;
+	private Integer signWidth = 150;
 	
 	/**
 	 * Sign height (in pixel).
 	 */
-	private Integer signHeight = 100;
+	private Integer signHeight = 50;
 	
 	/**
 	 * Page number to sign.
 	 */
 	private Integer pageNumber;
+	
+	/**
+	 * Detached signature for XML.
+	 */
+	private boolean isDetached = false;
+	
+	private String locale;
 	
 	/**
 	 * @return the fileToSign
@@ -403,6 +410,34 @@ public class DigitalSigningDTO {
 	 */
 	public final void setPageNumber(Integer pageNumber) {
 		this.pageNumber = pageNumber;
+	}
+
+	/**
+	 * @return the isDetached
+	 */
+	public final boolean isDetached() {
+		return isDetached;
+	}
+
+	/**
+	 * @param isDetached the isDetached to set
+	 */
+	public final void setDetached(boolean isDetached) {
+		this.isDetached = isDetached;
+	}
+
+	/**
+	 * @return the locale
+	 */
+	public final String getLocale() {
+		return locale;
+	}
+
+	/**
+	 * @param locale the locale to set
+	 */
+	public final void setLocale(String locale) {
+		this.locale = locale;
 	}
 	
 }
