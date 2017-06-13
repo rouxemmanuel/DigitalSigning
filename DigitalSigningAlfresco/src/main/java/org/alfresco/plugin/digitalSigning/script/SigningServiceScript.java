@@ -166,6 +166,12 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 			}
 		}
 		
+		boolean transformInPdfA = false;
+		if (parameters.get("transformInPdfA", null) instanceof String) {
+			if ((String) parameters.get("transformInPdfA", null) != null && "".compareTo((String) parameters.get("transformInPdfA", null)) != 0) {
+				transformInPdfA = Boolean.valueOf((String) parameters.get("transformInPdfA", null));
+			}
+		}
 		
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
@@ -321,6 +327,11 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		}
 		if (detachedSignature) {
 			signingDTO.setDetached(true);
+		}
+		if (transformInPdfA) {
+			signingDTO.setTransformToPdfA(true);
+		} else {
+			signingDTO.setTransformToPdfA(false);
 		}
 		
 		

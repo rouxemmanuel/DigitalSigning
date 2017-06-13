@@ -144,6 +144,11 @@ public class DigitalSigningDTO {
 	 */
 	private boolean isDetached = false;
 	
+	/**
+	 * PDF file transformed in PDF/A-1 before signing ?
+	 */
+	private boolean transformToPdfA = true;
+	
 	private String locale;
 	
 	/**
@@ -438,6 +443,20 @@ public class DigitalSigningDTO {
 	 */
 	public final void setLocale(String locale) {
 		this.locale = locale;
+	}
+
+	/**
+	 * @return the transformToPdfA
+	 */
+	public final boolean isTransformToPdfA() {
+		return transformToPdfA;
+	}
+
+	/**
+	 * @param transformToPdfA the transformToPdfA to set
+	 */
+	public final void setTransformToPdfA(boolean transformToPdfA) {
+		this.transformToPdfA = transformToPdfA;
 	}
 	
 }

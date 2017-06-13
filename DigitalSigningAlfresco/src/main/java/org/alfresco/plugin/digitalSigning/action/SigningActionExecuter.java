@@ -69,6 +69,7 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
     public static final String PARAM_PAGE_NUMBER = "pageNumber";
     public static final String PARAM_DETACHED_SIGNATURE = "detachedSignature";
     public static final String PARAM_LOCALE = "locale";
+    public static final String PARAM_TRANSFORM_PDF_A = "transformInPdfA";
 	
 	/**
 	 * Sign service.
@@ -112,6 +113,7 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		final Integer pageNumber = getInteger(ruleAction.getParameterValue(PARAM_PAGE_NUMBER));
 		final Boolean detachedSignature = (Boolean) ruleAction.getParameterValue(PARAM_DETACHED_SIGNATURE);
 		String locale = (String) ruleAction.getParameterValue(PARAM_LOCALE);
+		final Boolean transformInPdfA = (Boolean) ruleAction.getParameterValue(PARAM_TRANSFORM_PDF_A);
 		
 		final DigitalSigningDTO signingDTO = new DigitalSigningDTO();
 		
@@ -256,6 +258,11 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
 		if (locale != null) {
 			signingDTO.setLocale(locale);
 		}
+		if (transformInPdfA) {
+			signingDTO.setTransformToPdfA(true);
+		} else {
+			signingDTO.setTransformToPdfA(false);
+		}
 		
 		// Validate DTO
 		SigningUtils.validateSignInfo(signingDTO);
@@ -286,6 +293,7 @@ public class SigningActionExecuter extends ActionExecuterAbstractBase {
         paramList.add(new ParameterDefinitionImpl(PARAM_PAGE_NUMBER, DataTypeDefinition.INT, false, getParamDisplayLabel(PARAM_PAGE_NUMBER)));
         paramList.add(new ParameterDefinitionImpl(PARAM_DETACHED_SIGNATURE, DataTypeDefinition.BOOLEAN, false, getParamDisplayLabel(PARAM_DETACHED_SIGNATURE)));
         paramList.add(new ParameterDefinitionImpl(PARAM_LOCALE, DataTypeDefinition.TEXT, false, getParamDisplayLabel(PARAM_LOCALE)));
+        paramList.add(new ParameterDefinitionImpl(PARAM_TRANSFORM_PDF_A, DataTypeDefinition.BOOLEAN, false, getParamDisplayLabel(PARAM_TRANSFORM_PDF_A)));
 	}
 	
 	/**

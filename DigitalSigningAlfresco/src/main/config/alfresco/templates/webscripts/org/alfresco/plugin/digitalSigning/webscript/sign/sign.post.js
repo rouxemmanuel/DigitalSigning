@@ -55,6 +55,10 @@ try {
 		parameters.detachedSignature=jsonObject.detachedSignature;
 	}
 	
+	if (jsonObject.transformInPdfA != null) {
+		parameters.transformInPdfA=jsonObject.transformInPdfA;
+	}
+	
 	
 	digitalSigning.sign(parameters);
 	model.result = "success";

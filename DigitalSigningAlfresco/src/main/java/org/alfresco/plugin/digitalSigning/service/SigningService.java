@@ -195,8 +195,12 @@ public class SigningService {
 				PdfReader reader = null;
 				File pdfAFile = null;
 				if (signingDTO.getSigningField() == null || "".equals(signingDTO.getSigningField())) {
-					pdfAFile = convertPdfToPdfA(fileToSignContentReader.getContentInputStream());
-					reader = new PdfReader(new FileInputStream(pdfAFile));
+					if (signingDTO.isTransformToPdfA()) {
+						pdfAFile = convertPdfToPdfA(fileToSignContentReader.getContentInputStream());
+						reader = new PdfReader(new FileInputStream(pdfAFile));
+					} else {
+						reader = new PdfReader(fileToSignContentReader.getContentInputStream());
+					}
 				} else {
 					reader = new PdfReader(fileToSignContentReader.getContentInputStream());
 				}

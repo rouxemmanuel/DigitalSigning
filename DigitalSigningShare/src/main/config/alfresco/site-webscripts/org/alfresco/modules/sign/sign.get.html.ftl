@@ -36,6 +36,12 @@
          	</div>
          </#if>
          <#if xml == false>
+         	<div class="yui-gd">
+            	<div class="yui-u first"><label for="${el}-transformInPdfA">${msg("label.transformInPdfA")}:</label></div>
+            	<div class="yui-u"><input type="checkbox" name="transformInPdfA" id="${el}-transformInPdfA" value="true" checked ></div>
+         	</div>
+         </#if>
+         <#if xml == false>
 	         <div class="yui-gd">
 	            <div class="yui-u first"><label for="${el}-position">${msg("label.position")}:</label></div>
 	            <div class="yui-u">
