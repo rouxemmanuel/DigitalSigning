@@ -1,0 +1,9 @@
+target
+*/target/*
+*/target/**
+
+bin
+*/bin/*
+*/bin/**
+/.metadata/
+/.recommenders/

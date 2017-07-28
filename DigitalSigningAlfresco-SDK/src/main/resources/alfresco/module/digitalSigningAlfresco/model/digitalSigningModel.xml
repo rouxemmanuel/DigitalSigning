@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="dgtsgn:digitalSigningmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    
+    <description>Digital Signing Content Model</description>
+    <author>Emmanuel ROUX</author>
+    <version>1.0</version>
+
+    <imports>
+        <!-- Import Alfresco Dictionary Definitions -->
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <!-- Import Alfresco Content Domain Model Definitions -->
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+    </imports>
+    
+    <namespaces>
+        <namespace uri="http://www.alfresco.com/model/digital/signing/1.0" prefix="dgtsgn" />
+    </namespaces>
+    
+    <constraints> 
+         <constraint name="dgtsgn:signList" type="LIST"> 
+             <parameter name="allowedValues"> 
+                 <list> 
+                     <value>PADES</value> 
+                     <value>CADES</value>                  
+                 </list> 
+             </parameter> 
+         </constraint> 
+     </constraints> 
+
+    <aspects>
+        <aspect name="dgtsgn:signed">
+            <title>Signed</title>
+            <properties>
+                <property name="dgtsgn:signedby">
+                        <title>Signed By</title>
+                        <type>d:text</type>
+                </property>
+                <property name="dgtsgn:signaturedate">
+                    <title>Signature Date</title>
+                    <type>d:datetime</type>
+                </property>
+                <property name="dgtsgn:location">
+                    <title>Location</title>
+                    <type>d:text</type>
+                </property>
+                <property name="dgtsgn:reason">
+                    <title>Reason</title>
+                    <type>d:text</type>
+                </property>
+                <property name="dgtsgn:validity">
+                    <title>Validity</title>
+                    <type>d:date</type>
+                </property>
+                <property name="dgtsgn:originalDoc">
+                    <title>Original doc</title>
+                    <type>d:noderef</type>
+                </property>
+            </properties>
+        </aspect>
+        
+        <aspect name="dgtsgn:key">
+            <title>Key</title>
+            <properties>
+                <property name="dgtsgn:keyType">
+                        <title>Type</title>
+                        <type>d:text</type>
+                        <mandatory>true</mandatory> 
+                </property>
+                <property name="dgtsgn:keyAlias">
+                        <title>Alias</title>
+                        <type>d:text</type>
+                        <mandatory>true</mandatory> 
+                </property>
+                <property name="dgtsgn:keySubject">
+                        <title>Subject</title>
+                        <type>d:text</type>
+                        <mandatory>true</mandatory> 
+                </property>
+                <property name="dgtsgn:keyFirstValidity">
+                        <title>First day validity</title>
+                        <type>d:date</type>
+                </property>
+                <property name="dgtsgn:keyLastValidity">
+                        <title>Last day validity</title>
+                        <type>d:date</type>
+                </property>
+                <property name="dgtsgn:keyAlgorithm">
+                        <title>Algorithm</title>
+                        <type>d:text</type>
+                </property>
+                <property name="dgtsgn:keyAlert">
+                      	<title>Alert</title>
+                        <type>d:text</type>
+                </property>
+                <property name="dgtsgn:keyHasAlerted">
+                      	<title>Alert</title>
+                        <type>d:boolean</type>
+                </property>
+                <property name="dgtsgn:keyCryptSecret">
+                     	<title>Secret</title>
+                       	<type>d:encrypted</type>
+						<protected>true</protected>
+						<default></default>
+                </property>
+            </properties>
+        </aspect>
+        
+        <aspect name="dgtsgn:image">
+            <title>Image</title>
+            <properties>
+            </properties>
+        </aspect>
+        
+        <aspect name="dgtsgn:originalDoc">
+			<title>Signed documents</title>
+			<associations>
+				<association name="dgtsgn:relatedDocList">
+					<title>Related signed doc</title>
+					<source>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</source>
+					<target>
+						<class>cm:content</class>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</target>
+				</association>
+			</associations>		
+		</aspect>
+        
+    </aspects>
+</model>
