@@ -6,71 +6,15 @@
 		<dependencies>
 			<css src="/components/documentlibrary/sign-action.css" />
 			<js src="/components/documentlibrary/sign-action.js" />
-			<css src="/components/documentlibrary/signsimple-action.css" />
-			<js src="/components/documentlibrary/signsimple-action.js" />
 		</dependencies>
-	</config>
-	
-	<!-- Document Library config section -->
-    
-   	<config evaluator="string-compare" condition="DocumentLibrary" replace="true">
-
-		<indicators>
-			<indicator id="signed-doc" index="10" label="indicator.signed">
-		    	<evaluator>evaluator.doclib.indicator.digitalSigning.signedDoc</evaluator>
-			</indicator>
-		</indicators>
-		
-		<multi-select>
-         	<action type="action-link" id="onActionSign" label="menu.selected-items.sign" />
-          	<action type="action-link" id="onActionSignSimple" label="menu.selected-items.signsimple" />
-      	</multi-select>
-      	 <!--
-            Used by "Manage Rules" -> "Add aspect" action.
-        
-            If an aspect has been specified without a title element in the content model,
-            or you need to support multiple languages,
-            then an i18n file is needed on the Repo AMP/JAR extension side for the aspect to
-            be visible when creating rules:
-        
-               custom_customModel.aspect.custom_myaspect.title=My Aspect
-        
-            Used by the "Manage Aspects" action.
-        
-            For the aspect to have a localised label add relevant i18n string(s) in a Share AMP/JAR extension:
-        
-            	aspect.custom_myaspect=My Aspect
-         -->          
-      	 <aspects>
-      	    <!-- Aspects that a user can see -->
-            <visible>
-            	<!-- custom aspects -->
-                <aspect name="dgtsgn:signed"/>
-                <aspect name="dgtsgn:key" /> 
-                <aspect name="dgtsgn:image" /> 
-                <aspect name="dgtsgn:originalDoc" /> 
-            </visible>
-            <addable> <!-- defaults to visible config if empty -->
-            </addable>
-            <removeable> <!-- defaults to visible config if empty -->
-            </removeable>
-        </aspects>
 	</config>
 
 	<!-- Document Library Actions config section -->
-	  
-	<config evaluator="string-compare" condition="DocLibActions">	
+	<config evaluator="string-compare" condition="DocLibActions">
+		<!-- paramedit action -->
 		<actions>
          	<action id="sign" type="javascript" icon="sign" label="actions.sign">
             	<param name="function">onActionSign</param>
-            	<permissions>
-               		<permission allow="true">Write</permission>
-            	</permissions>
-            	<evaluator>evaluator.doclib.action.digitalSigning.canSign</evaluator>
-            	<evaluator negate="true">evaluator.doclib.indicator.digitalSigning.signedDoc</evaluator>
-         	</action>
-       		<action id="signsimple" type="javascript" icon="sign" label="actions.signsimple">
-            	<param name="function">onActionSignSimple</param>
             	<permissions>
                		<permission allow="true">Write</permission>
             	</permissions>
@@ -86,13 +30,6 @@
 
 			<actionGroup id="document-details">
 				<action index="120" id="sign" />
-			</actionGroup>
-			<actionGroup id="document-browse">
-				<action index="120" id="signsimple" />
-			</actionGroup>
-
-			<actionGroup id="document-details">
-				<action index="120" id="signsimple" />
 			</actionGroup>
 		</actionGroups>
 	</config>
@@ -149,7 +86,7 @@
 			</field-visibility> 
 			<appearance>
 				<field id="dgtsgn:relatedDocList" label-id="prop.dgtsgn_relatedDocType">
-					<control template="/components/form/controls/association.ftl">
+					<control template="/org/alfresco/components/form/controls/association.ftl">
 						<control-param name="displayMode">items</control-param>
 						<control-param name="showTargetLink">true</control-param>
 						<control-param name="allowNavigationToContentChildren">true</control-param>
@@ -159,5 +96,19 @@
          </form>
       </forms>
     </config>
+	
+	<!-- Document Library config section -->
+	
+   	<config evaluator="string-compare" condition="DocumentLibrary">
+		<indicators>
+			<indicator id="signed-doc" index="10" label="indicator.signed">
+		    	<evaluator>evaluator.doclib.indicator.digitalSigning.signedDoc</evaluator>
+			</indicator>
+		</indicators>
+		
+		<multi-select>
+         <action type="action-link" id="onActionSign" label="menu.selected-items.sign" />
+      	</multi-select>
+	</config>
 
 </alfresco-config>
