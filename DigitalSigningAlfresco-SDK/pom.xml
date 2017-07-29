@@ -5,8 +5,8 @@
 	<artifactId>digitalSigningAlfresco</artifactId>
 	<packaging>jar</packaging>
 	<version>1.2.0</version>
-	<name>Alfresco Digital Signing Plugin - SDK</name>
-	<description>Alfresco Digital Signing Plugin -SDK</description>
+	<name>Alfresco Repo Digital Signing Plugin (SDK 3)</name>
+	<description>Alfresco Repo Digital Signing Plugin (SDK 3)</description>
 
 	<!-- Default properties -->
 	<properties>

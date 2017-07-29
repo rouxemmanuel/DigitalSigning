@@ -149,7 +149,7 @@
 			</field-visibility> 
 			<appearance>
 				<field id="dgtsgn:relatedDocList" label-id="prop.dgtsgn_relatedDocType">
-					<control template="/components/form/controls/association.ftl">
+					<control template="/org/alfresco/components/form/controls/association.ftl">
 						<control-param name="displayMode">items</control-param>
 						<control-param name="showTargetLink">true</control-param>
 						<control-param name="allowNavigationToContentChildren">true</control-param>

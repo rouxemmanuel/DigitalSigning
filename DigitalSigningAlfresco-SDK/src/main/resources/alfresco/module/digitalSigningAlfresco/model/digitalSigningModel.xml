@@ -66,16 +66,19 @@
                         <title>Type</title>
                         <type>d:text</type>
                         <mandatory>true</mandatory> 
+                        <default>jks</default>
                 </property>
                 <property name="dgtsgn:keyAlias">
                         <title>Alias</title>
                         <type>d:text</type>
                         <mandatory>true</mandatory> 
+                        <default>client</default>
                 </property>
                 <property name="dgtsgn:keySubject">
                         <title>Subject</title>
                         <type>d:text</type>
                         <mandatory>true</mandatory> 
+                        <default>client</default>
                 </property>
                 <property name="dgtsgn:keyFirstValidity">
                         <title>First day validity</title>
@@ -87,7 +90,7 @@
                 </property>
                 <property name="dgtsgn:keyAlgorithm">
                         <title>Algorithm</title>
-                        <type>d:text</type>
+                        <type>d:text</type>                       
                 </property>
                 <property name="dgtsgn:keyAlert">
                       	<title>Alert</title>
@@ -127,7 +130,7 @@
 						<many>true</many>
 					</target>
 				</association>
-			</associations>		
+			</associations>	
 		</aspect>
         
     </aspects>

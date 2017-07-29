@@ -6,14 +6,19 @@ same projects to work with the Alfresco Maven SDK and make compatibile with the 
 ##### NOTE: Is not ready yet
 
 #### TODO:
- - Resolve some problem on the aspect , the apsect key cn't be add to a content
- - Resolve some standard structure problem
- - Make it work
+ - Resolve some problem on the aspect , the apsect key can't be add to a content
+ - [SOLVED]Resolve some standard structure problem
+ - Try to understand how use the replace parameter on the config tag for implement with other amp
+ 
+ - Make it work like the olde version
+ 
+###### [Reminder compatibility the version of sdk with alfresco version](http://docs.alfresco.com/5.1/concepts/alfresco-sdk-compatibility.html)
+###### [New compatibility with the SDK 3.0.0](http://ecmarchitect.com/archives/2017/04/24/4235)
 
 ### Installation
 
 ```sh
-mvn clean install
+mvn clean install <MAVEN_PROJECT>
 ```
 
 for generate the amp packages, after that use the alfresco offical tool for the installation on the alfresco.war and share.war
@@ -23,7 +28,7 @@ for generate the amp packages, after that use the alfresco offical tool for the 
 All right of these code belong to rouxemmanuel.
 
 
-## The structure of the project based on the official documentation [SDK Project Structure](http://docs.alfresco.com/5.2/concepts/sdk-projects-aio.html)
+## The structure of the project based on the official documentation [SDK Project Structure](http://docs.alfresco.com/5.2/concepts/sdk-projects-aio.html) for the new SDK 3.0.0
 
 ├── my-all-in-one-project-platform-jar
 │   ├── pom.xml
