@@ -65,19 +65,19 @@
                 <property name="dgtsgn:keyType">
                         <title>Type</title>
                         <type>d:text</type>
-                        <mandatory>true</mandatory> 
+                        <mandatory>false</mandatory> 
                         <default>jks</default>
                 </property>
                 <property name="dgtsgn:keyAlias">
                         <title>Alias</title>
                         <type>d:text</type>
-                        <mandatory>true</mandatory> 
+                        <mandatory>false</mandatory> 
                         <default>client</default>
                 </property>
                 <property name="dgtsgn:keySubject">
                         <title>Subject</title>
                         <type>d:text</type>
-                        <mandatory>true</mandatory> 
+                        <mandatory>false</mandatory> 
                         <default>client</default>
                 </property>
                 <property name="dgtsgn:keyFirstValidity">
