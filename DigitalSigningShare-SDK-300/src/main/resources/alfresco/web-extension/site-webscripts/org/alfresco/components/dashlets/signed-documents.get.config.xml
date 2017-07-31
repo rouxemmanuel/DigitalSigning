@@ -1,0 +1,14 @@
+<config>
+   <filter-range>
+      <filter type="today" label="today" />
+      <filter type="7" label="7" />
+      <filter type="14" label="14" />
+      <filter type="28" label="28" />
+   </filter-range>
+   <filter-type>
+      <filter type="mine" label="mine" />
+      <filter type="others" label="others" />
+      <filter type="all" label="all" />
+   </filter-type>
+   <max-items>50</max-items>
+</config>

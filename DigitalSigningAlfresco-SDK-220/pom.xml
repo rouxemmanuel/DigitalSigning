@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>digitalsigning-repo-220</artifactId>  
+    <packaging>amp</packaging>
+    <version>1.2.0</version>
+	<name>Alfresco Repo Digital Signing Plugin (SDK 2.2.0)</name>
+	<description>Alfresco Repo Digital Signing Plugin (SDK 2.2.0)</description>
+
+    <parent>
+        <groupId>org.alfresco.maven</groupId>
+        <artifactId>alfresco-sdk-parent</artifactId>
+        <version>2.2.0</version>
+    </parent>
+    
+    <properties>
+        <!-- Property overrides are mostly done in parent pom -->
+		<!-- The following are default values for data location, Alfresco Community version, and Records Management Module version.
+             Uncomment if you need to change (Note. current default version for Enterprise edition is 5.1)
+          <alfresco.version>5.1.e</alfresco.version>
+          <alfresco.rm.version>2.3</alfresco.rm.version>
+          <alfresco.data.location>/absolute/path/to/alf_data_dev</alfresco.data.location> -->
+
+        <!-- This control the root logging level for all apps uncomment and change, defaults to WARN
+            <app.log.root.level>WARN</app.log.root.level>
+        -->
+
+        <!-- Set the enviroment to use, this controls which properties will be picked in src/test/properties
+             for embedded run, defaults to the 'local' environment. See SDK Parent POM for more info.
+        <env>local</env>
+        -->
+        
+         <!-- The Maven artifact ID to use when loading the Share.WAR that the AMP should be applied to,
+                    defaults to the alfresco.war artifact ID, so we need to override here. -->
+        <app.amp.client.war.artifactId>${alfresco.share.artifactId}</app.amp.client.war.artifactId>
+
+        <!-- Since Alfresco.WAR (i.e. the Repository) is already running on port 8080, we run Share.WAR on port 8081 -->
+        <maven.tomcat.port>8081</maven.tomcat.port>
+
+        <!-- Used in share-config-custom.xml. By default points to local installation of Alfresco Repo -->
+        <alfresco.repo.url>http://localhost:8080/alfresco</alfresco.repo.url>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+
+        <!-- The Alfresco Share web application is accessible via this URL -->
+        <share.client.url>http://localhost:8080/share</share.client.url>
+    </properties>
+	
+	<!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- This will import the dependencyManagement for all artifacts in the selected Alfresco plaftorm
+                 (see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies)
+                 NOTE: You still need to define dependencies in your POM, but you can omit version as it's enforced by this dependencyManagement.
+                 NOTE: It defaults to the latest version this SDK pom has been tested with, but alfresco version can/should be overridden in your project's pom
+             -->
+            <dependency>
+                <groupId>${alfresco.groupId}</groupId>
+                <artifactId>alfresco-platform-distribution</artifactId>
+                <version>${alfresco.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Following dependencies are needed for compiling Java code in src/main/java;
+          <scope>provided</scope> is inherited for each of the following;
+          for more info, please refer to alfresco-platform-distribution POM -->
+    <dependencies>
+		<!-- If we are running tests then make the H2 Scripts available.
+             Note. tests are skipped when you are running -Prun -->
+        <dependency>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-repository</artifactId>
+            <version>${alfresco.version}</version>
+            <classifier>h2scripts</classifier>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+	
+        <dependency>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-repository</artifactId>
+        </dependency>
+
+        <!-- Uncomment if you are using RM (Records Management) module, brings in RM related classes -->
+        <!--
+        <dependency>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-rm</artifactId>
+            <version>${alfresco.rm.version}</version>
+            <classifier>classes</classifier>
+        </dependency>
+        -->
+    </dependencies>
+	
+	<build>
+        <plugins>
+            <!-- Compress JavaScript files and store as *-min.js -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>yuicompressor-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.alfresco.maven.plugin</groupId>
+                <artifactId>alfresco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <!--
+            Brings in the extra Enterprise specific repository classes,
+            if the 'enterprise' profile has been activated, needs to be activated manually. -->
+        <profile>
+            <id>enterprise</id>
+            <dependencies>
+                <dependency>
+                    <groupId>${alfresco.groupId}</groupId>
+                    <artifactId>alfresco-enterprise-repository</artifactId>
+                    <version>${alfresco.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- If we are running in embedded Tomcat skip unit tests -->
+        <profile>
+            <id>run</id>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+    </profiles>
+</project>

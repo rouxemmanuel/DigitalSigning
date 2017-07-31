@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>Signature Config Module</shortname>
+  <description>Configuration dialog for Signature dashlet</description>
+  <url>/modules/digitalSigning/signature/config</url>
+</webscript>

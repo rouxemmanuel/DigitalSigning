@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+   
+   <!--
+    Define beans related to this Share extension here, such as
+     evaluators and resource bootstrapping.
+
+     Note. Any configuration related to the whole Share.war webapp
+           (i.e. not specific to this share extension) should be
+            placed in the alfresco-allinone/share/src/main/resources/alfresco/web-extension/custom-slingshot-application-context.xml file
+   -->
+
+   <!-- Add module specific messages and labels -->
+   <bean id="sign-action.i18n.resources" 
+       class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
+      <property name="resourceBundles">
+         <list>
+            <value>alfresco.web-extension.messages.digitalSigning-action</value>
+         </list>
+      </property>
+   </bean>
+   
+   <bean id="digitalSigning.config.bootstrap" class="org.springframework.extensions.config.ConfigBootstrap" init-method="register" depends-on="webframework.configsource">
+      <property name="configService" ref="web.config" />
+      <property name="configs">
+        <list>
+            <!--  <value>classpath:META-INF/digitalSigning-config-custom.xml</value> -->
+          <value>classpath:META-INF/share-config-custom.xml</value>
+        </list>
+      </property>
+   </bean>
+   
+   <bean id="evaluator.doclib.indicator.digitalSigning.signedDoc" class="org.alfresco.web.evaluator.HasAspectEvaluator">
+      <property name="aspects">
+         <list>
+            <value>dgtsgn:signed</value>
+         </list>
+      </property>
+   </bean>
+   
+   <bean id="evaluator.doclib.action.digitalSigning.pdfMimetype" parent="evaluator.doclib.action.isMimetype">
+      <property name="mimetypes">
+         <list>
+            <value>application/pdf</value>
+         </list>
+      </property>
+   </bean>
+   
+   <bean id="evaluator.doclib.action.digitalSigning.xmlMimetype" parent="evaluator.doclib.action.isMimetype">
+      <property name="mimetypes">
+         <list>
+            <value>text/xml</value>
+         </list>
+      </property>
+   </bean>
+   
+   <bean id="evaluator.doclib.action.digitalSigning.isPdfTransformable" class="org.alfresco.plugin.digitalSigning.action.evaluator.IsPdfTransformable" />
+   
+   <bean id="evaluator.doclib.action.digitalSigning.canSign" parent="evaluator.doclib.action.chainedMatchOne">
+      <property name="evaluators">
+         <list>
+            <ref bean="evaluator.doclib.action.digitalSigning.pdfMimetype" />
+            <ref bean="evaluator.doclib.action.digitalSigning.xmlMimetype" />
+            <ref bean="evaluator.doclib.action.digitalSigning.isPdfTransformable" />
+         </list>
+      </property>
+   </bean>
+
+</beans>

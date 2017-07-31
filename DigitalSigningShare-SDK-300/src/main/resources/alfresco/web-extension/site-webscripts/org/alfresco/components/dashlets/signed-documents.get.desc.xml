@@ -1,0 +1,6 @@
+<webscript>
+   <shortname>Signed documents</shortname>
+   <description>Lists signed document for a given user and/or a given date.</description>
+   <family>dashlet</family>
+   <url>/components/dashlets/signed-documents</url>
+</webscript>

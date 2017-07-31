@@ -1,0 +1,8 @@
+<webscript>
+   	<shortname>Get image</shortname>
+   	<description>Get image</description>
+   	<url>/api/digitalSigning/image</url>
+   	<format default="">argument</format>
+  	<authentication>user</authentication>
+  	<transaction>required</transaction>
+</webscript>

@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Sign document - SIMPLE</shortname>
+  <description>Sign document - SIMPLE</description>
+  <url>/api/digitalSigning/signsimple</url>
+  <format default="json">extension</format>
+  <authentication>user</authentication>
+  <transaction>required</transaction>
+</webscript>
