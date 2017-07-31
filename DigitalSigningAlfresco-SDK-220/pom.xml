@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.alfresco.plugin</groupId>
     <artifactId>digitalsigning-repo-220</artifactId>  
     <packaging>amp</packaging>
     <version>1.2.0</version>
@@ -14,6 +16,7 @@
     </parent>
     
     <properties>
+    	<alfresco.sdk.version>2.2.0</alfresco.sdk.version>
         <!-- Property overrides are mostly done in parent pom -->
 		<!-- The following are default values for data location, Alfresco Community version, and Records Management Module version.
              Uncomment if you need to change (Note. current default version for Enterprise edition is 5.1)
@@ -67,8 +70,77 @@
           <scope>provided</scope> is inherited for each of the following;
           for more info, please refer to alfresco-platform-distribution POM -->
     <dependencies>
+    
+    	<dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- The main Alfresco Repo dependency for compiling Java code in src/main/java -->
+        <dependency>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-repository</artifactId>
+        </dependency>
+
+        <!-- Bring in Spring Context so we can use ApplicationContext, ApplicationContextAware etc -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.17.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Bring in Alfresco RAD so we get access to AlfrescoTestRunner classes -->
+        <dependency>
+            <groupId>org.alfresco.maven</groupId>
+            <artifactId>alfresco-rad</artifactId>
+            <version>${alfresco.sdk.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>5.5.11</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.itextpdf</groupId>
+    		<artifactId>itext-pdfa</artifactId>
+    		<version>5.5.11</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.santuario</groupId>
+    		<artifactId>xmlsec</artifactId>
+    		<version>1.5.8</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>xml-apis</groupId>
+		    <artifactId>xml-apis</artifactId>
+		    <version>1.4.01</version>
+		    <scope>provided</scope>
+		</dependency>
+    	
 		<!-- If we are running tests then make the H2 Scripts available.
              Note. tests are skipped when you are running -Prun -->
+             <!--  
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-repository</artifactId>
@@ -82,11 +154,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-	
-        <dependency>
-            <groupId>${alfresco.groupId}</groupId>
-            <artifactId>alfresco-repository</artifactId>
-        </dependency>
+        -->
 
         <!-- Uncomment if you are using RM (Records Management) module, brings in RM related classes -->
         <!--
@@ -101,23 +169,95 @@
 	
 	<build>
         <plugins>
-            <!-- Compress JavaScript files and store as *-min.js -->
+              <!-- Compress JavaScript files and store as *-min.js -->
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>yuicompressor-maven-plugin</artifactId>
             </plugin>
+            <!--  
             <plugin>
                 <groupId>org.alfresco.maven.plugin</groupId>
                 <artifactId>alfresco-maven-plugin</artifactId>
             </plugin>
+            -->
         </plugins>
+        
+         <pluginManagement>
+	    	<plugins>
+		    	<plugin>
+			        <artifactId>maven-resources-plugin</artifactId>
+			        <version>3.0.1</version>
+			        <executions>
+			          <execution>
+			            <id>add-module-profile-properties</id>
+			            <phase>process-resources</phase>
+			            <goals>
+			              <goal>copy-resources</goal>
+			            </goals>
+			            <configuration>
+			            <outputDirectory>./target/classes</outputDirectory>
+			            <resources>
+				            <resource>
+			                  <directory>src/main/profiles/${envClassifier}</directory>
+			                  <includes>
+			                    <include>**/*</include>
+			                  </includes>
+			                  <filtering>true</filtering>
+			                </resource>
+		                </resources>
+			              <encoding>UTF-8</encoding>
+			              <nonFilteredFileExtensions>
+			                <nonFilteredFileExtension>ftl</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>acp</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>png</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>gif</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>svg</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>doc</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>docx</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>xls</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>ppt</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>pptx</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>bin</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>lic</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>swf</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>zip</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>msg</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>css</nonFilteredFileExtension>
+			                <nonFilteredFileExtension>ico</nonFilteredFileExtension>		           
+			              </nonFilteredFileExtensions>
+			            </configuration>
+			          </execution>
+			         </executions>			         
+			     </plugin>
+			     <!--  
+			     <plugin>
+			        <groupId>org.apache.maven.plugins</groupId>
+			        <artifactId>maven-release-plugin</artifactId>
+			        <version>2.5.3</version>
+			        <configuration>
+			          <goals>deploy</goals>
+			          <tagNameFormat>@{project.artifactId}/@{project.version}/@{project.artifactId}</tagNameFormat>
+			        </configuration>
+			      </plugin>
+			      -->
+	    	</plugins>
+	   </pluginManagement>
+	   	  
     </build>
-
+     <!--  
     <profiles>
 
-        <!--
+        
             Brings in the extra Enterprise specific repository classes,
-            if the 'enterprise' profile has been activated, needs to be activated manually. -->
+            if the 'enterprise' profile has been activated, needs to be activated manually.
         <profile>
             <id>enterprise</id>
             <dependencies>
@@ -130,7 +270,7 @@
             </dependencies>
         </profile>
 
-        <!-- If we are running in embedded Tomcat skip unit tests -->
+        If we are running in embedded Tomcat skip unit tests 
         <profile>
             <id>run</id>
             <properties>
@@ -138,4 +278,5 @@
             </properties>
         </profile>
     </profiles>
+    -->
 </project>

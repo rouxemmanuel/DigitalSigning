@@ -22,6 +22,8 @@
         For more available properties see the alfresco-sdk-parent POM.
        -->
     <properties>
+    	<alfresco.sdk.version>2.2.0</alfresco.sdk.version>
+    	
 		<!-- The following are default values for data location, Alfresco Community version, and Records Management Module version.
 		 Uncomment if you need to change (Note. current default version for Enterprise edition is 5.1)
 		  <alfresco.version>5.1.e</alfresco.version>
