@@ -57,7 +57,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 		
-		
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<project.build.targetEncoding>UTF-8</project.build.targetEncoding>
 	</properties>
 
 	<dependencyManagement>
@@ -189,7 +190,7 @@
 	</dependencies>
 
 	<build>
-		<plugins>
+		<plugins>			
 			<!--
                  Build an AMP if 3rd party libs are needed by the extensions
                  JARs are the default artifact produced in your modules, if you want to build an amp for each module
@@ -258,16 +259,17 @@
                       </nonFilteredFileExtensions>
                   </configuration>
               </plugin>
-              
-              <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-				</configuration>
-			</plugin>			
+              	
+			<plugin>
+	          <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-compiler-plugin</artifactId>
+	          <version>3.6.2</version>
+	          <configuration>
+	             <source>${maven.compiler.source}</source>
+		          <target>${maven.compiler.target}</target>
+		          <encoding>UTF-8</encoding> 
+	          </configuration>
+	        </plugin>	
         </plugins>
         
         <pluginManagement>

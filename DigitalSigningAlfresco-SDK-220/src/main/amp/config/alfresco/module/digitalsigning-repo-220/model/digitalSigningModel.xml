@@ -102,7 +102,8 @@
                 </property>
                 <property name="dgtsgn:keyCryptSecret">
                      	<title>Secret</title>
-                       	<type>d:encrypted</type>
+                       	<!-- <type>d:encrypted</type> -->
+                        <type>d:text</type>					
 						<protected>true</protected>
 						<default></default>
                 </property>

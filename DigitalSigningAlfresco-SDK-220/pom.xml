@@ -46,6 +46,9 @@
 
         <!-- The Alfresco Share web application is accessible via this URL -->
         <share.client.url>http://localhost:8080/share</share.client.url>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<project.build.targetEncoding>UTF-8</project.build.targetEncoding>
     </properties>
 	
 	<!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
@@ -183,7 +186,7 @@
         </plugins>
         
          <pluginManagement>
-	    	<plugins>
+	    	<plugins>	    		   	    
 		    	<plugin>
 			        <artifactId>maven-resources-plugin</artifactId>
 			        <version>3.0.1</version>
@@ -248,6 +251,16 @@
 			        </configuration>
 			      </plugin>
 			      -->
+		      	<plugin>
+		          	  <groupId>org.apache.maven.plugins</groupId>
+			          <artifactId>maven-compiler-plugin</artifactId>
+			          <version>3.6.2</version>
+			          <configuration>
+			             <source>1.8</source>
+				         <target>1.8</target>
+				         <encoding>UTF-8</encoding> 
+			          </configuration>
+        		</plugin>	 
 	    	</plugins>
 	   </pluginManagement>
 	   	  
