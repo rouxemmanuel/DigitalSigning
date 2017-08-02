@@ -1,8 +1,0 @@
-<webscript>
-   	<shortname>Get signature information</shortname>
-   	<description>Get signature information</description>
-   	<url>/api/digitalSigning/signatureInformation</url>
-   	<format default="json">argument</format>
-   	<authentication>user</authentication>
-  	<lifecycle>internal</lifecycle>
-</webscript>
