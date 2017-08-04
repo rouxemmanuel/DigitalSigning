@@ -4,52 +4,6 @@
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
-          
-    <!-- 
-    
-	<bean id="webscript.alfresco.digitalSigning.information.image.get"
-		  class="org.alfresco.plugin.digitalSigning.webscript.Image"
-		  parent="webscript">
-	</bean>
-	
-	<bean id="webscript.alfresco.digitalSigning.information.isPdfTransformable.get"
-		  class="org.alfresco.plugin.digitalSigning.webscript.IsPdfTransformable"
-		  parent="webscript">
-	</bean>
-	
-	<bean id="webscript.alfresco.digitalSigning.information.signatureInformation.get"
-		  class="org.alfresco.plugin.digitalSigning.webscript.SignatureInformation"
-		  parent="webscript">
-	</bean>
- 
-    <bean id="webscript.alfresco.digitalSigning.search.search.get"
-		  class="org.alfresco.plugin.digitalSigning.webscript.Search"
-		  parent="webscript">
-	</bean>
-
-	<bean id="webscript.alfresco.digitalSigning.sign.sign.post"
-		  class="org.alfresco.plugin.digitalSigning.webscript.SigningWebScript"
-		  parent="webscript">
-	</bean>
-
-	 <bean id="webscript.alfresco.digitalSigning.upload.chooseAlias.post"
-		  class="org.alfresco.plugin.digitalSigning.webscript.ChooseAlias"
-		  parent="webscript">
-	 </bean>
-	 <bean id="webscript.alfresco.digitalSigning.upload.delete.post"
-		  class="org.alfresco.plugin.digitalSigning.webscript.Delete"
-		  parent="webscript">
-	 </bean>	 
-	 <bean id="webscript.alfresco.digitalSigning.upload.upload.post"
-		  class="org.alfresco.plugin.digitalSigning.webscript.SignUpload"
-		  parent="webscript">
-	 </bean>
-	 
-	 <bean id="webscript.alfresco.digitalSigning.verify.verify.get"
-		  class="org.alfresco.plugin.digitalSigning.webscript.?????"
-		  parent="webscript">
-	</bean>
-	-->
 	
 	<!-- Signing service -->
 	<bean id="digitalSigningService" class="org.alfresco.plugin.digitalSigning.service.SigningService">
