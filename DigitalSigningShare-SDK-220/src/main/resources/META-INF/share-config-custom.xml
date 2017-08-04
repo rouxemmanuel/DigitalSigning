@@ -13,7 +13,7 @@
 	
 	<!-- Document Library config section -->
     
-   	<config evaluator="string-compare" condition="DocumentLibrary" replace="true">
+   	<config evaluator="string-compare" condition="DocumentLibrary">
 
 		<indicators>
 			<indicator id="signed-doc" index="10" label="indicator.signed">
