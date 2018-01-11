@@ -19,7 +19,7 @@
                		<permission allow="true">Write</permission>
             	</permissions>
             	<evaluator>evaluator.doclib.action.digitalSigning.canSign</evaluator>
-            	<evaluator negate="true">evaluator.doclib.indicator.digitalSigning.signedDoc</evaluator>
+            	<!-- <evaluator negate="true">evaluator.doclib.indicator.digitalSigning.signedDoc</evaluator> -->
          	</action>
 		</actions>
 		

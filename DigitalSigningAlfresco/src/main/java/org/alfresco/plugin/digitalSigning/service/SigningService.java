@@ -213,7 +213,11 @@ public class SigningService {
 				        
 				        if (file != null) {
 					        final FileOutputStream fout = new FileOutputStream(file);
-					        final PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0');
+					        //final PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0');
+					        
+					        final File tempFile = new File(tempDir, fileNameToSign + "_tmp");
+					        // Use parameter "true" to allow multiple signature on the PDF
+					        final PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0', tempFile, true);
 					        
 					        if (stp != null) {
 								final PdfSignatureAppearance sap = stp.getSignatureAppearance();
