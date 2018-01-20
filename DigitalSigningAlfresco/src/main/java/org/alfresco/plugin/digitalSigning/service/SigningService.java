@@ -78,6 +78,7 @@ import org.xml.sax.SAXException;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
@@ -951,12 +952,22 @@ public class SigningService {
         PdfImportedPage p = null; 
         Image image; 
         for(int i=0; i< numberPages; i++){ 
+        	document.newPage(); 
             p = writer.getImportedPage(reader, i+1); 
-            image = Image.getInstance(p); 
+            image = Image.getInstance(p);
+            // Scale PDF page to fit with PDF/A format
+            image.scaleAbsolute(writer.getPageSize());
+            // Center the image into the PDF/A page
+            image.setAlignment(Element.ALIGN_CENTER);
+            
+            // Set the position of the image into the PDF/A page
+            image.setAbsolutePosition(0, 0);
+            document.setMargins(0, 0, 0, 0);
             document.add(image); 
         }
         
         document.close(); 
+        writer.flush();
 
         return pdfAFile;
     }
