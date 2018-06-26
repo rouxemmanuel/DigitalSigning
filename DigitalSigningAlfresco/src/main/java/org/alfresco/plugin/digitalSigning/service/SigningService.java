@@ -254,7 +254,7 @@ public class SigningService {
 										signingText.insert(0, '\n');
 									}
 									
-									sap.setCertificationLevel(PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
+									sap.setCertificationLevel(PdfSignatureAppearance.NOT_CERTIFIED);
 									sap.setImageScale(1);
 									
 									final ExternalSignature es = new PrivateKeySignature(key, "SHA-256", "BC");
