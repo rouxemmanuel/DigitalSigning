@@ -26,7 +26,9 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mozilla.javascript.ConsString;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 
@@ -79,6 +81,12 @@ public class SigningServiceScript extends BaseScopableProcessorExtension {
 		String filesToSignStr = null;
 		if (parameters.get("document", null) instanceof String) {
 			filesToSignStr = (String) parameters.get("document", null);
+		}
+		if (parameters.get("document", null) instanceof ConsString) {
+			filesToSignStr = ((ConsString) parameters.get("document", null)).toString();
+		}
+		if (parameters.get("document", null) instanceof NativeJavaObject) {
+			filesToSignStr = ((NativeJavaObject)parameters.get("document", null)).unwrap().toString();
 		}
 		String destinationFolderStr = null;
 		if (parameters.get("destination", null) instanceof String) {
