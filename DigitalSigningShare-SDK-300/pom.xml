@@ -160,11 +160,13 @@
 					        <phase>package</phase>
 					        <goals>
 					            <goal>single</goal>
-					        </goals>					         
+					        </goals>
+					        <!--  				         
 					        <configuration>
 					            <appendAssemblyId>false</appendAssemblyId>
 					            <descriptor>src/main/assembly/amp.xml</descriptor>
-					        </configuration>					        
+					        </configuration>
+					        -->			        
 					    </execution>
 					</executions>
 					<configuration>
@@ -230,8 +232,7 @@
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
-			</plugin>
-			<!--  
+			</plugin>			
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.6</version>
@@ -242,7 +243,7 @@
 						<phase>initialize</phase>
 						<configuration>
 							<target>
-								Clean and create distribution directory
+								<!--  Clean and create distribution directory -->
 								<mkdir dir="target/classes" />
 							</target>
 						</configuration>
@@ -251,8 +252,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			-->
+			</plugin>			
 			<!-- just for alfresco sdk 2.2.0 -->
 			<!-- 
 			<plugin>

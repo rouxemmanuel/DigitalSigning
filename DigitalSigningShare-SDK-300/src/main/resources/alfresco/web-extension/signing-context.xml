@@ -5,7 +5,7 @@
    <bean id="sign-action.i18n.resources" class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
       <property name="resourceBundles">
          <list>
-            <value>alfresco.messages.digitalSigning-action</value>
+            <value>alfresco.web-extension.messages.digitalSigning-action</value>
          </list>
       </property>
    </bean>
@@ -14,7 +14,7 @@
       <property name="configService" ref="web.config" />
       <property name="configs">
         <list>
-          <value>classpath:alfresco/web-extension/digitalSigning-config-custom.xml</value>
+          <value>classpath:alfresco/web-extension/configs/digitalSigning-config-custom.xml</value>
         </list>
       </property>
    </bean>

@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -25,12 +26,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -63,9 +66,25 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.TempFileProvider;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jempbox.xmp.XMPMetadata;
+import org.apache.jempbox.xmp.pdfa.XMPSchemaPDFAId;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDMetadata;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDFontFactory;
+import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
+import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
+import org.apache.pdfbox.preflight.PreflightDocument;
+import org.apache.pdfbox.preflight.ValidationResult;
+import org.apache.pdfbox.preflight.ValidationResult.ValidationError;
+import org.apache.pdfbox.preflight.parser.PreflightParser;
 import org.apache.xml.security.Init;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.exceptions.XMLSecurityException;
@@ -76,31 +95,18 @@ import org.apache.xml.security.utils.ElementProxy;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.xml.sax.SAXException;
 
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.AcroFields.FieldPosition;
-import com.itextpdf.text.pdf.ICC_Profile;
-import com.itextpdf.text.pdf.PdfAConformanceLevel;
-import com.itextpdf.text.pdf.PdfAWriter;
-import com.itextpdf.text.pdf.PdfImportedPage;
+import com.itextpdf.text.pdf.PdfPKCS7;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.security.BouncyCastleDigest;
-import com.itextpdf.text.pdf.security.CertificateVerification;
-import com.itextpdf.text.pdf.security.ExternalDigest;
-import com.itextpdf.text.pdf.security.ExternalSignature;
-import com.itextpdf.text.pdf.security.MakeSignature;
-import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
-import com.itextpdf.text.pdf.security.PdfPKCS7;
-import com.itextpdf.text.pdf.security.PrivateKeySignature;
-import com.itextpdf.text.pdf.security.VerificationException;
+import com.sun.pdfview.font.PDFFont;
 
 /**
  * Sign service for Alfresco
@@ -257,8 +263,9 @@ public class SigningService {
 									sap.setCertificationLevel(PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
 									sap.setImageScale(1);
 									
-									final ExternalSignature es = new PrivateKeySignature(key, "SHA-256", "BC");
-							        final ExternalDigest digest = new BouncyCastleDigest();
+									//ITEXT 5.5.11
+									//final ExternalSignature es = new PrivateKeySignature(key, "SHA-256", "BC");
+							        //final ExternalDigest digest = new BouncyCastleDigest();
 									
 									// digital signature
 									if (signingDTO.getSigningField() != null && !signingDTO.getSigningField().trim().equalsIgnoreCase("")) {
@@ -284,7 +291,10 @@ public class SigningService {
 									        //sap.setRenderingMode(RenderingMode.GRAPHIC_AND_DESCRIPTION);
 										}
 										sap.setVisibleSignature(signingDTO.getSigningField());
-										MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+										//ITEXT 5.5.11
+										//MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+										//ITEXT 5.1.3
+										signDetached(sap,signingDTO,key,chain);
 									} else {
 										int pageToSign = 1;
 										sap.setLayer2Font(signingFont);
@@ -311,12 +321,17 @@ public class SigningService {
 										if(signingDTO.getPosition() != null && !DigitalSigningDTO.POSITION_CUSTOM.equalsIgnoreCase(signingDTO.getPosition().trim())) {
 											final Rectangle pageRect = reader.getPageSizeWithRotation(1);
 							                sap.setVisibleSignature(positionSignature(signingDTO.getPosition(), pageRect, signingDTO.getSignWidth(), signingDTO.getSignHeight(), signingDTO.getxMargin(), signingDTO.getyMargin()), pageToSign, null);
-							                MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+							                //MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+											//ITEXT 5.1.3
+											signDetached(sap,signingDTO,key,chain);
 										} else {
 							                sap.setVisibleSignature(new Rectangle(signingDTO.getLocationX(), signingDTO.getLocationY(), signingDTO.getLocationX() + signingDTO.getSignWidth(), signingDTO.getLocationY() - signingDTO.getSignHeight()), pageToSign, null);
-							                MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+							                //MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+											//ITEXT 5.1.3
+											signDetached(sap,signingDTO,key,chain);
 										}
 									}
+									
 									stp.close();
 								
 									NodeRef destinationNode = null;
@@ -691,7 +706,17 @@ public class SigningService {
 										if (pk != null) {
 								            final Calendar cal = pk.getSignDate();
 								            final Certificate[] pkc = pk.getCertificates();
-								            final List<VerificationException> errors = CertificateVerification.verifyCertificates(pkc, ks, null, cal);
+								            //ITEXT 5.5.11
+								            //final List<VerificationException> errors = CertificateVerification.verifyCertificates(pkc, ks, null, cal);
+								            //ITEXT 5.1.3
+							                X509Certificate certificate = pk.getSigningCertificate();
+							                Date date = (pk.getSignDate() != null) ?pk.getSignDate().getTime():null;
+							        		String principal = certificate.getSubjectX500Principal().toString();
+							        		String serialNumber =  certificate.getSerialNumber().toString();
+							        	    Date certificateNotAfter = certificate.getNotAfter();
+							        	    String certificateIssuer =  certificate.getIssuerX500Principal().toString();   
+							        	    final List<Exception> errors = Arrays.asList(new Exception("Date="+date.getTime()+", Principal="+principal+", SerialNumber="+serialNumber+", CertificateNotAfter="+certificateNotAfter+", Issuer="+certificateIssuer));
+								            
 								            if (errors.size() == 0) {
 								            	verifyResultDTO.setIsSignValid(true);
 								            } else {
@@ -916,62 +941,246 @@ public class SigningService {
 
         return destinationNode;
     }
-    
-    
+
     private File convertPdfToPdfA(final InputStream source) throws IOException, DocumentException {
-    	
-    	final File pdfAFile = TempFileProvider.createTempFile("digitalSigning-" + System.currentTimeMillis(), ".pdf");
-    	final ICC_Profile icc = ICC_Profile.getInstance(getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm"));
-    	
-        //Reads a PDF document. 
-        PdfReader reader = new PdfReader(source); 
-        //PdfStamper: Applies extra content to the pages of a PDF document. This extra content can be all the objects allowed in 
-        //PdfContentByte including pages from other Pdfs. 
-        //A generic Document class. 
-        Document document = new Document(); 
-        // we create a writer that listens to the document
-        PdfAWriter writer = PdfAWriter.getInstance(document, new FileOutputStream(pdfAFile), PdfAConformanceLevel.PDF_A_1A);
-        int numberPages = reader.getNumberOfPages(); 
+        File tempFile = null;       
+        File pdfAFile = null;
+        OutputStream output = null;
+        try {
+            tempFile = TempFileProvider.createTempFile("pre_pdfa", ".pdf");           
+            FileUtils.copyInputStreamToFile(source, tempFile);          
+            pdfAFile = TempFileProvider.createTempFile("digitalSigning-" + System.currentTimeMillis(), ".pdf");
+            //METHOD 0
+            /*
+            java.net.URL url = getClass().getResource("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
+        	//java.net.URL url = getClass().getResource("/org/alfresco/plugin/digitalSigning/service/sRGB.icc");
+        	byte[] bytes = IOUtils.toByteArray(url.openStream());
+        	final ICC_Profile icc = ICC_Profile.getInstance(bytes);
+        	
+            //Reads a PDF document. 
+            PdfReader reader = new PdfReader(source); 
+            //PdfStamper: Applies extra content to the pages of a PDF document. This extra content can be all the objects allowed in 
+            //PdfContentByte including pages from other Pdfs. 
+            //A generic Document class. 
+            Document document = new Document(); 
+            // we create a writer that listens to the document
+            PdfAWriter writer = PdfAWriter.getInstance(document, new FileOutputStream(pdfAFile), PdfAConformanceLevel.PDF_A_1A);       
+            int numberPages = reader.getNumberOfPages(); 
 
-        //PdfDictionary:A dictionary is an associative table containing pairs of objects. 
-        //The first element of each pair is called the key and the second  element is called the value 
-        //<CODE>PdfName</CODE> is an object that can be used as a name in a PDF-file 
-        //PdfDictionary outi = new PdfDictionary(PdfName.OUTPUTINTENT); 
-        //outi.put(PdfName.OUTPUTCONDITIONIDENTIFIER, new PdfString("sRGB IEC61966-2.1")); 
-        //outi.put(PdfName.INFO, new PdfString("sRGB IEC61966-2.1")); 
-        //outi.put(PdfName.S, PdfName.GTS_PDFA1); 
-        //writer.getExtraCatalog().put(PdfName.OUTPUTINTENTS, new PdfArray(outi)); 
+            //PdfDictionary:A dictionary is an associative table containing pairs of objects. 
+            //The first element of each pair is called the key and the second  element is called the value 
+            //<CODE>PdfName</CODE> is an object that can be used as a name in a PDF-file 
+            //PdfDictionary outi = new PdfDictionary(PdfName.OUTPUTINTENT); 
+            //outi.put(PdfName.OUTPUTCONDITIONIDENTIFIER, new PdfString("sRGB IEC61966-2.1")); 
+            //outi.put(PdfName.INFO, new PdfString("sRGB IEC61966-2.1")); 
+            //outi.put(PdfName.S, PdfName.GTS_PDFA1); 
+            //writer.getExtraCatalog().put(PdfName.OUTPUTINTENTS, new PdfArray(outi)); 
 
-        writer.setTagged();
-        writer.createXmpMetadata();
-        document.open(); 
-        
-        writer.setOutputIntents("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", icc);
-
-        //Add pages 
-        PdfImportedPage p = null; 
-        Image image; 
-        for(int i=0; i< numberPages; i++){ 
-        	document.newPage(); 
-            p = writer.getImportedPage(reader, i+1); 
-            image = Image.getInstance(p);
-            // Scale PDF page to fit with PDF/A format
-            image.scaleAbsolute(writer.getPageSize());
-            // Center the image into the PDF/A page
-            image.setAlignment(Element.ALIGN_CENTER);
+            writer.setTagged();
+            writer.createXmpMetadata();
+            document.open(); 
             
-            // Set the position of the image into the PDF/A page
-            image.setAbsolutePosition(0, 0);
-            document.setMargins(0, 0, 0, 0);
-            document.add(image); 
+            writer.setOutputIntents("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", icc);
+
+            //Add pages 
+            PdfImportedPage p = null; 
+            Image image; 
+            for(int i=0; i< numberPages; i++){ 
+            	document.newPage(); 
+                p = writer.getImportedPage(reader, i+1); 
+                image = Image.getInstance(p);
+                // Scale PDF page to fit with PDF/A format
+                image.scaleAbsolute(writer.getPageSize());
+                // Center the image into the PDF/A page
+                image.setAlignment(Element.ALIGN_CENTER);
+                
+                // Set the position of the image into the PDF/A page
+                image.setAbsolutePosition(0, 0);
+                document.setMargins(0, 0, 0, 0);
+                document.add(image); 
+            }
+            
+            document.close(); 
+            writer.flush();
+
+            return pdfAFile;
+            */
+            //METHOD 1
+            /*
+            output = new FileOutputStream(convertToPDFAWithGhostScript_ThreadSafe);
+            final org.ghost4j.document.PDFDocument pdfDocument = new org.ghost4j.document.PDFDocument();
+            pdfDocument.load(tempFile);
+            org.ghost4j.converter.PDFConverter pdfConverter = new org.ghost4j.converter.PDFConverter();
+            pdfConverter.setMaxProcessCount(4);
+            pdfConverter.setPDFSettings(0);
+            pdfConverter.setPDFX(true);
+            pdfConverter.convert((org.ghost4j.document.Document)pdfDocument, output);
+            */
+            //METHOD 2 PDF->pDFA
+            /*
+            final org.ghost4j.Ghostscript instance = org.ghost4j.Ghostscript.getInstance();
+            final ArrayList<String> list = new ArrayList<String>();
+            list.add("-q");
+            list.add("-dPDFSETTINGS=/default");
+            list.add("-dNOPAUSE");
+            list.add("-dBATCH");
+            list.add("-dPDFA");
+            list.add("-dNOOUTERSAVE");
+            list.add("-dSAFER");
+            list.add("-sDEVICE=pdfwrite");
+            list.add("-sProcessColorModel=DeviceRGB");
+            list.add("-dUseCIEColor");
+            list.add("-dPDFACompatibilityPolicy=1");
+            list.add("-sOutputFile=" + convertToPDFAWithGhostScript_ThreadSafe.getAbsolutePath());
+            list.add(convertToPDFAWithGhostScript_ThreadSafe.getAbsolutePath());
+            instance.initialize((String[])list.<String>toArray(new String[list.size()]));
+            instance.exit();
+            */
+            //METHOD 3 PDF-PS-PDFA
+            /*
+            org.ghost4j.document.PDFDocument document = new org.ghost4j.document.PDFDocument();
+    	    document.load(tempFile);
+    	    File tempPS = TempFileProvider.createTempFile("ps_", "rendition.ps");
+    	    OutputStream fos = new FileOutputStream(tempPS);
+    	    org.ghost4j.converter.PSConverter converter = new org.ghost4j.converter.PSConverter();
+    	    //converter.setPDFSettings(org.ghost4j.converter.PDFConverter.OPTION_PDFSETTINGS_PREPRESS);
+    	    converter.convert(document, fos);
+            //get Ghostscript instance
+    	    org.ghost4j.Ghostscript gs = org.ghost4j.Ghostscript.getInstance();
+    	    final ArrayList<String> list = new ArrayList<String>();
+    	    list.add("gs");
+    	    //list.add("-ps2pdf");
+            //list.add("-q");
+            //list.add("-dPDFSETTINGS=/default");           
+            list.add("-dNOPAUSE");
+            list.add("-dBATCH");
+            list.add("-dPDFA=2");//=1 o =2
+            list.add("-dNOOUTERSAVE");
+            list.add("-dSAFER");            
+            //list.add("-dPrinted=true");      
+            list.add("-sDEVICE=pdfwrite");
+            //list.add("-sProcessColorModel=DeviceRGB");
+            //list.add("-sOutputICCProfile=/tmp/icc.icc");            
+            //list.add("-sOutputICCProfile="+new File(getClass().getResource("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm").toURI()).getAbsolutePath());
+            list.add("-dUseCIEColor");
+            list.add("-dPDFACompatibilityPolicy=1"); 
+            list.add("-dCompatibilityLevel=1.4");
+            list.add("-sColorConversionStrategy=/UseDeviceIndependentColor");
+            list.add("-sProcessColorModel=DeviceCMYK");
+            //list.add("-sProcessColorModel=DeviceRGB");
+            list.add("-sOutputFile=" + convertToPDFAWithGhostScript_ThreadSafe.getAbsolutePath());
+            //list.add("-c");
+            //list.add(".setpdfwrite");
+            //list.add("-f");
+            list.add(tempPS.getAbsolutePath());    
+            list.add(tempFile.getAbsolutePath());    
+            gs.initialize(list.toArray(new String[list.size()]));
+            gs.exit();
+            */
+            //METHOD 4 PDFBOX
+            //https://apache.googlesource.com/pdfbox/+/4df9353eaac3c4ee2124b09da05312376f021b2c/examples/src/main/java/org/apache/pdfbox/examples/pdfa/CreatePDFA.java
+    		PDDocument doc = null;
+    		try{
+    			doc = PDDocument.load(tempFile);
+    		}catch(IOException ex){
+    			if(ex.getMessage().contains("expected='endstream'")){
+    				//https://issues.apache.org/jira/browse/PDFBOX-1541
+    				//https://www.programcreek.com/java-api-examples/?code=jmrozanec/pdf-converter/pdf-converter-master/src/main/java/pdf/converter/txt/TxtCreator.java				
+    				File tmpfile = File.createTempFile(String.format("txttmp-%s", UUID.randomUUID().toString()), null);
+    	            try{
+    					org.apache.pdfbox.io.RandomAccessFile raf = new org.apache.pdfbox.io.RandomAccessFile(tmpfile, "rw");
+    		            doc = PDDocument.loadNonSeq(tmpfile,raf);	   	
+    	            }finally{
+    	            	FileUtils.deleteQuietly(tmpfile);
+    	            }
+    			}else{
+    				throw ex;
+    			}
+    		}
+    		try
+    		{
+    			doc = new PDDocument();
+    			PDPage page = new PDPage();
+    			doc.addPage( page );
+    			// load the font from pdfbox.jar
+    			//InputStream fontStream = getClass().getResourceAsStream("/org/apache/pdfbox/resources/ttf/ArialMT.ttf");
+    			InputStream fontStream = getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/ArialMT.ttf");
+    			PDFont font = PDTrueTypeFont.loadTTF(doc, fontStream);
+    			//PDFont font = PDFontFactory.createDefaultFont();
+//    			// create a page with the message where needed
+    			PDPageContentStream contentStream = new PDPageContentStream(doc, page);
+    			contentStream.beginText();
+    			contentStream.setFont( font, 12 );
+    			contentStream.moveTextPositionByAmount( 100, 700 );
+    			contentStream.drawString( "digitalSigning" );
+    			contentStream.endText();
+    			contentStream.saveGraphicsState();
+    			contentStream.close();
+
+    			PDDocumentCatalog cat = doc.getDocumentCatalog();
+    			PDMetadata metadata = new PDMetadata(doc);
+    			cat.setMetadata(metadata);
+    			// jempbox version
+    			XMPMetadata xmp = new XMPMetadata();
+    			XMPSchemaPDFAId pdfaid = new XMPSchemaPDFAId(xmp);
+    			xmp.addSchema(pdfaid);
+    			pdfaid.setConformance("B");//PDFA/B
+    			pdfaid.setPart(1);
+    			pdfaid.setAbout("");
+    			metadata.importXMPMetadata(xmp);
+
+    			//InputStream colorProfile = getClass().getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
+    			InputStream colorProfile = getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/sRGB Color Space Profile.icm");
+    			// create output intent
+    			PDOutputIntent oi = new PDOutputIntent(doc, colorProfile); 
+    			oi.setInfo("sRGB IEC61966-2.1"); 
+    			oi.setOutputCondition("sRGB IEC61966-2.1"); 
+    			oi.setOutputConditionIdentifier("sRGB IEC61966-2.1"); 
+    			oi.setRegistryName("http://www.color.org"); 
+    			cat.addOutputIntent(oi);
+    			
+    			doc.save(pdfAFile);
+    			
+    			PreflightParser preflightParser = new PreflightParser(pdfAFile);
+    			preflightParser.parse();
+    			PreflightDocument preflightDocument = preflightParser.getPreflightDocument();
+    			preflightDocument.validate();
+    			ValidationResult result = preflightDocument.getResult();
+    			for (ValidationError ve : result.getErrorsList())
+    			{
+    				log.error(ve.getErrorCode() + ": " + ve.getDetails());
+    			}
+    			if(result.isValid()){
+    				log.info("PDF file created with CreatePDFA is not valid PDF/A-1b");
+    			}
+    			preflightDocument.close();
+    			preflightParser.clearResources();
+
+    		}
+    		finally
+    		{
+    			if( doc != null )
+    			{
+    				doc.close();
+    			}
+    		}
+
+            return pdfAFile;
         }
-        
-        document.close(); 
-        writer.flush();
-
-        return pdfAFile;
+        catch (Exception ex) {
+        	log.error("Can't convert PDF to PDF/A.  Error during conversion to PDF/A.", ex);
+        	throw new IOException("Can't convert PDF to PDF/A.  Error during conversion to PDF/A.", ex);
+        }   
+        finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+            if(output!=null){
+            	output.close();
+            }
+        }
+    	
     }
-
 
 	/**
 	 * @param nodeService the nodeService to set
@@ -1019,6 +1228,22 @@ public class SigningService {
 	 */
 	public final void setMetadataEncryptor(MetadataEncryptor metadataEncryptor) {
 		this.metadataEncryptor = metadataEncryptor;
+	}
+	
+	/**
+	 * ITEXT 5.1.3 METHOD FOR DETACHED SINGATURE
+	 * @param sap
+	 * @param digitalSigningDTO
+	 * @param key
+	 * @param chain
+	 */
+	private void signDetached(PdfSignatureAppearance sap,DigitalSigningDTO digitalSigningDTO,PrivateKey key,Certificate[] chain){
+        sap.setCrypto(key, chain, null, PdfSignatureAppearance.WINCER_SIGNED);
+        // set reason for signature, location of signer, and date
+        sap.setReason(digitalSigningDTO.getSignReason());
+        sap.setLocation(digitalSigningDTO.getSignLocation());
+        sap.setSignDate(Calendar.getInstance());
+        sap.setContact(digitalSigningDTO.getSignContact());
 	}
 
 }
