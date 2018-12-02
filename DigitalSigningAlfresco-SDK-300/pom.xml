@@ -10,11 +10,11 @@
 
 	<!-- Default properties -->
 	<properties>
-		<!-- Module id -->
-		<alfresco.module.id>digitalSigning</alfresco.module.id>
+		<!-- Module id just for sdk 2.2.0 -->
+		<!-- <alfresco.module.id>digitalSigning</alfresco.module.id> -->
 
-		<!-- Alfresco version -->
-		<alfresco.version>5.2.f</alfresco.version>
+		<!-- Alfresco version just for sdk 2.2.0 -->
+		<!-- <alfresco.version>5.2.d</alfresco.version> -->
 
 	    <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
 	    <alfresco.platform.version>5.2.f</alfresco.platform.version>
@@ -29,8 +29,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <alfresco.groupId>org.alfresco</alfresco.groupId>
        	<maven.alfresco.edition>community</maven.alfresco.edition>
-       	<maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+       	<maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
         <timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
 
@@ -79,7 +79,6 @@
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-repository</artifactId>
-			<version>${alfresco.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -212,6 +211,10 @@
                          </configuration>
                      </execution>
                  </executions>
+				<configuration>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptor>src/main/assembly/amp.xml</descriptor>
+				</configuration>
                  <dependencies>
                      <dependency>
                          <groupId>org.alfresco.maven.plugin</groupId>
@@ -239,10 +242,12 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.0.2</version>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<!-- just for alfresco sdk 2.2.0 -->
+			<!--  
 			<plugin>
 				<groupId>org.alfresco.maven.plugin</groupId>
 				<artifactId>maven-amp-plugin</artifactId>
@@ -259,6 +264,7 @@
 					<mAmpName>${artifactId}</mAmpName>
 				</configuration>
 			</plugin>
+			-->
 		</plugins>
 		<pluginManagement>
 			<plugins>
