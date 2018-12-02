@@ -1,0 +1,277 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+
+	<bean id="digitalSigningPropertiesPlaceHolder"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders">
+			<value>true</value>
+		</property>
+		<property name="ignoreResourceNotFound">
+			<value>true</value>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:alfresco/module/digitalSigning/digitalSigning.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- load the custom content model -->
+    <bean id="digitalSigning-model" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+		<property name="models">
+			<list>
+				<value>alfresco/module/digitalSigning/model/digitalSigningModel.xml</value>
+			</list>
+		</property>
+		<property name="labels">
+            <list>
+                <value>alfresco/module/digitalSigning/messages/signingContentModel-messages</value>
+            </list>
+        </property>
+    </bean>
+
+	<!-- Signing service -->
+	<bean id="digitalSigningService" class="org.alfresco.plugin.digitalSigning.service.SigningService">
+		<property name="nodeService" ref="nodeService" />
+		<property name="dictionaryService" ref="dictionaryService" />
+		<property name="contentService" ref="contentService" />
+		<property name="fileFolderService" ref="fileFolderService" />
+		<property name="contentTransformerRegistry" ref="contentTransformerRegistry" />
+		<property name="metadataEncryptor" ref="metadataEncryptor" />
+	</bean>
+	
+	<!-- Digital Signing action -->
+	<bean id="digitalSigning-action" class="org.alfresco.plugin.digitalSigning.action.SigningActionExecuter" parent="action-executer">
+    	<property name="digitalSigningService" ref="digitalSigningService" />
+    	<property name="authenticationService" ref="authenticationService" />
+		<property name="personService" ref="personService" />
+		<property name="nodeService" ref="nodeService" />
+  	</bean>
+  	
+  	<!-- Sign service javaScript API -->
+  	<bean id="digitalSigningScript" parent="baseJavaScriptExtension"
+		class="org.alfresco.plugin.digitalSigning.script.SigningServiceScript">
+		<property name="extensionName">
+			<value>digitalSigning</value>
+		</property>
+		<property name="digitalSigningService">
+			<ref bean="digitalSigningService" />
+		</property>
+		<property name="authenticationService" ref="authenticationService" />
+		<property name="personService" ref="personService" />
+		<property name="nodeService" ref="nodeService" />
+	</bean>
+	
+	<!-- Key and image upload WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.upload.upload.post"
+		class="org.alfresco.plugin.digitalSigning.webscript.SignUpload"
+		parent="webscript">
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="authenticationService">
+			<ref bean="authenticationService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="dictionaryService">
+			<ref bean="dictionaryService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="fileFolderService">
+			<ref bean="fileFolderService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+		<property name="metadataEncryptor">
+			<ref bean="metadataEncryptor" />
+		</property>
+	</bean>
+	
+	<!-- Alias WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.upload.chooseAlias.post"
+		class="org.alfresco.plugin.digitalSigning.webscript.ChooseAlias"
+		parent="webscript">
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="authenticationService">
+			<ref bean="authenticationService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="dictionaryService">
+			<ref bean="dictionaryService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+		<property name="metadataEncryptor">
+			<ref bean="metadataEncryptor" />
+		</property>
+	</bean>
+	
+	<!-- Delete WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.upload.delete.post"
+		class="org.alfresco.plugin.digitalSigning.webscript.Delete"
+		parent="webscript">
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="authenticationService">
+			<ref bean="authenticationService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="dictionaryService">
+			<ref bean="dictionaryService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+		<property name="metadataEncryptor">
+			<ref bean="metadataEncryptor" />
+		</property>
+	</bean>
+	
+	<!-- Key and image information WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.information.signatureInformation.get"
+		class="org.alfresco.plugin.digitalSigning.webscript.SignatureInformation"
+		parent="webscript">
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="authenticationService">
+			<ref bean="authenticationService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="dictionaryService">
+			<ref bean="dictionaryService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+	</bean>
+	
+	<!-- Get image WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.information.image.get"
+		class="org.alfresco.plugin.digitalSigning.webscript.Image"
+		parent="webscript">
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="authenticationService">
+			<ref bean="authenticationService" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+	</bean>
+	
+	<!-- Verify if nodeRef is transformable in PDF WebScript Java backend definition -->
+	<bean
+		id="webscript.org.alfresco.plugin.digitalSigning.webscript.information.isPdfTransformable.get"
+		class="org.alfresco.plugin.digitalSigning.webscript.IsPdfTransformable"
+		parent="webscript">
+		<property name="contentTransformerRegistry">
+			<ref bean="contentTransformerRegistry" />
+		</property>
+		<property name="retryingTransactionHelper">
+			<ref bean="retryingTransactionHelper" />
+		</property>
+		<property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="contentService">
+			<ref bean="contentService" />
+		</property>
+		<property name="dictionaryService">
+			<ref bean="dictionaryService" />
+		</property>
+	</bean>
+	
+	<!-- Certificate alert process definition -->
+	<bean id="certificateAlert" class="org.alfresco.plugin.digitalSigning.scheduledAction.CertificateAlert">
+		<property name="retryingTransactionHelper">
+            <ref bean="retryingTransactionHelper"/>
+        </property>
+        <property name="nodeService">
+			<ref bean="nodeService" />
+		</property>
+		<property name="personService">
+			<ref bean="personService" />
+		</property>
+		<property name="actionService">
+			<ref bean="actionService" />
+		</property>
+		<property name="fromEmail">
+			<value>${mail.from.default}</value>
+		</property>
+		<property name="templateService">
+			<ref bean="templateService" />
+		</property>
+		<property name="tenantService">
+            <ref bean="tenantService"></ref>
+        </property>
+        <property name="preferenceService">
+            <ref bean="preferenceService"></ref>
+        </property>
+	</bean>
+	
+	<!-- Alert on certificate expiration job definition -->
+	<bean id="certificateAlertJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass">
+			<value>org.alfresco.plugin.digitalSigning.scheduledAction.CertificateAlertJob</value>
+		</property>
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="certificateAlert">
+					<ref bean="certificateAlert" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<!-- Alert on certificate expiration trigger definition -->
+	<bean id="certificateAlertTrigger" class="org.alfresco.util.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="certificateAlertJobDetail" />
+		</property>
+		<property name="scheduler">
+			<ref bean="schedulerFactory" />
+		</property>
+		<property name="cronExpression">
+			<value>${digitalSigning.alert.cron}</value>
+		</property>
+	</bean>
+
+</beans>

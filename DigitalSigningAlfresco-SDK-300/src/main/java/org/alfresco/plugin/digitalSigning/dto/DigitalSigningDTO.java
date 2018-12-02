@@ -151,43 +151,6 @@ public class DigitalSigningDTO {
 	
 	private String locale;
 	
-	
-	/**
-	 * The current user on alfresco
-	 * @return
-	 */
-	private String currentUser;
-	
-	private String opt;
-	
-	private String filePdfName;
-	
-	
-		
-	public String getFilePdfName() {
-		return filePdfName;
-	}
-
-	public void setFilePdfName(String filePdfName) {
-		this.filePdfName = filePdfName;
-	}
-
-	public String getOpt() {
-		return opt;
-	}
-
-	public void setOpt(String opt) {
-		this.opt = opt;
-	}
-
-	public String getCurrentUser() {
-		return currentUser;
-	}
-
-	public void setCurrentUser(String currentUser) {
-		this.currentUser = currentUser;
-	}
-
 	/**
 	 * @return the fileToSign
 	 */
@@ -488,9 +451,6 @@ public class DigitalSigningDTO {
 	public final boolean isTransformToPdfA() {
 		return transformToPdfA;
 	}
-	
-	
-	
 
 	/**
 	 * @param transformToPdfA the transformToPdfA to set
@@ -498,18 +458,5 @@ public class DigitalSigningDTO {
 	public final void setTransformToPdfA(boolean transformToPdfA) {
 		this.transformToPdfA = transformToPdfA;
 	}
-
-	@Override
-	public String toString() {
-		return "DigitalSigningDTO [filesToSign=" + filesToSign + ", keyFile=" + keyFile + ", keyPassword=" + keyPassword
-				+ ", destinationFolder=" + destinationFolder + ", signReason=" + signReason + ", signLocation="
-				+ signLocation + ", signContact=" + signContact + ", image=" + image + ", signingField=" + signingField
-				+ ", position=" + position + ", pages=" + pages + ", depth=" + depth + ", locationX=" + locationX
-				+ ", locationY=" + locationY + ", xMargin=" + xMargin + ", yMargin=" + yMargin + ", signWidth="
-				+ signWidth + ", signHeight=" + signHeight + ", pageNumber=" + pageNumber + ", isDetached=" + isDetached
-				+ ", transformToPdfA=" + transformToPdfA + ", locale=" + locale + ", currentUser=" + currentUser
-				+ ", opt=" + opt + ", filePdfName=" + filePdfName + "]";
-	}
-
 	
 }

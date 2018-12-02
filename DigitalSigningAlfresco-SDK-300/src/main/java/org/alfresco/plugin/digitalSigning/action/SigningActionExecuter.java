@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Signing action
  * 
+ * @author Emmanuel ROUX
  */
 public class SigningActionExecuter extends ActionExecuterAbstractBase {
 	

@@ -1,8 +1,0 @@
-<webscript>
-   	<shortname>Search signed documents by filters</shortname>
-   	<description>Search signed documents by filters</description>
-   	<url>/api/digitalSigning/searchDocuments</url>
-   	<format default="json">argument</format>
-   	<authentication>user</authentication>
-  	<lifecycle>internal</lifecycle>
-</webscript>

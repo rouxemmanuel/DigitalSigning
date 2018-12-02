@@ -1,5 +1,0 @@
-<webscript>
-  <shortname>Signature Config alias Module</shortname>
-  <description>Configuration dialog for Alias of Signature dashlet</description>
-  <url>/modules/digitalSigning/signature/configAlias</url>
-</webscript>

@@ -5,9 +5,6 @@ package org.alfresco.plugin.digitalSigning.utils;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.plugin.digitalSigning.dto.DigitalSigningDTO;
-import org.alfresco.plugin.digitalSigning.script.SigningServiceScript;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Signing utils class.
@@ -15,12 +12,6 @@ import org.apache.commons.logging.LogFactory;
  * @author Emmanuel ROUX
  */
 public class SigningUtils {
-	/**
-	 * Logger.
-	 */
-	//private final static Log log = LogFactory.getLog(SigningUtils.class);
-	private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningUtils.class);
-
 
 	/**
 	 * Validate DigitalSigningDTO object.

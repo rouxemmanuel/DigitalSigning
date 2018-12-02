@@ -68,12 +68,4 @@ public class VerifyingDTO {
 	public final void setKeyPassword(String keyPassword) {
 		this.keyPassword = keyPassword;
 	}
-
-	@Override
-	public String toString() {
-		return "VerifyingDTO [fileToVerify=" + fileToVerify + ", keyFile=" + keyFile + ", keyPassword=" + keyPassword
-				+ "]";
-	}
-	
-	
 }

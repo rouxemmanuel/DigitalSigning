@@ -115,7 +115,7 @@ public class CertificateAlert {
 
 		AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
 			public Object doWork() throws Exception {
-				// Execution du traitement au sein d'une transaction
+				// Exécution du traitement au sein d'une transaction
 				// Alfresco
 				retryingTransactionHelper.doInTransaction(processCallBack, false, false);
 						return null;

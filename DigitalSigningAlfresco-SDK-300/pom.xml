@@ -2,72 +2,58 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.alfresco.plugin</groupId>
-	<artifactId>digitalsigning-repo-300</artifactId>
+	<artifactId>digitalSigningAlfresco</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2.0</version>
-	<name>Alfresco Repo Digital Signing Plugin (SDK 3.0.0)</name>
-	<description>Alfresco Repo Digital Signing Plugin (SDK 3.0.0)</description>
+	<version>1.2.1</version>
+	<name>Alfresco Digital Signing Plugin</name>
+	<description>Alfresco Digital Signing Plugin</description>
 
 	<!-- Default properties -->
 	<properties>
 		<!-- Module id -->
-		<alfresco.module.id>digitalsigning-repo-300</alfresco.module.id>
-		
-		<!-- Alfresco Maven Plugin version to use -->
-        <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
-		
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<alfresco.module.id>digitalSigning</alfresco.module.id>
 
-        <!-- Alfresco Data directory, which will contain:
-              Content Store (i.e. the files we upload)
-              Database (i.e. the metadata for the uploaded files)
-              Search index (i.e. the indexed content and metadata)
-             Configured in alfresco-global.properties with the 'dir.root' property.
-        -->
-        <alfresco.data.location>${session.executionRootDirectory}/alf_data_dev</alfresco.data.location>
+		<!-- Alfresco version -->
+		<alfresco.version>5.2.f</alfresco.version>
 
-        <!-- Duplicated with alfresco.solrHome in the plugin, we need them out here to do filtering -->
-        <solr.home>${alfresco.data.location}/solr</solr.home>
-        <solr.model.dir>${solr.home}/alfrescoModels</solr.model.dir>
-        <solr.content.dir>${solr.home}/index</solr.content.dir>
-
-        <!-- Properties used in dependency declarations, you don't need to change these -->
+	    <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
+	    <alfresco.platform.version>5.2.f</alfresco.platform.version>
+	    <!-- To know which resource folder to filter for AMP extension projects -->
+		<app.amp.folder>src/main/amp</app.amp.folder>
+		<!-- To know which folder filtered AMP resources should end up in under /target -->
+		<app.amp.output.folder>${project.build.directory}/amp</app.amp.output.folder>
+		<!-- Turns on/off POM properties filtering globally. By default filtering is on.
+        This can be overridden in your POM, but do it at your own risk as it may break SDK functionalities -->
+        <app.filtering.enabled>true</app.filtering.enabled>
+	    
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <alfresco.groupId>org.alfresco</alfresco.groupId>
-
-        <!-- Alfresco Platform and Share webapp versions, these are the original Alfresco webapps that will be
-             customized and then deployed and run by the tomcat maven plugin when
-             executing for example $ mvn clean install alfresco:run -->
-        <alfresco.platform.version>5.2.d</alfresco.platform.version>
-        <alfresco.share.version>5.2.d</alfresco.share.version>
-
-        <!-- Default is to run with a Community edition, change to 'enterprise' if using Enterprise edition -->
-        <maven.alfresco.edition>community</maven.alfresco.edition>
-
-        <!-- Alfresco Surf version, if you change Share version you might need to change Surf version -->
-        <alfresco.surf.version>6.11</alfresco.surf.version>
-
-        <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
-        <jrebel.version>1.1.6</jrebel.version>
-
-        <!-- Environment to use, Alfresco Maven Plugin will
-             copy alfresco-global-*.properties files from this directory, such as src/test/properties/local -->
-        <env>local</env>
-
-        <!-- Compile with Java 7, default is 5 -->
-        <maven.compiler.source>1.8</maven.compiler.source>
+       	<maven.alfresco.edition>community</maven.alfresco.edition>
+       	<maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-		
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	<project.build.targetEncoding>UTF-8</project.build.targetEncoding>
+        <timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
+
+		<!-- Defines the target WAR artifactId to run this amp, only used with the -Pamp-to-war switch . | Allowed values: alfresco | share. Defaults to a repository AMP, 
+			but could point to your foundation WAR -->
+		<alfresco.client.war>alfresco</alfresco.client.war>
+
+		<!-- Defines the target WAR groupId to run this amp, only used with the -Pamp-to-war switch . | Could be org.alfresco | org.alfresco.enterprise or your corporate 
+			groupId -->
+		<alfresco.client.war.groupId>org.alfresco</alfresco.client.war.groupId>
+
+		<!-- Defines the target WAR version to run this amp, only used with the -Pamp-to-war switch -->
+		<alfresco.client.war.version>5.2.f</alfresco.client.war.version>
 	</properties>
 
-	<dependencyManagement>
+    <!-- Here we realize the connection with the Alfresco selected platform 
+        (e.g.version and edition) -->
+    <dependencyManagement>
         <dependencies>
-            <!-- This will import the dependencyManagement for all artifacts in the selected Alfresco platform.
-                 NOTE: You still need to define dependencies in your POM, but you can omit version as
-                       it's enforced by this dependencyManagement.
-                 NOTE: It defaults to the latest version this SDK pom has been tested with,
-                       but alfresco version can/should be overridden in your project's pom
+            <!-- Setup what versions of the different Alfresco artifacts that will be used (depends on alfresco.version),
+                 so we don't have to specify version in any of the dependency definitions in our POM.
+                 For more info see:
+                    http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies
             -->
             <dependency>
                 <groupId>${alfresco.groupId}</groupId>
@@ -76,91 +62,36 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Redefine the following Share dependencies as they have different version numbers than platform.
-                 They are defined in alfresco-platform-distribution... -->
-            <dependency>
-                <groupId>${alfresco.groupId}</groupId>
-                <artifactId>share</artifactId>
-                <version>${alfresco.share.version}</version>
-                <type>war</type>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${alfresco.groupId}</groupId>
-                <artifactId>share</artifactId>
-                <version>${alfresco.share.version}</version>
-                <classifier>classes</classifier>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${alfresco.groupId}</groupId>
-                <artifactId>alfresco-web-framework-commons</artifactId>
-                <version>${alfresco.share.version}</version>
-                <classifier>classes</classifier>
-                <scope>provided</scope>
-            </dependency>
-
-            <!-- Redefine the following surf dependencies as they have no resolvable version in the
-                 alfresco-platform-distribution artifact -->
-            <dependency>
-                <groupId>org.alfresco.surf</groupId>
-                <artifactId>spring-surf</artifactId>
-                <version>${alfresco.surf.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.alfresco.surf</groupId>
-                <artifactId>spring-surf-api</artifactId>
-                <version>${alfresco.surf.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            
         </dependencies>
     </dependencyManagement>
 
 	<!-- Alfresco dependencies -->
 	<dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.2</version>
-            <scope>test</scope>
-        </dependency>
+		<!--
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-core</artifactId>
+			<version>${alfresco.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		-->
+		
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-repository</artifactId>
+			<version>${alfresco.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <!-- The main Alfresco Repo dependency for compiling Java code in src/main/java -->
-        <dependency>
-            <groupId>${alfresco.groupId}</groupId>
-            <artifactId>alfresco-repository</artifactId>
-        </dependency>
+		<!--
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-data-model</artifactId>
+			<version>${alfresco.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		-->
 
-        <!-- Bring in Spring Context so we can use ApplicationContext, ApplicationContextAware etc -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>3.2.17.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Bring in Alfresco RAD so we get access to AlfrescoTestRunner classes -->
-        <dependency>
-            <groupId>org.alfresco.maven</groupId>
-            <artifactId>alfresco-rad</artifactId>
-            <version>${alfresco.sdk.version}</version>
-            <scope>test</scope>
-        </dependency>
-        
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
@@ -172,6 +103,19 @@
     		<artifactId>itext-pdfa</artifactId>
     		<version>5.5.11</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.57</version>
+            <type>jar</type>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>bcprov-jdk15on</artifactId>
+            		<groupId>org.bouncycastle</groupId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
 		
 		<dependency>
     		<groupId>org.apache.santuario</groupId>
@@ -187,10 +131,63 @@
 		    <scope>provided</scope>
 		</dependency>
 		
+		<dependency>
+		    <groupId>org.bouncycastle</groupId>
+		    <artifactId>bcprov-ext-jdk15on</artifactId>
+		    <version>1.57</version>
+		</dependency>
+		
 	</dependencies>
 
+	<!-- Repositories to download Alfresco dependencies -->
+	<repositories>
+		<repository>
+			<id>alfresco-private</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+		</repository>
+		<repository>
+		    <id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>alfresco-thirdparty</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/thirdparty</url>
+		</repository>
+		<repository>
+			<id>alfresco-public-snapshots</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/public-snapshots</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>alfresco-private</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+		</pluginRepository>
+		<pluginRepository>
+		    <id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>alfresco-thirdparty</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/thirdparty</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>alfresco-public-snapshots</id>
+			<url>https://artifacts.alfresco.com/nexus/content/repositories/public-snapshots</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</pluginRepository>
+	</pluginRepositories>	
+	
 	<build>
-		<plugins>			
+		<plugins>
 			<!--
                  Build an AMP if 3rd party libs are needed by the extensions
                  JARs are the default artifact produced in your modules, if you want to build an amp for each module
@@ -223,58 +220,49 @@
                      </dependency>
                  </dependencies>
               </plugin>	
-              
-              <!-- Filter resources in any sub-project with this config -->
-              <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-resources-plugin</artifactId>
-                  <version>3.0.1</version>
-                  <configuration>
-                      <encoding>UTF-8</encoding>
-                      <nonFilteredFileExtensions> <!-- jpg, jpeg, gif, bmp and png are added automatically -->
-                          <nonFilteredFileExtension>ftl</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>acp</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>svg</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>doc</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>docx</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>xls</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>ppt</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>pptx</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>bin</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>lic</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>swf</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>zip</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>msg</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>jar</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>eot</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>woff</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>css</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>ico</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>psd</nonFilteredFileExtension>
-                          <nonFilteredFileExtension>js</nonFilteredFileExtension>
-                      </nonFilteredFileExtensions>
-                  </configuration>
-              </plugin>
-              	
 			<plugin>
-	          <groupId>org.apache.maven.plugins</groupId>
-	          <artifactId>maven-compiler-plugin</artifactId>
-	          <version>3.6.2</version>
-	          <configuration>
-	             <source>${maven.compiler.source}</source>
-		          <target>${maven.compiler.target}</target>
-		          <encoding>UTF-8</encoding> 
-	          </configuration>
-	        </plugin>	
-        </plugins>
-        
-        <pluginManagement>
+				<artifactId>maven-nosnapshot-plugin</artifactId>
+				<groupId>com.sourcesense.maven</groupId>
+				<version>0.0.7</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>strip</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.alfresco.maven.plugin</groupId>
+				<artifactId>maven-amp-plugin</artifactId>
+				<version>3.0.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+					<mAmpConfigDirectory>src/main/config</mAmpConfigDirectory>
+					<mAmpJarExcludes>
+						alfresco/**
+					</mAmpJarExcludes>
+					<mAmpName>${artifactId}</mAmpName>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
 			<plugins>
-				<!-- This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -295,25 +283,6 @@
 										</versionRange>
 										<goals>
 											<goal>strip</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.apache.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-antrun-plugin
-										</artifactId>
-										<versionRange>
-											[1.6,)
-										</versionRange>
-										<goals>
-											<goal>run</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>

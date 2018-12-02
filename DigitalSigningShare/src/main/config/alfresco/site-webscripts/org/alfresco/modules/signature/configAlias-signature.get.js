@@ -1,1 +1,0 @@
-model.aliasList = args.aliasList.split(";");

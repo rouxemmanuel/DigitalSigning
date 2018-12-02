@@ -5,5 +5,11 @@ target
 bin
 */bin/*
 */bin/**
-/.metadata/
+*/.metadata/*
+*/.metadata/**
 /.recommenders/
+
+
+*/.settings/*
+*/.settings/**
+
