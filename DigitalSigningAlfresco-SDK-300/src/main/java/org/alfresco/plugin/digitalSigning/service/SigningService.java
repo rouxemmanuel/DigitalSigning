@@ -17,23 +17,29 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
+import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.CertSelector;
 import java.security.cert.CertStore;
 import java.security.cert.CertStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -108,9 +114,13 @@ import org.apache.xmpbox.xml.XmpSerializationException;
 import org.apache.xmpbox.xml.XmpSerializer;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERObject;
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.cms.SignedData;
+import org.bouncycastle.asn1.cms.Time;
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cms.CMSException;
@@ -119,6 +129,7 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.CMSSignedGenerator;
+import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.DigestAlgorithmIdentifierFinder;
@@ -643,42 +654,41 @@ public class SigningService {
 						signGen.addSigner(key, (X509Certificate) certificate,  CMSSignedDataGenerator.DIGEST_SHA256); // TODO make selectable from form			
 						signGen.addCertificatesAndCRLs(certs);				
 
-						byte[] contentToSign = IOUtils.toByteArray(fileToSignContentReader.getContentInputStream());
-						//ASN1InputStream asn1InputStream = new ASN1InputStream(fileToSignContentReader.getContentInputStream());
-					    //DERObject signedContent = asn1InputStream.readObject();
-						//CMSSignedData signedData = new CMSSignedData(ContentInfo.getInstance(signedContent));
+						byte[] contentToSign = IOUtils.toByteArray(fileToSignContentReader.getContentInputStream());						
 					    CMSSignedData signedData = signGen.generate((CMSProcessable)new CMSProcessableByteArray(contentToSign), true, "BC");
 					    
 					    CMSProcessable content=null;
-						//Load existing signature
-//						if (addsignature) {
-//							if (isDetached){
-//								signedData = new CMSSignedData(signedData.getEncoded());
-//							}else{
-//								signedData = new CMSSignedData(fileToSignContentReader.getContentInputStream());
-//							}
-//							if (signedData!=null){
-//								SignerInformationStore signers = signedData.getSignerInfos();
-//								ContentInfo ci = signedData.getContentInfo();
-//								CertStore existingCerts=signedData.getCertificatesAndCRLs("Collection", "BC");
-//								X509Store x509Store=signedData.getAttributeCertificates("Collection", "BC");						
-//								signGen.addCertificatesAndCRLs(existingCerts);//add existing certs
-//								signGen.addAttributeCertificates(x509Store);//add existing certs attributes					
-//								signGen.addSigners(signers);//add existing signers
-//							}
-//						}
+
 						// Load content to sign
-				        if (signingDTO.isDetached()) {		       		        
-				        	content = signedData.getSignedContent();		        	
-				        } else {
-				        	//content = new CMSProcessableByteArray(contentToSign);	
+						if (isDetached ){
+							content =  ((CMSProcessableByteArray)signedData.getSignedContent());
+						}else{
+							//content = new CMSProcessableByteArray(contentToSign);	
 				        	content =  ((CMSProcessableByteArray)signedData.getSignedContent());
-				        }
-						// Generate CMS/PKCS#7 Signature
-						signedData = signGen.generate(CMSSignedGenerator.DATA, content, !isDetached, "BC");	
+						}
 						
+				        boolean addsignature = certVerify(signedData, certs,certificate,true);
+				        
+				    	//Load existing signature
+				        /*
+						if (addsignature) {
+							if (signedData!=null){
+								SignerInformationStore signers = signedData.getSignerInfos();
+								ContentInfo ci = signedData.getContentInfo();
+								CertStore existingCerts=signedData.getCertificatesAndCRLs("Collection", "BC");
+								X509Store x509Store=signedData.getAttributeCertificates("Collection", "BC");					
+								signGen.addCertificatesAndCRLs(existingCerts);	//add existing certs					
+								signGen.addAttributeCertificates(x509Store);//add existing certs attributes						
+								signGen.addSigners(signers);//add existing signers
+							}
+						}
+						*/
+				        	        
+						// Generate CMS/PKCS#7 Signature
+						signedData = signGen.generate(CMSSignedGenerator.DATA, content, !isDetached, "BC");							
 						SignedData  sd = SignedData.getInstance(signedData.getContentInfo().getContent());					
-						ContentInfo contentInfo = new ContentInfo(CMSObjectIdentifiers.signedData, sd);		
+						ContentInfo contentInfo = new ContentInfo(CMSObjectIdentifiers.signedData, sd);	
+						
 						writer.putContent(new ByteArrayInputStream(contentInfo.getEncoded()));
 		        	}catch(Exception ex){
 		        		return new AlfrescoRuntimeException(ex.getMessage(),ex);
@@ -1231,9 +1241,9 @@ public class SigningService {
                 {
                     System.err.println(xmpException.getMessage());
                 }
-        
-                //InputStream colorProfile = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
-                InputStream colorProfile = getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
+                //COLOR SPACE BUG
+                InputStream colorProfile = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
+                //InputStream colorProfile = getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
                 // create output intent
                 PDOutputIntent oi = new PDOutputIntent(doc, colorProfile); 
                 oi.setInfo("sRGB IEC61966-2.1"); 
@@ -1332,5 +1342,59 @@ public class SigningService {
         sap.setSignDate(Calendar.getInstance());
         sap.setContact(digitalSigningDTO.getSignContact());
 	}
-
+	
+	protected boolean certVerify(final CMSSignedData cmsSignedData, final CertStore certs,Certificate cert, boolean accepSelfSignedCertificate) throws Exception {
+		boolean verify = false;
+		final Iterator<SignerInformation> iterator = (Iterator<SignerInformation>)cmsSignedData.getSignerInfos().getSigners().iterator();		
+		while (iterator.hasNext()) {
+			final SignerInformation signerInformation = (SignerInformation)iterator.next();
+			final AttributeTable signedAttributes = signerInformation.getSignedAttributes();
+			if (signedAttributes != null) {
+				Date signingTime = Time.getInstance((Object)signedAttributes.get((DERObjectIdentifier)CMSAttributes.signingTime).getAttrValues().getObjectAt(0)).getDate();
+			}
+			Collection<? extends Certificate> certificates = null;
+			try {
+				certificates = certs.getCertificates((CertSelector)signerInformation.getSID());
+			}
+			catch (CertStoreException ex) {}
+			for (final Certificate certificate : certificates) {
+				X509Certificate x509Certificate = (X509Certificate) certificate;
+				if (cert != null) {
+					try {
+						x509Certificate.verify(cert.getPublicKey(), "BC");
+					}
+					catch (Exception cause) {
+						log.error(cause.getMessage(), (Throwable)cause);
+						throw new Exception(cause.getMessage(), cause);
+					}					
+				}
+				try {
+					verify = signerInformation.verify(x509Certificate, "BC");
+					if(!verify && accepSelfSignedCertificate){
+						//verify = isSelfSignedCertificate(x509Certificate);
+						try {
+							certificate.verify(certificate.getPublicKey());
+							return true;
+						} catch (GeneralSecurityException e) {
+							return false;
+						}						
+					}
+				}
+				catch (CertificateExpiredException cause6) {
+					if(accepSelfSignedCertificate){
+						try {
+							certificate.verify(certificate.getPublicKey());
+							return true;
+						} catch (GeneralSecurityException e) {
+							return false;
+						}	
+					}else{
+						log.error(cause6.getMessage(), (Throwable)cause6);
+						throw new Exception(cause6.getMessage(), cause6);
+					}
+				}
+			}
+		}
+		return verify;
+	}
 }
