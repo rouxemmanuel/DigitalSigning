@@ -16,15 +16,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
-import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertSelector;
 import java.security.cert.CertStore;
@@ -32,7 +28,6 @@ import java.security.cert.CertStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
@@ -85,22 +80,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.examples.pdfa.CreatePDFA;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
 import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
-import org.apache.xmpbox.XMPMetadata;
-import org.apache.xmpbox.schema.PDFAIdentificationSchema;
-import org.apache.xmpbox.type.BadFieldValueException;
-import org.apache.xmpbox.xml.XmpSerializationException;
-import org.apache.xmpbox.xml.XmpSerializer;
-
-import org.apache.pdfbox.preflight.PreflightDocument;
-import org.apache.pdfbox.preflight.ValidationResult;
-import org.apache.pdfbox.preflight.ValidationResult.ValidationError;
-import org.apache.pdfbox.preflight.parser.PreflightParser;
 import org.apache.xml.security.Init;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.exceptions.XMLSecurityException;
@@ -108,12 +89,11 @@ import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.transforms.Transforms;
 import org.apache.xml.security.utils.Constants;
 import org.apache.xml.security.utils.ElementProxy;
+import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.XmpSerializationException;
 import org.apache.xmpbox.xml.XmpSerializer;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
@@ -121,19 +101,13 @@ import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.cms.SignedData;
 import org.bouncycastle.asn1.cms.Time;
-import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessable;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.CMSSignedGenerator;
 import org.bouncycastle.cms.SignerInformation;
-import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.DigestAlgorithmIdentifierFinder;
-import org.bouncycastle.x509.X509Store;
 import org.xml.sax.SAXException;
 
 import com.itextpdf.text.DocumentException;
@@ -147,7 +121,6 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 import com.itextpdf.text.pdf.PdfStamper;
-import com.sun.pdfview.font.PDFFont;
 
 /**
  * Sign service for Alfresco
@@ -660,12 +633,12 @@ public class SigningService {
 					    CMSProcessable content=null;
 
 						// Load content to sign
-						if (isDetached ){
-							content =  ((CMSProcessableByteArray)signedData.getSignedContent());
-						}else{
+						//if (isDetached ){
+						//	content =  ((CMSProcessableByteArray)signedData.getSignedContent());
+						//}else{
 							//content = new CMSProcessableByteArray(contentToSign);	
 				        	content =  ((CMSProcessableByteArray)signedData.getSignedContent());
-						}
+						//}
 						
 				        boolean addsignature = certVerify(signedData, certs,certificate,true);
 				        
@@ -1126,7 +1099,7 @@ public class SigningService {
             tempFile = TempFileProvider.createTempFile("pre_pdfa", ".pdf");           
             FileUtils.copyInputStreamToFile(source, tempFile);          
             pdfAFile = TempFileProvider.createTempFile("digitalSigning-" + System.currentTimeMillis(), ".pdf");
-            //METHOD 0
+            //METHOD WITH ITEXT 5
             /*
             java.net.URL url = getClass().getResource("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
         	byte[] bytes = IOUtils.toByteArray(url.openStream());
@@ -1180,7 +1153,7 @@ public class SigningService {
 
             return pdfAFile;
             */
-            //METHOD 1
+            //METHOD WITH PDFBOX 1.8.10
             //https://apache.googlesource.com/pdfbox/+/4df9353eaac3c4ee2124b09da05312376f021b2c/examples/src/main/java/org/apache/pdfbox/examples/pdfa/CreatePDFA.java
     		PDDocument doc = null;
     		try{

@@ -1,26 +1,7 @@
 package org.alfresco.plugin.digitalSigning.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.DigestInputStream;
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.Provider.Service;
-import java.security.Security;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public enum DigestAlgorithm {
 
