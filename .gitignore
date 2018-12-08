@@ -1,3 +1,7 @@
+.idea/
+*.iml
+
+
 target
 */target/*
 */target/**
@@ -5,11 +9,5 @@ target
 bin
 */bin/*
 */bin/**
-*/.metadata/*
-*/.metadata/**
+/.metadata/
 /.recommenders/
-
-
-*/.settings/*
-*/.settings/**
-
