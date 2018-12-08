@@ -22,7 +22,5 @@ mvn clean source:jar install package assembly:single
 
 All right of these code belong to rouxemmanuel.
 
-#### The structure of the project based on the official documentation [SDK Project Structure](http://docs.alfresco.com/5.1/tasks/alfresco-sdk-tutorials-share-amp-archetype.html) for the old SDK 2.2.0
-
 #### The structure of the project based on the official documentation [SDK Project Structure](http://docs.alfresco.com/5.2/concepts/sdk-projects-aio.html) for the new SDK 3.0.0
 
