@@ -142,4 +142,5 @@
 			document.getElementById("${el}-sign-path-help").style.display = "none";
 		}
     }
+    //]]>
 </script>
