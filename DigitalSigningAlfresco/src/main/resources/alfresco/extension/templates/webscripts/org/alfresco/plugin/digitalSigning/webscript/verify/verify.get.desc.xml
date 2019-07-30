@@ -1,0 +1,8 @@
+<webscript>
+   	<shortname>Verify</shortname>
+   	<description>Verify signature of a document</description>
+   	<url>/api/digitalSigning/verify</url>
+   	<format default="json">argument</format>
+   	<authentication>user</authentication>
+  	<lifecycle>internal</lifecycle>
+</webscript>

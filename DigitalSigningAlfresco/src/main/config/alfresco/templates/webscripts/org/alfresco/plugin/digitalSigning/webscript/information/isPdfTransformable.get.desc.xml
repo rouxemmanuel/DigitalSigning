@@ -1,8 +1,0 @@
-<webscript>
-   	<shortname>Verify if NodeRef is transformable in PDF or not</shortname>
-   	<description>Verify if NodeRef is transformable in PDF or not</description>
-   	<url>/api/digitalSigning/isPdfTransformable</url>
-   	<format default="">argument</format>
-  	<authentication>user</authentication>
-  	<transaction>required</transaction>
-</webscript>

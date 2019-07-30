@@ -115,7 +115,7 @@ public class CertificateAlert {
 
 		AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
 			public Object doWork() throws Exception {
-				// Exécution du traitement au sein d'une transaction
+				// Exï¿½cution du traitement au sein d'une transaction
 				// Alfresco
 				retryingTransactionHelper.doInTransaction(processCallBack, false, false);
 						return null;
@@ -183,9 +183,9 @@ public class CertificateAlert {
 	    model.put("expiration", expirationDate);
 	    String text = null;
 	    try {
-	    	text = templateService.processTemplate("freemarker", "alfresco/module/digitalSigning/templates/keyAlert_" + locale.toString() + ".ftl", (Serializable) model, locale);
+	    	text = templateService.processTemplate("freemarker", "alfresco/module/digitalSigningAlfresco/templates/keyAlert_" + locale.toString() + ".ftl", (Serializable) model, locale);
 	    } catch (TemplateException e) {
-	    	text = templateService.processTemplate("freemarker", "alfresco/module/digitalSigning/templates/keyAlert.ftl", (Serializable) model, locale);
+	    	text = templateService.processTemplate("freemarker", "alfresco/module/digitalSigningAlfresco/templates/keyAlert.ftl", (Serializable) model, locale);
 	    }
 	    if (text != null) {
 			emailAction.setParameterValue(MailActionExecuter.PARAM_TEXT, text);

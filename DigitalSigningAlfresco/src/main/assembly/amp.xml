@@ -1,0 +1,81 @@
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+
+    <dependencySets>
+        <dependencySet>
+        	<useProjectArtifact>true</useProjectArtifact>
+        	<!-- 
+        	<includes>
+        		<include>{gruopId}:{artifactId}:jar::{version}</include>
+        	</includes>
+        	 -->
+        	<outputDirectory>lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+        	<useProjectArtifact>true</useProjectArtifact>
+        	<scope>runtime</scope>
+			<unpack>true</unpack>
+			<unpackOptions>
+				<includes>
+					<include>META-INF/maven/${project.groupId}/${project.artifactId}/*</include>
+				</includes>
+				<excludes>
+					<exclude>*</exclude>
+				</excludes>
+			</unpackOptions>
+	    </dependencySet>
+    </dependencySets>
+ 
+    <id>build-amp-file</id>
+
+    <formats>
+        <format>amp</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <files>
+        <!-- Filter module.properties and put at top level in the AMP -->
+        <file>
+            <source>src/main/resources/alfresco/module/${project.artifactId}/module.properties</source>
+            <filtered>true</filtered>
+        </file>
+        <!-- Include AMP -> WAR mapping file (needed for custom mappings) -->
+        <file>
+            <source>src/main/assembly/file-mapping.properties</source>
+            <filtered>false</filtered>
+        </file>
+    </files>
+
+    <fileSets>
+        <!-- Anything in the assembly/web directory will end up in the /web directory in the AMP -->
+        <fileSet>
+            <directory>src/main/assembly/web</directory>
+            <outputDirectory>web</outputDirectory>
+            <filtered>true</filtered> <!-- Will filter files and substitute POM props such as for example ${project.name} -->
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>config</outputDirectory>
+            <filtered>true</filtered> <!-- Will filter files and substitute POM props such as for example ${project.name} -->
+            <excludes>
+                <exclude>src/main/resources/alfresco/module/${project.artifactId}/module.properties</exclude>
+            </excludes>
+        </fileSet>
+        <!-- the following file set includes the JAR artifact built by the package goal -->
+        <!--  
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+        -->
+    </fileSets>
+</assembly>
