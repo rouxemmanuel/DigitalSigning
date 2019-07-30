@@ -92,7 +92,6 @@ import org.apache.xml.security.utils.ElementProxy;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
-import org.apache.xmpbox.xml.XmpSerializationException;
 import org.apache.xmpbox.xml.XmpSerializer;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.cms.AttributeTable;
@@ -165,7 +164,19 @@ public class SigningService {
 	 */
 	private MetadataEncryptor metadataEncryptor;
 	
-	
+	/**
+	 * PADES Signing.
+	 * 
+	 * @param nodeRefToSign NodeRef to sign
+	 * @param signingDTO SigningDTO object
+	 * @param alfTempDir Alfresco temporary directoru
+	 * @param alias Sign Alias to use
+	 * @param ks KeyStore
+	 * @param key Key
+	 * @param chain Chain
+	 * @param userLocale user locale
+	 * @return null or an error during signing process
+	 */
 	private AlfrescoRuntimeException signPDFFile(final NodeRef nodeRefToSign, final DigitalSigningDTO signingDTO, final File alfTempDir, final String alias, final KeyStore ks, final PrivateKey key, final Certificate[] chain, final Locale userLocale) {
 		final String fileNameToSign = fileFolderService.getFileInfo(nodeRefToSign).getName();
 		
@@ -436,9 +447,9 @@ public class SigningService {
 		} catch (DocumentException e) {
 			log.error("[" + fileNameToSign + "] " + e);
 			return new AlfrescoRuntimeException("[" + fileNameToSign + "] " + e.getMessage(), e);
-		} catch (GeneralSecurityException e) {
-			log.error("[" + fileNameToSign + "] " + e);
-			return new AlfrescoRuntimeException("[" + fileNameToSign + "] " + e.getMessage(), e);
+		//} catch (GeneralSecurityException e) {
+		//	log.error("[" + fileNameToSign + "] " + e);
+		//	return new AlfrescoRuntimeException("[" + fileNameToSign + "] " + e.getMessage(), e);
 		} finally {
             if (tempDir != null) {
                 try {
@@ -451,6 +462,18 @@ public class SigningService {
         }
 	}
 	
+	/**
+	 * XADES signing.
+	 * 
+	 * @param nodeRefToSign NodeRef to sign
+	 * @param signingDTO SigningDTO object
+	 * @param alfTempDir Alfresco temporary directoru
+	 * @param alias Sign Alias to use
+	 * @param ks KeyStore
+	 * @param key Key
+	 * @param chain Chain
+	 * @return null or an error during signing process
+	 */
 	private AlfrescoRuntimeException signXMLFile(final NodeRef nodeRefToSign, final DigitalSigningDTO signingDTO, final File alfTempDir, final String alias, final KeyStore ks, final PrivateKey key, final Certificate[] chain) {
 		final String fileNameToSign = fileFolderService.getFileInfo(nodeRefToSign).getName();
 		File tempDir = null;
@@ -566,6 +589,18 @@ public class SigningService {
         }
     }
 	
+	/**
+	 * CADES Signing.
+	 * 
+	 * @param nodeRefToSign NodeRef to sign
+	 * @param signingDTO SigningDTO object
+	 * @param alfTempDir Alfresco temporary directoru
+	 * @param alias Sign Alias to use
+	 * @param ks KeyStore
+	 * @param key Key
+	 * @param chain Chain
+	 * @return null or an error during signing process
+	 */
 	private AlfrescoRuntimeException signFile(final NodeRef nodeRefToSign, final DigitalSigningDTO signingDTO, final File alfTempDir, final String alias, final KeyStore ks, final PrivateKey key, final Certificate[] chain) {	        
 		final String fileNameToSign = fileFolderService.getFileInfo(nodeRefToSign).getName();
     	
@@ -640,7 +675,8 @@ public class SigningService {
 				        	content =  ((CMSProcessableByteArray)signedData.getSignedContent());
 						//}
 						
-				        boolean addsignature = certVerify(signedData, certs,certificate,true);
+				        @SuppressWarnings("unused")
+						boolean addsignature = certVerify(signedData, certs,certificate,true);
 				        
 				    	//Load existing signature
 				        /*
@@ -748,7 +784,7 @@ public class SigningService {
 								AlfrescoRuntimeException exception = null;
 								
 								final String fileToSignName = (String) nodeService.getProperty(nodeRefToSign, ContentModel.PROP_NAME);
-								//XADES
+								// XADES
 								if (fileToSignName.endsWith(".xml")) {
 									exception = signXMLFile(nodeRefToSign, signingDTO, alfTempDir, alias, ks, key, chain);
 								}
@@ -757,7 +793,7 @@ public class SigningService {
 									final Locale signLocale = new Locale(signingDTO.getLocale());
 									exception = signPDFFile(nodeRefToSign, signingDTO, alfTempDir, alias, ks, key, chain, signLocale);
 								}
-								//CADES
+								// CADES
 								else{			
 									exception = signFile(nodeRefToSign, signingDTO, alfTempDir, alias, ks, key, chain);
 								}
@@ -853,8 +889,10 @@ public class SigningService {
 									   
 										final PdfPKCS7 pk = af.verifySignature(name);
 										if (pk != null) {
-								            final Calendar cal = pk.getSignDate();
-								            final Certificate[] pkc = pk.getCertificates();
+								            @SuppressWarnings("unused")
+											final Calendar cal = pk.getSignDate();
+								            @SuppressWarnings("unused")
+											final Certificate[] pkc = pk.getCertificates();
 								            //ITEXT 5.5.11
 								            //final List<VerificationException> errors = CertificateVerification.verifyCertificates(pkc, ks, null, cal);
 								            //ITEXT 5.1.3
@@ -1210,10 +1248,10 @@ public class SigningService {
                 {
                     // can't happen here, as the provided value is valid
                 }
-                catch(XmpSerializationException xmpException)
-                {
-                    System.err.println(xmpException.getMessage());
-                }
+                //catch(XmpSerializationException xmpException)
+                //{
+                //    System.err.println(xmpException.getMessage());
+                //}
                 //COLOR SPACE BUG
                 InputStream colorProfile = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
                 //InputStream colorProfile = getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
@@ -1318,11 +1356,13 @@ public class SigningService {
 	
 	protected boolean certVerify(final CMSSignedData cmsSignedData, final CertStore certs,Certificate cert, boolean accepSelfSignedCertificate) throws Exception {
 		boolean verify = false;
+		@SuppressWarnings("unchecked")
 		final Iterator<SignerInformation> iterator = (Iterator<SignerInformation>)cmsSignedData.getSignerInfos().getSigners().iterator();		
 		while (iterator.hasNext()) {
 			final SignerInformation signerInformation = (SignerInformation)iterator.next();
 			final AttributeTable signedAttributes = signerInformation.getSignedAttributes();
 			if (signedAttributes != null) {
+				@SuppressWarnings("unused")
 				Date signingTime = Time.getInstance((Object)signedAttributes.get((DERObjectIdentifier)CMSAttributes.signingTime).getAttrValues().getObjectAt(0)).getDate();
 			}
 			Collection<? extends Certificate> certificates = null;

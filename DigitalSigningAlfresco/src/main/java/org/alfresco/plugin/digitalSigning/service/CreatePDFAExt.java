@@ -1,13 +1,13 @@
 package org.alfresco.plugin.digitalSigning.service;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.pdfbox.examples.pdfa.CreatePDFA;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.pdfbox.examples.pdfa.CreatePDFA;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -19,7 +19,6 @@ import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
-import org.apache.xmpbox.xml.XmpSerializationException;
 import org.apache.xmpbox.xml.XmpSerializer;
 
 public class CreatePDFAExt extends CreatePDFA{
@@ -93,10 +92,10 @@ public class CreatePDFAExt extends CreatePDFA{
             {
                 // can't happen here, as the provided value is valid
             }
-            catch(XmpSerializationException xmpException)
-            {
-                System.err.println(xmpException.getMessage());
-            }
+            //catch(XmpSerializationException xmpException)
+            //{
+            //    System.err.println(xmpException.getMessage());
+            //}
     
             InputStream colorProfile = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
             // create output intent
@@ -144,7 +143,8 @@ public class CreatePDFAExt extends CreatePDFA{
         {           
             // load the font from pdfbox.jar
             InputStream fontStream = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/ttf/ArialMT.ttf");
-            PDFont font = PDTrueTypeFont.loadTTF(doc, fontStream);
+            @SuppressWarnings("unused")
+			PDFont font = PDTrueTypeFont.loadTTF(doc, fontStream);
 
             PDDocumentCatalog cat = doc.getDocumentCatalog();
             PDMetadata metadata = new PDMetadata(doc);
@@ -166,10 +166,10 @@ public class CreatePDFAExt extends CreatePDFA{
             {
                 // can't happen here, as the provided value is valid
             }
-            catch(XmpSerializationException xmpException)
-            {
-                System.err.println(xmpException.getMessage());
-            }
+            //catch(XmpSerializationException xmpException)
+            //{
+            //    System.err.println(xmpException.getMessage());
+            //}
     
             InputStream colorProfile = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
             // create output intent

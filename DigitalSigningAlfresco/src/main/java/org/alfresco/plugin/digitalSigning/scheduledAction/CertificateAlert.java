@@ -209,7 +209,8 @@ public class CertificateAlert {
      * @return the preferred locale for that user, if available, else <tt>null</tt>. The result would be <tt>null</tt>
      *         e.g. if the user does not exist in the system.
      */
-    private Locale getLocaleForUser(final String user) {
+    @SuppressWarnings("unused")
+	private Locale getLocaleForUser(final String user) {
         Locale locale = null;
         String localeString = null;
         
