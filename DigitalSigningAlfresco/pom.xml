@@ -93,6 +93,20 @@
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-repository</artifactId>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.pdfbox</groupId>
+					<artifactId>fontbox</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.pdfbox</groupId>
+					<artifactId>pdfbox</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!--
@@ -112,7 +126,13 @@
 	    	<artifactId>fontbox</artifactId>
 	    	<version>${fontbox.version}</version>
 	    	<scope>provided</scope>
-	    </dependency>
+	    	<exclusions>
+	    		<exclusion>
+	    			<groupId>commons-logging</groupId>
+	    			<artifactId>commons-logging</artifactId>
+	    		</exclusion>
+	    	</exclusions>
+     	</dependency>
 	    <dependency>
 		    <groupId>org.apache.pdfbox</groupId>
 		    <artifactId>pdfbox</artifactId>
@@ -134,11 +154,23 @@
 		    <groupId>org.apache.pdfbox</groupId>
 		    <artifactId>xmpbox</artifactId>
 		    <version>${xmpbox.version}</version>
-		</dependency>
+		    <exclusions>
+		    	<exclusion>
+		    		<groupId>commons-logging</groupId>
+		    		<artifactId>commons-logging</artifactId>
+		    	</exclusion>
+		    </exclusions>
+	    </dependency>
 		<dependency>
 		    <groupId>org.apache.pdfbox</groupId>
 		    <artifactId>pdfbox-examples</artifactId>
-		    <version>1.8.16</version>		   
+		    <version>1.8.16</version>
+		    <exclusions>
+		    	<exclusion>
+		    		<groupId>org.apache.pdfbox</groupId>
+		    		<artifactId>pdfbox</artifactId>
+		    	</exclusion>
+		    </exclusions>
 		</dependency>
 		
 		<!-- ================ -->
@@ -190,12 +222,25 @@
     		<artifactId>xmlsec</artifactId>
     		<version>1.5.8</version>
     		<scope>provided</scope>
+    		<exclusions>
+    			<exclusion>
+    				<groupId>commons-logging</groupId>
+    				<artifactId>commons-logging</artifactId>
+    			</exclusion>
+    		</exclusions>
 		</dependency>
 		
 		<dependency>
 		    <groupId>xml-apis</groupId>
 		    <artifactId>xml-apis</artifactId>
 		    <scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-logging</groupId>
+	    	<artifactId>commons-logging</artifactId>
+	    	<version>1.2</version>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>
