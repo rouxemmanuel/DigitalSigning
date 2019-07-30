@@ -49,10 +49,10 @@
         <bcpkix-jdk15.version>1.47</bcpkix-jdk15.version><!-- 1.47,1.57 -->
         <itextpdf.version>5.1.3</itextpdf.version><!-- default alfresco 5.2 is 5.1.3,5.5.11 -->
         <!-- <itext-pdfa.version>5.4.4</itext-pdfa.version>--><!-- 5.1.3,5.5.11 -->
-        <fontbox.version>1.8.10</fontbox.version>
-		<xmpbox.version>1.8.10</xmpbox.version>
+        <fontbox.version>1.8.16</fontbox.version>
+		<xmpbox.version>1.8.16</xmpbox.version>
         <pdfbox.version>1.8.10-alfresco-patched</pdfbox.version>
-        <preflight.version>1.8.10</preflight.version>
+        <preflight.version>1.8.16</preflight.version>
 	</properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform 
@@ -138,7 +138,7 @@
 		<dependency>
 		    <groupId>org.apache.pdfbox</groupId>
 		    <artifactId>pdfbox-examples</artifactId>
-		    <version>1.8.10</version>		   
+		    <version>1.8.16</version>		   
 		</dependency>
 		
 		<!-- ================ -->
