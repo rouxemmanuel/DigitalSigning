@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Save alias chosen</shortname>
+  <description>Save alias chosen</description>
+  <url>/api/digitalSigning/chooseAlias</url>
+  <format default="json">extension</format>
+  <authentication>user</authentication>
+  <transaction>required</transaction>
+</webscript>
