@@ -247,7 +247,7 @@
         </property>
 	</bean>
 	
-	<!-- Alert on certificate expiration job definition -->
+	<!-- Alert on certificate expiration job definition 
 	<bean id="certificateAlertJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
 		<property name="jobClass">
 			<value>org.alfresco.plugin.digitalSigning.scheduledAction.CertificateAlertJob</value>
@@ -259,9 +259,10 @@
 				</entry>
 			</map>
 		</property>
-	</bean>
+	</bean> -->
+	<!-- Bean Updated to work with  Quartz 2.3.0
 
-	<!-- Alert on certificate expiration trigger definition -->
+
 	<bean id="certificateAlertTrigger" class="org.alfresco.util.CronTriggerBean">
 		<property name="jobDetail">
 			<ref bean="certificateAlertJobDetail" />
@@ -273,5 +274,30 @@
 			<value>${digitalSigning.alert.cron}</value>
 		</property>
 	</bean>
+
+	 -->
+    <!-- Bean Updated to work with  Quartz 2.3.0-->
+	<bean id="certificateAlertAccessor" class="org.alfresco.schedule.AlfrescoSchedulerAccessorBean">
+        <property name="scheduler" ref="schedulerFactory"/>
+        <property name="triggers">
+            <list>
+                <bean id="certificateAlertTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+                    <property name="cronExpression" value="${digitalSigning.alert.cron}"/>
+                    <property name="jobDetail" ref="certificateAlertJobDetail"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="certificateAlertJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="org.alfresco.plugin.digitalSigning.scheduledAction.CertificateAlertJob"/>
+        <property name="jobDataAsMap">
+			<map>
+				<entry key="certificateAlert">
+					<ref bean="certificateAlert" />
+				</entry>
+			</map>
+		</property>
+    </bean>
 
 </beans>
