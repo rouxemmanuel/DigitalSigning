@@ -16,8 +16,8 @@
 		<!-- Alfresco version just for sdk 2.2.0 -->
 		<!-- <alfresco.version>5.2.d</alfresco.version> -->
 
-	    <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
-	    <alfresco.platform.version>5.2.f</alfresco.platform.version>
+	    <alfresco.sdk.version>4.0.0</alfresco.sdk.version>
+        <alfresco.platform.version>6.1.2-ga</alfresco.platform.version>
 	    <!-- To know which resource folder to filter for AMP extension projects -->
 		<app.amp.folder>src/main/amp</app.amp.folder>
 		<!-- To know which folder filtered AMP resources should end up in under /target -->
@@ -66,7 +66,7 @@
             -->
             <dependency>
                 <groupId>${alfresco.groupId}</groupId>
-                <artifactId>alfresco-platform-distribution</artifactId>
+                <artifactId>alfresco-content-services-community-distribution</artifactId>
                 <version>${alfresco.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -233,6 +233,7 @@
 		<dependency>
 		    <groupId>xml-apis</groupId>
 		    <artifactId>xml-apis</artifactId>
+			<version>2.0.2</version>
 		    <scope>provided</scope>
 		</dependency>
 		

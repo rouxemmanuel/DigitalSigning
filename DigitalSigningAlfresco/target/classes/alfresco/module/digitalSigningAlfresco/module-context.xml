@@ -12,7 +12,7 @@
 		</property>
 		<property name="locations">
 			<list>
-				<value>classpath:alfresco/module/${project.artifactId}/digitalSigning.properties</value>
+				<value>classpath:alfresco/module/digitalSigningAlfresco/digitalSigning.properties</value>
 			</list>
 		</property>
 	</bean>
@@ -21,12 +21,12 @@
     <bean id="digitalSigning-model" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
 		<property name="models">
 			<list>
-				<value>alfresco/module/${project.artifactId}/model/digitalSigningModel.xml</value>
+				<value>alfresco/module/digitalSigningAlfresco/model/digitalSigningModel.xml</value>
 			</list>
 		</property>
 		<property name="labels">
             <list>
-                <value>alfresco/module/${project.artifactId}/messages/signingContentModel-messages</value>
+                <value>alfresco/module/digitalSigningAlfresco/messages/signingContentModel-messages</value>
             </list>
         </property>
     </bean>

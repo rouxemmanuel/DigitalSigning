@@ -93,7 +93,8 @@ import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.PDFAIdentificationSchema;
 import org.apache.xmpbox.type.BadFieldValueException;
 import org.apache.xmpbox.xml.XmpSerializer;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+//import org.bouncycastle.asn1.DERObjectIdentifier; updated for recent package
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
@@ -1363,7 +1364,7 @@ public class SigningService {
 			final AttributeTable signedAttributes = signerInformation.getSignedAttributes();
 			if (signedAttributes != null) {
 				@SuppressWarnings("unused")
-				Date signingTime = Time.getInstance((Object)signedAttributes.get((DERObjectIdentifier)CMSAttributes.signingTime).getAttrValues().getObjectAt(0)).getDate();
+				Date signingTime = Time.getInstance((Object)signedAttributes.get((ASN1ObjectIdentifier)CMSAttributes.signingTime).getAttrValues().getObjectAt(0)).getDate();
 			}
 			Collection<? extends Certificate> certificates = null;
 			try {

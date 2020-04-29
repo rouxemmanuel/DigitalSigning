@@ -1,6 +1,6 @@
 # DigitalSigning 
 
-Updated to work with Alfresco SDK 3 and Alfresco community 5.2
+Updated to work with Alfresco  SDK 4 and Alfresco community 6.1.2
  
 ###### [Reminder compatibility the version of sdk with alfresco version](http://docs.alfresco.com/5.1/concepts/alfresco-sdk-compatibility.html)
 ###### [New compatibility with the SDK 3.0.0](http://ecmarchitect.com/archives/2017/04/24/4235)
@@ -17,6 +17,11 @@ or the following command with the assembly plugin
 ```sh
 mvn clean source:jar install package assembly:single 
 ```
+
+## Realese  ###
+
+Modified by Dercioink
+
 
 ### License 
 
