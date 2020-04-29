@@ -51,7 +51,7 @@
         <!-- <itext-pdfa.version>5.4.4</itext-pdfa.version>--><!-- 5.1.3,5.5.11 -->
         <fontbox.version>2.0.15</fontbox.version>
 		<xmpbox.version>2.0.15</xmpbox.version>
-        <pdfbox.version>1.8.10-alfresco-patched</pdfbox.version>
+        <pdfbox.version>2.0.15</pdfbox.version>
         <preflight.version>2.0.15</preflight.version>
 	</properties>
 
