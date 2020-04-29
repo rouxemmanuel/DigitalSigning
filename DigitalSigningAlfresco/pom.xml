@@ -271,10 +271,6 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>alfresco-private</id>
-			<url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
-		</pluginRepository>
-		<pluginRepository>
 		    <id>alfresco-public</id>
 			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
 		</pluginRepository>
@@ -288,7 +284,7 @@
 		</pluginRepository>
 		<pluginRepository>
 			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
+			<url>https://repo1.maven.org/maven2</url>
 		</pluginRepository>
 	</pluginRepositories>	
 	
