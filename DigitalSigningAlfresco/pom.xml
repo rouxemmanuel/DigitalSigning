@@ -45,7 +45,7 @@
 		<!-- Defines the target WAR version to run this amp, only used with the -Pamp-to-war switch -->
 		<alfresco.client.war.version>5.2.f</alfresco.client.war.version>
 
-        <bcprov-ext-jdk15.version>1.46</bcprov-ext-jdk15.version><!-- 1.46,1.57 -->
+        <bcprov-ext-jdk15.version>1.67</bcprov-ext-jdk15.version><!-- 1.46,1.57 -->
         <bcpkix-jdk15.version>1.47</bcpkix-jdk15.version><!-- 1.47,1.57 -->
         <itextpdf.version>5.1.3</itextpdf.version><!-- default alfresco 5.2 is 5.1.3,5.5.11 -->
         <!-- <itext-pdfa.version>5.4.4</itext-pdfa.version>--><!-- 5.1.3,5.5.11 -->
