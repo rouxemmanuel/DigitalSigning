@@ -47,7 +47,7 @@
 
         <bcprov-ext-jdk15.version>1.46</bcprov-ext-jdk15.version><!-- 1.46,1.57 -->
         <bcpkix-jdk15.version>1.47</bcpkix-jdk15.version><!-- 1.47,1.57 -->
-        <itextpdf.version>5.1.3</itextpdf.version><!-- default alfresco 5.2 is 5.1.3,5.5.11 -->
+        <itextpdf.version>5.5.12</itextpdf.version><!-- default alfresco 5.2 is 5.1.3,5.5.11 -->
         <!-- <itext-pdfa.version>5.4.4</itext-pdfa.version>--><!-- 5.1.3,5.5.11 -->
         <fontbox.version>2.0.15</fontbox.version>
 		<xmpbox.version>2.0.15</xmpbox.version>
